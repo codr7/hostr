@@ -1,10 +1,8 @@
-* new project name: hostr
+* add Table.Insert/Update
+* track stored values in tx
+* add Record Table.Load()
 
-* create table
-* ask for name & email if no user found on startup
-** copy Term
-* add Cx type
-* add Tx type
+* ask for admin name & email if no user found on startup
 * track insert/update status in cx/tx
 * add Boolean column
 * add Decimal column
@@ -15,14 +13,27 @@
 
 sudo -u postgres psql
 alter user postgres with encrypted password ''
-create user sharly
-alter user sharly with encrypted password ''
-create database sharly
-grant all privileges on sharly to sharly
+create user hostr
+alter user hostr with encrypted password ''
+create database hostr
+grant all privileges on hostr to hostr
+grant all on schema public to hostr;
+
 
 // Insert some data
 await using (var cmd = dataSource.CreateCommand("INSERT INTO data (some_field) VALUES ($1)"))
 {
     cmd.Parameters.AddWithValue("Hello world");
     await cmd.ExecuteNonQueryAsync();
+}
+
+await using var db = NpgsqlDataSource.Create("Host=localhost;Username=hostr;Password=hostr;Database=hostr");
+await using var cmd = db.CreateCommand("SELECT email FROM users");
+
+await using (var reader = await cmd.ExecuteReaderAsync())
+{
+    while (await reader.ReadAsync())
+    {
+        Console.WriteLine(reader.GetString(0));
+    }
 }

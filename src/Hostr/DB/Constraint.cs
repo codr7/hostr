@@ -1,15 +1,11 @@
 namespace Hostr.DB;
 
-public abstract class Constraint
+public abstract class Constraint: TableDefinition
 {
-    public readonly string Name;
-    public readonly Table Table;
     private readonly List<Column> columns = new List<Column>();
 
-    public Constraint(Table table, string name)
+    public Constraint(Table table, string name): base(table, name)
     {
-        Table = table;
-        Name = name;
         table.AddConstraint(this);
     }
 
@@ -18,4 +14,7 @@ public abstract class Constraint
     }
 
     public abstract string ConstraintType { get; }
+
+    public override string DefinitionType => "CONSTRAINT";
+   
 }

@@ -1,6 +1,5 @@
-﻿using Npgsql;
-using Hostr;
-using DB = Hostr.DB;
+﻿using DB = Hostr.DB;
+using Hostr.DB;
 
 var users = new DB.Table("users");
 var userName = new DB.Columns.Text(users, "name");
@@ -13,13 +12,9 @@ var admin = new DB.Record();
 admin.Set(userName, "admin");
 admin.Set(userEmail, "admin@admin.com"); 
 
-await using var db = NpgsqlDataSource.Create("Host=localhost;Username=hostr;Password=hostr;Database=hostr");
-await using var cmd = db.CreateCommand("SELECT email FROM users");
+var cx = new Cx("localhost", "hostr", "hostr", "hostr");
+cx.Connect();
+var tx = cx.StartTx();
+if (!users.Exists(tx)) { users.Create(tx); }
 
-await using (var reader = await cmd.ExecuteReaderAsync())
-{
-    while (await reader.ReadAsync())
-    {
-        Console.WriteLine(reader.GetString(0));
-    }
-}
+tx.Commit();
