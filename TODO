@@ -1,0 +1,28 @@
+* new project name: hostr
+
+* create table
+* ask for name & email if no user found on startup
+** copy Term
+* add Cx type
+* add Tx type
+* track insert/update status in cx/tx
+* add Boolean column
+* add Decimal column
+** decimal
+* add Timestamp column
+** DateTime
+* model Feed
+
+sudo -u postgres psql
+alter user postgres with encrypted password ''
+create user sharly
+alter user sharly with encrypted password ''
+create database sharly
+grant all privileges on sharly to sharly
+
+// Insert some data
+await using (var cmd = dataSource.CreateCommand("INSERT INTO data (some_field) VALUES ($1)"))
+{
+    cmd.Parameters.AddWithValue("Hello world");
+    await cmd.ExecuteNonQueryAsync();
+}
