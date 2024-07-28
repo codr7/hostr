@@ -1,6 +1,9 @@
-* add Table.Insert/Update
-* track stored values in tx
+* add login script
+
 * add Record Table.Load()
+
+* add Table.Update
+** track stored values in tx
 
 * ask for admin name & email if no user found on startup
 * track insert/update status in cx/tx

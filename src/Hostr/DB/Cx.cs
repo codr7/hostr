@@ -32,7 +32,16 @@ public class Cx
 
     public Tx StartTx()
     {
-        tx = new Tx(this, tx);
+        string? sp = null;
+
+        if (tx is Tx) {
+            sp = Guid.NewGuid().ToString();
+            Exec($"SAVEPOINT {sp}");
+        } else {
+            Exec("BEGIN");
+        }
+
+        tx = new Tx(this, tx, sp);
         return tx;
     }
 
@@ -57,5 +66,10 @@ public class Cx
         return (T)PrepareCommand(statement, args: args).ExecuteScalar(); ;
 #pragma warning restore CS8603
 #pragma warning restore CS8600
+    }
+
+    internal void PopTx(Tx tx) {
+        if (this.tx != tx) { throw new Exception("Transaction finished out of order"); }
+        this.tx = tx.ParentTx;
     }
 }

@@ -36,4 +36,8 @@ public abstract class Definition : IComparable<Definition>
     public virtual string DropSQL => $"DROP {DefinitionType} {Name}";
 
     public abstract bool Exists(Tx tx);
+
+    public virtual void Sync(Tx tx) {
+        if (!Exists(tx)) { Create(tx); }
+    }
 }

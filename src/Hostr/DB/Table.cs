@@ -1,6 +1,6 @@
-using System.Text;
-
 namespace Hostr.DB;
+
+using System.Text;
 
 public class Table : Definition
 {
@@ -51,6 +51,16 @@ public class Table : Definition
     }
 
     public override bool Exists(Tx tx) {
-        return tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename  = $1)", Name);
+        return tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $1)", Name);
+    }
+
+    public void Insert(Record rec, Tx tx) {
+        var cs = columns.Where(c => rec.Contains(c)).Select(c => (c, rec.Get(c))).ToArray();
+        var sql = @$"INSERT INTO {Name} ({string.Join(", ", cs.Select((c) => c.Item1.Name))}) 
+                     VALUES ({string.Join(", ", Enumerable.Range(0, cs.Length).Select(i => $"${i+1}").ToArray())})";
+
+#pragma warning disable CS8620
+        tx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
+#pragma warning restore CS8620
     }
 };

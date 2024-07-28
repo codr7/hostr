@@ -1,24 +1,28 @@
 namespace Hostr.DB;
 
-public class Tx {
+public class Tx
+{
     public readonly Cx Cx;
     public readonly Tx? ParentTx;
     private string? savePoint = null;
 
-    public Tx(Cx cx, Tx? parentTx) {
+    public Tx(Cx cx, Tx? parentTx, string? savePoint)
+    {
         Cx = cx;
         ParentTx = parentTx;
-        
-        if (parentTx is Tx) {
-            savePoint = Guid.NewGuid().ToString();
-            Exec($"SAVEPOINT {savePoint}");
-        }
+        this.savePoint = savePoint;
     }
 
-    public void Commit() {
-        if (savePoint is string sp) {
+    public void Commit()
+    {
+        Cx.PopTx(this);
+
+        if (savePoint is string sp)
+        {
             Exec($"RELEASE SAVEPOINT {savePoint}");
-        } else {
+        }
+        else
+        {
             Exec("COMMIT");
         }
     }
@@ -33,10 +37,16 @@ public class Tx {
         return Cx.ExecScalar<T>(statement, args: args);
     }
 
-    public void Rollback() {
-        if (savePoint is string sp) {
+    public void Rollback()
+    {
+        Cx.PopTx(this);
+
+        if (savePoint is string sp)
+        {
             Exec($"ROLLBACK TO SAVEPOINT {sp}");
-        } else {
+        }
+        else
+        {
             Exec("ROLLBACK");
         }
     }
