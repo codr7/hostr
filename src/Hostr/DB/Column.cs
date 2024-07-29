@@ -58,14 +58,14 @@ public abstract class Column : TableDefinition, IComparable<Column>
                                      WHERE attrelid = $?::regclass
                                      AND attname = $?
                                      AND NOT attisdropped
-                                   )", Table.Name.ToLower(), Name.ToLower());
+                                   )", Table.Name, Name);
     }
 
     public abstract object GetObject(NpgsqlDataReader source, int i);
 
     public override string ToString()
     {
-        return $"{Table}.{Name}";
+        return $"{Table}.\"{Name}\"";
     }
 
     public virtual string ValueToString(object val)

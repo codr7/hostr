@@ -33,5 +33,5 @@ public class ForeignKey : Key
     public override string CreateSQL =>
       @$"{base.CreateSQL} 
          REFERENCES {ForeignTable} 
-         ({string.Join(", ", values: columnMap.Select(c => c.Item2.Name))})";
+         ({string.Join(", ", values: columnMap.Select(c => $"\"{c.Item2.Name}\""))})";
 }

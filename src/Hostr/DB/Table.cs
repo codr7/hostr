@@ -43,7 +43,7 @@ public class Table : Definition
             var buf = new StringBuilder();
             buf.Append(base.CreateSQL);
             buf.Append(" (");
-            buf.Append(string.Join(", ", values: columns.Select(c => $"{c.Name} {c.DefinitionSQL}")));
+            buf.Append(string.Join(", ", values: columns.Select(c => $"\"{c.Name}\" {c.DefinitionSQL}")));
             buf.Append(')');
             return buf.ToString();
         }
@@ -53,7 +53,7 @@ public class Table : Definition
 
     public override bool Exists(Tx tx)
     {
-        return tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name.ToLower());
+        return tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
     }
 
     public Record? Find(Record key, Tx tx)
@@ -72,7 +72,7 @@ public class Table : Definition
         foreach (var h in beforeInsert) { h(ref rec, tx); }
 
         var cs = columns.Where(c => rec.Contains(c)).Select(c => (c, rec.GetObject(c))).ToArray();
-        var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => c.Item1.Name))}) 
+        var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\""))}) 
                      VALUES ({string.Join(", ", Enumerable.Range(0, cs.Length).Select(i => $"${i + 1}").ToArray())})";
 
 #pragma warning disable CS8620
@@ -119,8 +119,6 @@ public class Table : Definition
             Create(tx);
         }
     }
-
-    public override string ToString() => Name;
 
     internal void AddColumn(Column col) => columns.Add(col);
     internal void AddConstraint(Constraint cons) => constraints.Add(cons);

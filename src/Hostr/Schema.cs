@@ -4,7 +4,18 @@ public class Schema
 {
     public static readonly int SEQUENCE_OFFS = 100;
 
+    public readonly DB.Sequence PoolIds;
+
+    public readonly DB.Table Pools;
+    public readonly DB.Columns.BigInt PoolId;
+    public readonly DB.Columns.Text PoolName;
+    public readonly DB.Key PoolNameKey;
+    public readonly DB.Columns.Timestamp PoolCreatedAt;
+    public readonly DB.ForeignKey PoolCreatedBy;
+    public readonly DB.Columns.Boolean PoolInfiniteCapacity;
+
     public readonly DB.Sequence UserIds;
+
     public readonly DB.Table Users;
     public readonly DB.Columns.BigInt UserId;
     public readonly DB.Columns.Text UserName;
@@ -33,6 +44,22 @@ public class Schema
         {
             if (!rec.Contains(UserId)) { rec.Set(UserId, UserIds.Next(tx)); }
             rec.Set(UserCreatedAt, DateTime.UtcNow);
+        };
+
+        PoolIds = new DB.Sequence("poolIds", SEQUENCE_OFFS);
+
+        Pools = new DB.Table("pools");
+        PoolId = new DB.Columns.BigInt(Pools, "id", primaryKey: true);
+        PoolName = new DB.Columns.Text(Pools, "name");
+        PoolNameKey = new DB.Key(Pools, "poolsNameKey", [PoolName]);
+        PoolCreatedAt = new DB.Columns.Timestamp(Pools, "createdAt");
+        PoolCreatedBy = new DB.ForeignKey(Pools, "createdBy", Users);
+        PoolInfiniteCapacity = new DB.Columns.Boolean(Pools, "infiniteCapacity");
+
+        Pools.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
+        {
+            if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
+            rec.Set(PoolCreatedAt, DateTime.UtcNow);
         };
     }
 }

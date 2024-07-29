@@ -9,9 +9,12 @@ var db = new Schema();
 var cx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 cx.Connect();
 var tx = cx.StartTx();
+
+DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools];
+foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
 var firstRun = !db.Users.Exists(tx);
-db.UserIds.Sync(tx);
-db.Users.Sync(tx);
+foreach (var d in definitions) { d.Create(tx); }
+
 using var ui = new UI.Shell();
 
 try
@@ -43,6 +46,13 @@ try
         u.Set(db.UserCreatedBy, hu);
         db.Users.Insert(u, tx);
         user = u;
+
+        var p = new DB.Record();
+        p.Set(db.PoolName, "double");
+        p.Set(db.PoolInfiniteCapacity, false);
+        p.Set(db.PoolCreatedBy, u);
+        db.Pools.Insert(p, tx);        
+
         ui.Say("Admin user successfully created");
     }
     else

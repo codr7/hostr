@@ -21,7 +21,7 @@ public abstract class Constraint : TableDefinition
         {
             var buf = new StringBuilder();
             buf.Append(base.CreateSQL);
-            buf.Append($" {ConstraintType} ({string.Join(", ", values: columns.Select(c => c.Name))})");
+            buf.Append($" {ConstraintType} ({string.Join(", ", values: columns.Select(c => $"\"{c.Name}\""))})");
             return buf.ToString();
         }
     }
@@ -34,7 +34,7 @@ public abstract class Constraint : TableDefinition
                                      SELECT constraint_name 
                                      FROM information_schema.constraint_column_usage 
                                      WHERE table_name = $? and constraint_name = $?
-                                   )", Table.Name.ToLower(), Name.ToLower());
+                                   )", Table.Name, Name);
     }
 
     internal void AddColumn(Column col) => columns.Add(col);

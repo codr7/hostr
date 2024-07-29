@@ -18,7 +18,7 @@ public class Sequence : Definition
                                 SELECT FROM pg_class
                                 WHERE relkind = 'S'
                                 AND relname = $?
-                              )", Name.ToLower());
+                              )", Name);
 
-    public long Next(Tx tx) => tx.ExecScalar<long>(@$"SELECT NEXTVAL('{Name}')");
+    public long Next(Tx tx) => tx.ExecScalar<long>($"SELECT NEXTVAL('\"{Name}\"')");
 }

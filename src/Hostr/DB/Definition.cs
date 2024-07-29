@@ -24,7 +24,7 @@ public abstract class Definition : IComparable<Definition>
         tx.Exec(CreateSQL);
     }
 
-    public virtual string CreateSQL => $"CREATE {DefinitionType} {Name}";
+    public virtual string CreateSQL => $"CREATE {DefinitionType} \"{Name}\"";
 
     public abstract string DefinitionType { get; }
 
@@ -33,11 +33,18 @@ public abstract class Definition : IComparable<Definition>
         tx.Exec(DropSQL);
     }
 
-    public virtual string DropSQL => $"DROP {DefinitionType} {Name}";
+    public virtual void DropIfExists(Tx tx) {
+        if (Exists(tx)) { Drop(tx); }
+    }
+
+    public virtual string DropSQL => $"DROP {DefinitionType} \"{Name}\"";
 
     public abstract bool Exists(Tx tx);
-
-    public virtual void Sync(Tx tx) {
+ 
+    public virtual void Sync(Tx tx)
+    {
         if (!Exists(tx)) { Create(tx); }
     }
+ 
+    public override string ToString() => $"\"{Name}\"";
 }
