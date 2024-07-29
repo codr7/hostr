@@ -1,20 +1,17 @@
 ﻿using Hostr;
+
 using DB = Hostr.DB;
 using UI = Hostr.UI;
 
-const int PASSWORD_ITERATIONS = 10000;
+const int PASSWORD_ITERS = 10000;
 
-var users = new DB.Table("users");
-var userName = new DB.Columns.Text(users, "name");
-var userEmail = new DB.Columns.Text(users, "email") { PrimaryKey = true };
-var userPassword = new DB.Columns.Text(users, "password");
-var userEmailKey = new DB.Key(users, "usersEmailKey", userEmail);
-
+var db = new Schema();
 var cx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 cx.Connect();
 var tx = cx.StartTx();
-var firstRun = !users.Exists(tx);
-users.Sync(tx);
+var firstRun = !db.Users.Exists(tx);
+db.UserIds.Sync(tx);
+db.Users.Sync(tx);
 using var ui = new UI.Shell();
 
 try
@@ -33,16 +30,17 @@ try
         if (password is null) { throw new Exception("Missing password"); }
 
         var u = new DB.Record();
-        u.Set(userName, "hostr");
-        u.Set(userEmail, "hostr");
-        u.Set(userPassword, "");
-        users.Insert(u, tx);
+        u.Set(db.UserId, 0);
+        u.Set(db.UserName, "hostr");
+        u.Set(db.UserEmail, "hostr");
+        u.Set(db.UserPassword, "");
+        db.Users.Insert(u, tx);
 
         u = new DB.Record();
-        u.Set(userName, name);
-        u.Set(userEmail, email);
-        u.Set(userPassword, Password.Hash(password, PASSWORD_ITERATIONS));
-        users.Insert(u, tx);
+        u.Set(db.UserName, name);
+        u.Set(db.UserEmail, email);
+        u.Set(db.UserPassword, Password.Hash(password, PASSWORD_ITERS));
+        db.Users.Insert(u, tx);
         user = u;
         ui.Say("Admin user successfully created");
     }
@@ -54,24 +52,15 @@ try
         var id = ui.Ask("User: ");
         if (id is null) { throw new Exception("Missing user"); }
         var key = new DB.Record();
-
-        if (id.Contains('@'))
-        {
-            key.Set(userEmail, id);
-        }
-        else
-        {
-            key.Set(userName, id);
-        }
-
-        user = users.Find(key, tx);
+        key.Set(id.Contains('@') ? db.UserEmail : db.UserName, id);
+        user = db.Users.Find(key, tx);
 
         if (user is DB.Record u)
         {
             var password = ui.Ask("Password: ");
             if (password is null) { throw new Exception("Missing password"); }
 #pragma warning disable CS8604 
-            if (!Password.Check(u.Get(userPassword), password)) { throw new Exception("Wrong password"); }
+            if (!Password.Check(u.Get(db.UserPassword), password)) { throw new Exception("Wrong password"); }
 #pragma warning restore CS8604
         }
         else

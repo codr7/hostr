@@ -12,10 +12,9 @@ public static class Password
 
     public static string Hash(string password, int iters)
     {
-        var s = new byte[SALT_LENGTH];
-        RandomNumberGenerator.Create().GetBytes(s);
-        var pbkdf2 = new Rfc2898DeriveBytes(password, s, iters, HASH_ALGO);
-        var h = pbkdf2.GetBytes(HASH_LENGTH);
+        /* Static RandomNumberGenerator methods are expected to be thread safe. */
+        var s = RandomNumberGenerator.GetBytes(SALT_LENGTH);
+        var h = GetHash(password, s, iters);
         var bs = new byte[SALT_LENGTH + HASH_LENGTH];
         Array.Copy(s, 0, bs, 0, SALT_LENGTH);
         Array.Copy(h, 0, bs, SALT_LENGTH, HASH_LENGTH);
@@ -34,8 +33,12 @@ public static class Password
         var bs = Convert.FromBase64String(b64);
         var s = new byte[SALT_LENGTH];
         Array.Copy(bs, 0, s, 0, SALT_LENGTH);
-        var pbkdf2 = new Rfc2898DeriveBytes(actual, s, iters, HASH_ALGO);
-        byte[] h = pbkdf2.GetBytes(HASH_LENGTH);
-        return bs.AsSpan(SALT_LENGTH, HASH_LENGTH).SequenceEqual(h.AsSpan(0, HASH_LENGTH));
+        var h = GetHash(actual, s, iters);
+        return bs.AsSpan(SALT_LENGTH, HASH_LENGTH).SequenceEqual(h.AsSpan());
+    }
+
+    private static byte[] GetHash(string password, byte[] salt, int iters) {
+        var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iters, HASH_ALGO);
+        return pbkdf2.GetBytes(HASH_LENGTH);
     }
 }

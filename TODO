@@ -1,24 +1,16 @@
+  
+* add Pools
+** add poolCreatedBy
+
+* add Table.Update
+** track stored values in tx
+
 * add Ask echo flag
 ** sharpl
 ** use to read passwords
 ** add password repeat/check on new admin
 
-* add table BeforeInsert event
-** add user.createdAt timestamp
-*** add Timestamp column
-**** DateTime
-
-* add ForeignKey
-
-* add Table.Update
-** track stored values in tx
-
-* ask for admin name & email if no user found on startup
-* track insert/update status in cx/tx
 * add Boolean column
-* add Decimal column
-** decimal
-* model Feed
 
 * add slog
 

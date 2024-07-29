@@ -1,27 +1,29 @@
 namespace Hostr.DB;
 
+using System.Data;
 using System.Text;
+using Npgsql;
 
 public class Table : Definition
 {
+    public delegate void BeforeInsertHandler(ref Record rec, Tx tx);
+
+    private readonly List<BeforeInsertHandler> beforeInsert = new List<BeforeInsertHandler>();
     private readonly List<Column> columns = new List<Column>();
     private readonly List<Constraint> constraints = new List<Constraint>();
+    private readonly List<ForeignKey> foreignKeys = new List<ForeignKey>();
     private Key? primaryKey = null;
 
     public Table(string name) : base(name)
     { }
 
-    public override string DefinitionType => "TABLE";
-
-    internal void AddColumn(Column col)
+    public event BeforeInsertHandler BeforeInsert
     {
-        columns.Add(col);
+        add => beforeInsert.Add(value);
+        remove => beforeInsert.Remove(value);
     }
 
-    internal void AddConstraint(Constraint cons)
-    {
-        constraints.Add(cons);
-    }
+    public Column[] Columns => columns.ToArray();
 
     public override void Create(Tx tx)
     {
@@ -41,15 +43,17 @@ public class Table : Definition
             var buf = new StringBuilder();
             buf.Append(base.CreateSQL);
             buf.Append(" (");
-            buf.Append(string.Join(", ", values: columns.Select(c => $"{c.Name} {c.ColumnType}")));
+            buf.Append(string.Join(", ", values: columns.Select(c => $"{c.Name} {c.DefinitionSQL}")));
             buf.Append(')');
             return buf.ToString();
         }
     }
 
+    public override string DefinitionType => "TABLE";
+
     public override bool Exists(Tx tx)
     {
-        return tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
+        return tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name.ToLower());
     }
 
     public Record? Find(Record key, Tx tx)
@@ -59,18 +63,14 @@ public class Table : Definition
         using var reader = tx.ExecReader(sql, args: w.Args);
         if (!reader.Read()) { return null; }
         var result = new Record();
-
-        for (var i = 0; i < columns.Count; i++)
-        {
-            var c = columns[i];
-            result.SetObject(c, c.GetObject(reader, i));
-        }
-
+        Load(ref result, reader);
         return result;
     }
 
     public void Insert(Record rec, Tx tx)
     {
+        foreach (var h in beforeInsert) { h(ref rec, tx); }
+
         var cs = columns.Where(c => rec.Contains(c)).Select(c => (c, rec.GetObject(c))).ToArray();
         var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => c.Item1.Name))}) 
                      VALUES ({string.Join(", ", Enumerable.Range(0, cs.Length).Select(i => $"${i + 1}").ToArray())})";
@@ -80,14 +80,22 @@ public class Table : Definition
 #pragma warning restore CS8620
     }
 
+    public void Load(ref Record rec, NpgsqlDataReader reader)
+    {
+        for (var i = 0; i < columns.Count; i++)
+        {
+            var c = columns[i];
+            if (!reader.IsDBNull(i)) { rec.SetObject(c, (object)c.GetObject(reader, i)); }
+        }
+    }
+
     public Key PrimaryKey
     {
         get
         {
             if (primaryKey == null)
             {
-                primaryKey = new Key(this, $"{Name}PrimaryKey");
-                columns.Where(c => c.PrimaryKey).ToList().ForEach(c => primaryKey.AddColumn(c));
+                primaryKey = new Key(this, $"{Name}PrimaryKey", columns.Where(c => c.PrimaryKey).ToArray());
             }
 
             return primaryKey;
@@ -96,6 +104,8 @@ public class Table : Definition
 
     public override void Sync(Tx tx)
     {
+        foreach (var k in foreignKeys) { k.InitColumnMap(); }
+ 
         if (Exists(tx))
         {
             foreach (var c in columns) { c.Sync(tx); }
@@ -112,8 +122,9 @@ public class Table : Definition
         }
     }
 
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override string ToString() => Name;
+
+    internal void AddColumn(Column col) => columns.Add(col);
+    internal void AddConstraint(Constraint cons) => constraints.Add(cons);
+    internal void AddForeignKey(ForeignKey key) => foreignKeys.Add(key);
 };
