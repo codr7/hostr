@@ -7,6 +7,7 @@ public static class Password
     public static readonly HashAlgorithmName ALGORITHM = HashAlgorithmName.SHA256;
     public static readonly int HASH_LENGTH = 32;
     public static readonly int SALT_LENGTH = 16;
+    public static readonly string TAG = "HOSTR";
     public static readonly int VERSION = 1;
 
     public static string Hash(string password, int iterations)
@@ -19,15 +20,15 @@ public static class Password
         Array.Copy(s, 0, bs, 0, SALT_LENGTH);
         Array.Copy(h, 0, bs, SALT_LENGTH, HASH_LENGTH);
         var b64 = Convert.ToBase64String(bs);
-        return $"HOSTR:{VERSION}:{iterations}:{b64}";
+        return $"{TAG}:{VERSION}:{iterations}:{b64}";
     }
 
     public static bool Check(string expected, string actual)
     {
         var ps = expected.Split(':');
-        if (ps[0] != "HOSTR") { throw new Exception("Invalid hash"); }
+        if (ps[0] != TAG) { throw new Exception("Invalid tag"); }
         var version = int.Parse(ps[1]);
-        if (version != 1) { throw new Exception("Invalid hash version"); }
+        if (version != 1) { throw new Exception("Invalid version"); }
         var iterations = int.Parse(ps[2]);
         var b64 = ps[3];
         var bs = Convert.FromBase64String(b64);
