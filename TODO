@@ -7,12 +7,12 @@
 ** use to read passwords
 ** add password repeat/check on new admin
 
-* add slog
-
 * add table BeforeInsert event
 ** add user.createdAt timestamp
 *** add Timestamp column
 **** DateTime
+
+* add ForeignKey
 
 * add Table.Update
 ** track stored values in tx
@@ -24,28 +24,12 @@
 ** decimal
 * model Feed
 
+* add slog
+
 sudo -u postgres psql [hostr]
 alter user postgres with encrypted password ''
 create user hostr
 alter user hostr with encrypted password ''
 create database hostr
 grant all privileges on hostr to hostr
-grant all on schema public to hostr;
-
-// Insert some data
-await using (var cmd = dataSource.CreateCommand("INSERT INTO data (some_field) VALUES ($1)"))
-{
-    cmd.Parameters.AddWithValue("Hello world");
-    await cmd.ExecuteNonQueryAsync();
-}
-
-await using var db = NpgsqlDataSource.Create("Host=localhost;Username=hostr;Password=hostr;Database=hostr");
-await using var cmd = db.CreateCommand("SELECT email FROM users");
-
-await using (var reader = await cmd.ExecuteReaderAsync())
-{
-    while (await reader.ReadAsync())
-    {
-        Console.WriteLine(reader.GetString(0));
-    }
-}
+grant all on schema public to hostr
