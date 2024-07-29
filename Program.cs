@@ -1,16 +1,15 @@
-﻿using Hostr;
+﻿using System.Reflection.Metadata;
+using Hostr;
 
 using DB = Hostr.DB;
 using UI = Hostr.UI;
-
-const int PASSWORD_ITERS = 10000;
-
+ 
 var db = new Schema();
 var cx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 cx.Connect();
 var tx = cx.StartTx();
 
-DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools];
+DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools, db.Calendars];
 //foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
 var firstRun = !db.Users.Exists(tx);
 foreach (var d in definitions) { d.Sync(tx); }
@@ -32,17 +31,11 @@ try
         var password = ui.Ask("Password: ");
         if (password is null) { throw new Exception("Missing password"); }
 
-        var hu = new DB.Record();
+        var hu = db.MakeUser("hostr", "hostr");
         hu.Set(db.UserId, 0);
-        hu.Set(db.UserName, "hostr");
-        hu.Set(db.UserEmail, "hostr");
-        hu.Set(db.UserPassword, "");
         db.Users.Insert(hu, tx);
 
-        var u = new DB.Record();
-        u.Set(db.UserName, name);
-        u.Set(db.UserEmail, email);
-        u.Set(db.UserPassword, Password.Hash(password, PASSWORD_ITERS));
+        var u = db.MakeUser(name, email, password);    
         u.Set(db.UserCreatedBy, hu);
         db.Users.Insert(u, tx);
         user = u;
@@ -72,6 +65,7 @@ try
 #pragma warning disable CS8604 
             if (!Password.Check(u.Get(db.UserPassword), password)) { throw new Exception("Wrong password"); }
 #pragma warning restore CS8604
+            db.Users.Update((DB.Record)user, tx);
         }
         else
         {

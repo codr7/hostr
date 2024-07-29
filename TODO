@@ -1,10 +1,8 @@
-* add Calendars
-** Pool, StartsAt, EndsAt, TotalCapacity, UsedCapacity, Label
-** Key Pool, startsAt, endsAt
-** create min/max in pool AfterInsert
-
-* add Table.Update
-** track stored values in tx
+* implement Tx.GetStoredValue
+** update when record is stored
+** add record index
+*** atomic
+*** init in constructor
 
 * add rest api
 ** add ping endpoint

@@ -37,6 +37,8 @@ public class Tx: IDisposable
         if (!finished) { Rollback(); }
     }
 
+    public object? GetStoredObject(Record rec, Column col) => rec.GetObject(col);
+
     public void Exec(string statement, params object[] args)
     {
         Cx.Exec(statement, args: args);

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace Hostr.DB;
 
 public class ForeignKey : Key
@@ -8,7 +10,7 @@ public class ForeignKey : Key
     private readonly List<(Column, Column)> columnMap = new List<(Column, Column)>();
 
     public ForeignKey(Table table, string name, Table foreignTable, (Column, Column)[] columns, bool nullable = false, bool primaryKey = false) :
-    base(table, $"{table.Name}{name.Capitalize()}", columns.Select(c => c.Item1).ToArray())
+    base(table, name, columns.Select(c => c.Item1).ToArray())
     {
         ForeignTable = foreignTable;
         foreach (var c in columns) { columnMap.Add(c); }
@@ -35,4 +37,32 @@ public class ForeignKey : Key
       @$"{base.CreateSQL} 
          REFERENCES {ForeignTable} 
          ({string.Join(", ", values: columnMap.Select(c => $"\"{c.Item2.Name}\""))})";
+
+    public void Copy(Record from, ref Record to) {
+        var ff = from.Contains(ColumnMap[0].Item2);
+        var fcs = columnMap.Select(m => ff ? m.Item2 : m.Item1).ToArray();  
+        var tcs = columnMap.Select(m => ff ? m.Item1 : m.Item2).ToArray();
+        
+        foreach (var (fc, tc) in fcs.Zip(tcs)) { 
+            if (from.GetObject(fc) is object v) {
+                to.SetObject(tc, v);
+            } else {
+                throw new Exception($"Missing field: {fc}");
+            } 
+        }
+    }
+
+    public void Copy(Record from, Key fromKey, ref Record to) {
+        var ff = from.Contains(ColumnMap[0].Item2);
+        var fcs = fromKey.Columns;
+        var tcs = columnMap.Select(m => m.Item1).ToArray();
+        
+        foreach (var (fc, tc) in fcs.Zip(tcs)) { 
+            if (from.GetObject(fc) is object v) {
+                to.SetObject(tc, v);
+            } else {
+                throw new Exception($"Missing field: {fc}");
+            } 
+        }
+    }
 }
