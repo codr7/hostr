@@ -1,7 +1,3 @@
-* add system user with empty password
-
-* block login with empty password
-
 * add Ask echo flag
 ** sharpl
 ** use to read passwords

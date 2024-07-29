@@ -33,6 +33,12 @@ try
         if (password is null) { throw new Exception("Missing password"); }
 
         var u = new DB.Record();
+        u.Set(userName, "hostr");
+        u.Set(userEmail, "hostr");
+        u.Set(userPassword, "");
+        users.Insert(u, tx);
+
+        u = new DB.Record();
         u.Set(userName, name);
         u.Set(userEmail, email);
         u.Set(userPassword, Password.Hash(password, PASSWORD_ITERATIONS));
