@@ -1,7 +1,7 @@
 namespace Hostr.DB;
 
-using System.Text;
 using Npgsql;
+using System.Text;
 
 public abstract class Column : TableDefinition, IComparable<Column>
 {

@@ -1,8 +1,7 @@
 namespace Hostr.DB;
 
-using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
 using Npgsql;
+using System.Text.RegularExpressions;
 
 public class Cx
 {
@@ -36,10 +35,13 @@ public class Cx
     {
         string? sp = null;
 
-        if (tx is Tx) {
+        if (tx is Tx)
+        {
             sp = Guid.NewGuid().ToString();
             Exec($"SAVEPOINT {sp}");
-        } else {
+        }
+        else
+        {
             Exec("BEGIN");
         }
 
@@ -53,7 +55,8 @@ public class Cx
         Console.WriteLine(statement);
         var argIndex = 1;
 
-        while (true) {
+        while (true)
+        {
             var i = statement.IndexOf("$?");
             if (i == -1) { break; }
             i++;
@@ -86,7 +89,8 @@ public class Cx
 #pragma warning restore CS8600
     }
 
-    internal void PopTx(Tx tx) {
+    internal void PopTx(Tx tx)
+    {
         if (this.tx != tx) { throw new Exception("Transaction finished out of order"); }
         this.tx = tx.ParentTx;
     }

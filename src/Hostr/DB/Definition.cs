@@ -9,29 +9,15 @@ public abstract class Definition : IComparable<Definition>
         Name = name;
     }
 
-    public int CompareTo(Definition? other)
-    {
-        if (other is Definition o)
-        {
-            return Name.CompareTo(o.Name);
-        }
+    public int CompareTo(Definition? other) => (other is Definition o) ? Name.CompareTo(o.Name) : -1;
 
-        return -1;
-    }
-
-    public virtual void Create(Tx tx)
-    {
-        tx.Exec(CreateSQL);
-    }
+    public virtual void Create(Tx tx) => tx.Exec(CreateSQL);
 
     public virtual string CreateSQL => $"CREATE {DefinitionType} \"{Name}\"";
 
     public abstract string DefinitionType { get; }
 
-    public virtual void Drop(Tx tx)
-    {
-        tx.Exec(DropSQL);
-    }
+    public virtual void Drop(Tx tx) => tx.Exec(DropSQL);
 
     public virtual void DropIfExists(Tx tx) {
         if (Exists(tx)) { Drop(tx); }

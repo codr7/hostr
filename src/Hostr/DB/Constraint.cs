@@ -1,6 +1,6 @@
-using System.Text;
-
 namespace Hostr.DB;
+
+using System.Text;
 
 public abstract class Constraint : TableDefinition
 {

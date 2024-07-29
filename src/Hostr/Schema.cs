@@ -1,5 +1,3 @@
-using Hostr.DB;
-
 namespace Hostr;
 
 public class Schema
@@ -91,7 +89,7 @@ public class Schema
 
         Pools.AfterInsert += (rec, tx) =>
         {
-            var cal = new Record();
+            var cal = new DB.Record();
             CalendarPool.Copy(rec, ref cal);
             CalendarUpdatedBy.Copy(rec, PoolCreatedBy, ref cal);
             cal.Set(CalendarStartsAt, DateTime.MinValue);
