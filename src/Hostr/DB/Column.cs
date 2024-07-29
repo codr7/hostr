@@ -1,5 +1,7 @@
 namespace Hostr.DB;
 
+using Npgsql;
+
 public abstract class Column: Definition, IComparable<Column>
 {
     public bool PrimaryKey;
@@ -26,13 +28,28 @@ public abstract class Column: Definition, IComparable<Column>
 
     public override string DefinitionType => "COLUMN";
 
+    public Condition Eq(object val) {
+        return new Condition($"{this} = $?", val);
+    }
+
     public override bool Exists(Tx tx) {
         return tx.ExecScalar<bool>(@$"SELECT EXISTS (
                                      SELECT
                                      FROM pg_attribute 
-                                     WHERE attrelid = $1::regclass
-                                     AND attname = $2
+                                     WHERE attrelid = $?::regclass
+                                     AND attname = $?
                                      AND NOT attisdropped
                                    )", Table.Name, Name);
+    }
+
+    public abstract object GetObject(NpgsqlDataReader source, int i);
+
+    public override string ToString()
+    {
+        return $"{Table}.{Name}";
+    }
+    
+    public virtual string ValueToString(object val) {
+        return $"{val}";
     }
 }

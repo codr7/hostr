@@ -8,6 +8,7 @@ var userEmail = new DB.Columns.Text(users, "email")
     PrimaryKey = true
 };
 var userPassword = new DB.Columns.Text(users, "password");
+var userEmailKey = new DB.Key(users, "usersEmailKey", userEmail);
 
 var cx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 cx.Connect();
@@ -15,25 +16,61 @@ var tx = cx.StartTx();
 var firstRun = !users.Exists(tx);
 users.Sync(tx);
 
-var ui = new UI.Shell();
-ui.Say("Hostr v1");
-ui.Say("Fresh database detected, setting up admin user...");
-
-if (firstRun)
+using var ui = new UI.Shell();
+try
 {
-    var name = ui.Ask("Display Name: ");
-    if (name == null) { throw new Exception("Missing name"); }
-    var email = ui.Ask("Email: ");
-    if (email == null) { throw new Exception("Missing email"); }
-    var password = ui.Ask("Password: ");
-   if (password == null) { throw new Exception("Missing password"); }
+    ui.Say("Hostr v1");
+    DB.Record? user = null;
 
-    var admin = new DB.Record();
-    admin.Set(userName, name);
-    admin.Set(userEmail, email);
-    admin.Set(userPassword, password);
-    users.Insert(admin, tx);
+    if (firstRun)
+    {
+        ui.Say("Fresh database detected, setting up admin user");
+        var name = ui.Ask("Name: ");
+        if (name is null) { throw new Exception("Missing name"); }
+        var email = ui.Ask("Email: ");
+        if (email is null) { throw new Exception("Missing email"); }
+        var password = ui.Ask("Password: ");
+        if (password is null) { throw new Exception("Missing password"); }
+
+        var u = new DB.Record();
+        u.Set(userName, name);
+        u.Set(userEmail, email);
+        u.Set(userPassword, password);
+        users.Insert(u, tx);
+        user = u;
+        ui.Say("Admin user successfully created");
+    }
+    else
+    {
+        tx.Commit();
+        tx = cx.StartTx();
+        ui.Say("Login");
+        var id = ui.Ask("User: ");
+        if (id is null) { throw new Exception("Missing user"); }
+        var key = new DB.Record();
+        
+        if (id.Contains('@')) {
+            key.Set(userEmail, id);
+        } else {
+            key.Set(userName, id);
+        }
+
+        user = users.FindKey(key, tx);
+
+        if (user is DB.Record u)
+        {
+            var password = ui.Ask("Password: ");
+            if (u.Get(userPassword) != password) { throw new Exception("Wrong password"); }
+        }
+        else
+        {
+            throw new Exception($"User not found: {id}");
+        }
+    }
+
+    tx.Commit();
 }
-
-tx.Commit();
-ui.Reset();
+catch (Exception e)
+{
+    ui.Say(e);
+}

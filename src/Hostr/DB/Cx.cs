@@ -1,5 +1,7 @@
 namespace Hostr.DB;
 
+using System.Text.RegularExpressions;
+using Microsoft.VisualBasic;
 using Npgsql;
 
 public class Cx
@@ -47,7 +49,18 @@ public class Cx
 
     internal NpgsqlCommand PrepareCommand(string statement, params object[] args)
     {
+        statement = Regex.Replace(statement, @"\s+", " ");
         Console.WriteLine(statement);
+        var argIndex = 1;
+
+        while (true) {
+            var i = statement.IndexOf("$?");
+            if (i == -1) { break; }
+            i++;
+            statement = statement.Remove(i, 1).Insert(i, $"{argIndex}");
+            argIndex++;
+        }
+
         if (source is null) { throw new Exception("Not connected"); }
         var cmd = source.CreateCommand(statement);
         foreach (var a in args) { cmd.Parameters.AddWithValue(a); }
@@ -57,6 +70,11 @@ public class Cx
     internal void Exec(string statement, params object[] args)
     {
         PrepareCommand(statement, args: args).ExecuteNonQuery();
+    }
+
+    internal NpgsqlDataReader ExecReader(string statement, params object[] args)
+    {
+        return PrepareCommand(statement, args: args).ExecuteReader();
     }
 
     internal T ExecScalar<T>(string statement, params object[] args)

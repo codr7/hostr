@@ -19,7 +19,7 @@ public abstract class Definition : IComparable<Definition>
         return -1;
     }
 
-    public void Create(Tx tx)
+    public virtual void Create(Tx tx)
     {
         tx.Exec(CreateSQL);
     }
@@ -28,7 +28,7 @@ public abstract class Definition : IComparable<Definition>
 
     public abstract string DefinitionType { get; }
 
-    public void Drop(Tx tx)
+    public virtual void Drop(Tx tx)
     {
         tx.Exec(DropSQL);
     }

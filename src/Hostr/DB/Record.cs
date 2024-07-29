@@ -15,17 +15,25 @@ public struct Record
 
     public T? Get<T>(TypedColumn<T> col)
     {
-        return (T?)fields[col];
+        return (T?)GetObject(col);
     }
 
-    internal object? Get(Column col)
+    public object? GetObject(Column col)
     {
         return fields[col];
     }
 
-    public void Set<T>(TypedColumn<T> col, T value) where T : notnull
+    public (Column, object)[] Fields => fields.Items;
+
+    public Record Set<T>(TypedColumn<T> col, T value) where T : notnull
+    {
+        return SetObject(col, value);
+    }
+
+    public Record SetObject(Column col, object value)
     {
         fields[col] = value;
+        return this;
     }
 
     public override string ToString()
@@ -36,8 +44,8 @@ public struct Record
         var i = 0;
         foreach (var (c, v) in fields)
         {
-            if (i > 0) { buf.Append(' '); }
-            buf.Append($"{c}:{v}");
+            if (i > 0) { buf.Append(", "); }
+            buf.Append($"{c.Name}: {c.ValueToString(v)}");
             i++;
         }
 

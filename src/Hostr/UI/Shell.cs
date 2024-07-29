@@ -4,7 +4,7 @@ namespace Hostr.UI;
 using System.Drawing;
 using System.Text;
 
-public class Shell
+public class Shell: IDisposable
 {
     private readonly StringBuilder buffer = new StringBuilder();
  
@@ -39,6 +39,12 @@ public class Shell
     public void ClearScreen()
     {
         CSI(2, 'J');
+    }
+
+    public void Dispose()
+    {
+        Reset();
+        Flush();
     }
 
     public int Height { get => Console.BufferHeight; }

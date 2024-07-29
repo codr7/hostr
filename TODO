@@ -1,6 +1,14 @@
-* add login script
+* add Ask echo flag
+** sharpl
+** use to read passwords
+** add password repeat/check on new admin
 
-* add Record Table.Load()
+* add table BeforeInsert event
+** add user.createdAt timestamp
+*** add Timestamp column
+**** DateTime
+
+* hash user passwords
 
 * add Table.Update
 ** track stored values in tx
@@ -10,8 +18,6 @@
 * add Boolean column
 * add Decimal column
 ** decimal
-* add Timestamp column
-** DateTime
 * model Feed
 
 sudo -u postgres psql
@@ -21,7 +27,6 @@ alter user hostr with encrypted password ''
 create database hostr
 grant all privileges on hostr to hostr
 grant all on schema public to hostr;
-
 
 // Insert some data
 await using (var cmd = dataSource.CreateCommand("INSERT INTO data (some_field) VALUES ($1)"))
