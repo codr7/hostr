@@ -35,12 +35,6 @@ public static class Password
         Array.Copy(bs, 0, s, 0, SALT_LENGTH);
         var pbkdf2 = new Rfc2898DeriveBytes(actual, s, iterations, HashAlgorithmName.SHA256);
         byte[] h = pbkdf2.GetBytes(HASH_LENGTH);
-
-        for (var i = 0; i < HASH_LENGTH; i++)
-        {
-            if (bs[i + SALT_LENGTH] != h[i]) { return false; }
-        }
-
-        return true;
+        return bs.AsSpan(SALT_LENGTH, HASH_LENGTH).SequenceEqual(h.AsSpan(0, HASH_LENGTH));
     }
 }
