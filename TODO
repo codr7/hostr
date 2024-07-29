@@ -1,14 +1,18 @@
+* add system user with empty password
+
+* block login with empty password
+
 * add Ask echo flag
 ** sharpl
 ** use to read passwords
 ** add password repeat/check on new admin
 
+* add slog
+
 * add table BeforeInsert event
 ** add user.createdAt timestamp
 *** add Timestamp column
 **** DateTime
-
-* hash user passwords
 
 * add Table.Update
 ** track stored values in tx
@@ -20,7 +24,7 @@
 ** decimal
 * model Feed
 
-sudo -u postgres psql
+sudo -u postgres psql [hostr]
 alter user postgres with encrypted password ''
 create user hostr
 alter user hostr with encrypted password ''

@@ -1,4 +1,5 @@
-﻿using DB = Hostr.DB;
+﻿using Hostr;
+using DB = Hostr.DB;
 using UI = Hostr.UI;
 
 var users = new DB.Table("users");
@@ -35,7 +36,7 @@ try
         var u = new DB.Record();
         u.Set(userName, name);
         u.Set(userEmail, email);
-        u.Set(userPassword, password);
+        u.Set(userPassword, Password.Hash(password));
         users.Insert(u, tx);
         user = u;
         ui.Say("Admin user successfully created");
@@ -48,10 +49,13 @@ try
         var id = ui.Ask("User: ");
         if (id is null) { throw new Exception("Missing user"); }
         var key = new DB.Record();
-        
-        if (id.Contains('@')) {
+
+        if (id.Contains('@'))
+        {
             key.Set(userEmail, id);
-        } else {
+        }
+        else
+        {
             key.Set(userName, id);
         }
 
@@ -60,7 +64,10 @@ try
         if (user is DB.Record u)
         {
             var password = ui.Ask("Password: ");
-            if (u.Get(userPassword) != password) { throw new Exception("Wrong password"); }
+            if (password is null) { throw new Exception("Missing password"); }
+#pragma warning disable CS8604 
+            if (!Password.Check(u.Get(userPassword), password)) { throw new Exception("Wrong password"); }
+#pragma warning restore CS8604
         }
         else
         {
