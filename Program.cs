@@ -6,10 +6,7 @@ const int PASSWORD_ITERATIONS = 10000;
 
 var users = new DB.Table("users");
 var userName = new DB.Columns.Text(users, "name");
-var userEmail = new DB.Columns.Text(users, "email")
-{
-    PrimaryKey = true
-};
+var userEmail = new DB.Columns.Text(users, "email") { PrimaryKey = true };
 var userPassword = new DB.Columns.Text(users, "password");
 var userEmailKey = new DB.Key(users, "usersEmailKey", userEmail);
 

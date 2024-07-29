@@ -15,12 +15,9 @@ public class OrderedMap<K, V> where K : IComparable<K>
         return ok;
     }
     
-    public int Count { get => items.Count; }
+    public int Count => items.Count;
 
-    public void Delete(int i)
-    {
-        items.RemoveAt(i);
-    }
+    public void Delete(int i) => items.RemoveAt(i); 
 
     public (int, bool) Find(K key)
     {
@@ -54,34 +51,19 @@ public class OrderedMap<K, V> where K : IComparable<K>
     public V? Get(K key)
     {
         var (i, ok) = Find(key);
-
-        if (!ok)
-        {
-            return default;
-        }
-
+        if (!ok) { return default; }
         return items[i].Item2;
     }
 
-    public IEnumerator<(K, V)> GetEnumerator()
-    {
-        return items.AsEnumerable().GetEnumerator();
-    }
+    public IEnumerator<(K, V)> GetEnumerator() => items.AsEnumerable().GetEnumerator();
 
-    public void Insert(int i, K key, V value)
-    {
-        items.Insert(i, (key, value));
-    }
+    public void Insert(int i, K key, V value) => items.Insert(i, (key, value));
 
-    public (K, V)[] Items { get => items.ToArray(); }
+    public (K, V)[] Items => items.ToArray();
 
     public V? Remove(K key) {
         var (i, ok) = Find(key);
-
-        if (!ok) {
-            return default;
-        }
-
+        if (!ok) { return default; }
         var v = items[i].Item2;
         Delete(i);
         return v;
