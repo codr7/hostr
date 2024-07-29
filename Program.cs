@@ -2,7 +2,7 @@
 using DB = Hostr.DB;
 using UI = Hostr.UI;
 
-int PASSWORD_ITERATIONS = 10000;
+const int PASSWORD_ITERATIONS = 10000;
 
 var users = new DB.Table("users");
 var userName = new DB.Columns.Text(users, "name");
