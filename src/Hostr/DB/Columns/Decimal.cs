@@ -13,6 +13,7 @@ public class Decimal : TypedColumn<decimal>
         return new Decimal(table, name, nullable: nullable, primaryKey: primaryKey);
     }
 
+    /* 28 is C#'s internal precision for decimal. */
     public override string ColumnType => "DECIMAL(28, 28)";
 
     public override object GetObject(NpgsqlDataReader source, int i) => source.GetDecimal(i);

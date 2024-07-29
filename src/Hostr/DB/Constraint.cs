@@ -12,7 +12,6 @@ public abstract class Constraint : TableDefinition
         table.AddConstraint(this);
     }
 
-    public void AddColumn(Column col) => columns.Add(col);
     public Column[] Columns => columns.ToArray();
     public abstract string ConstraintType { get; }
 
@@ -37,4 +36,6 @@ public abstract class Constraint : TableDefinition
                                      WHERE table_name = $? and constraint_name = $?
                                    )", Table.Name.ToLower(), Name.ToLower());
     }
+
+    internal void AddColumn(Column col) => columns.Add(col);
 }

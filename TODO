@@ -1,5 +1,8 @@
 * add Pools
 ** add poolCreatedBy
+** add unlimitedCapacity
+*** add Boolean column
+** add single/double on db init
 
 * add Calendars
 ** Pool, StartsAt, EndsAt, TotalCapacity, UsedCapacity, Label
@@ -13,8 +16,6 @@
 ** sharpl
 ** use to read passwords
 ** add password repeat/check on new admin
-
-* add Boolean column
 
 * add slog
 
