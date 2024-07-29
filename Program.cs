@@ -24,7 +24,7 @@ try
 
     if (firstRun)
     {
-        ui.Say("Fresh database detected, setting up admin user");
+        ui.Say("Fresh database detected, creating user");
         var name = ui.Ask("Name: ");
         if (name is null) { throw new Exception("Missing name"); }
         var email = ui.Ask("Email: ");
@@ -53,7 +53,7 @@ try
         p.Set(db.PoolCreatedBy, u);
         db.Pools.Insert(p, tx);        
 
-        ui.Say("Admin user successfully created");
+        ui.Say("User successfully created");
     }
     else
     {
