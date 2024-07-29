@@ -8,7 +8,8 @@ public abstract class Column : TableDefinition, IComparable<Column>
     public readonly bool Nullable;
     public readonly bool PrimaryKey;
 
-    public Column(Table table, string name, bool nullable = false, bool primaryKey = false) : base(table, name)
+    public Column(Table table, string name,
+                  bool nullable = false, bool primaryKey = false) : base(table, name)
     {
         table.AddColumn(this);
         Nullable = nullable;
@@ -17,7 +18,7 @@ public abstract class Column : TableDefinition, IComparable<Column>
 
     public abstract string ColumnType { get; }
 
-    public abstract Column Clone(Table table, string name, bool nullable = false, bool primaryKey = false);
+    public abstract Column Clone(Table table, string name, object? defaultValue = null, bool nullable = false, bool primaryKey = false);
 
     public int CompareTo(Column? other)
     {
@@ -32,7 +33,7 @@ public abstract class Column : TableDefinition, IComparable<Column>
 
     public override string CreateSQL => $"{base.CreateSQL} {DefinitionSQL}";
 
-    public string DefinitionSQL
+    public virtual string DefinitionSQL
     {
         get
         {

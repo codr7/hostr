@@ -33,8 +33,8 @@ public abstract class Constraint : TableDefinition
         return tx.ExecScalar<bool>(@$"SELECT EXISTS (
                                      SELECT constraint_name 
                                      FROM information_schema.constraint_column_usage 
-                                     WHERE table_name = $? and constraint_name = $?
-                                   )", Table.Name, Name);
+                                     WHERE constraint_name = $?
+                                   )", Name);
     }
 
     internal void AddColumn(Column col) => columns.Add(col);

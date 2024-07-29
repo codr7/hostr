@@ -11,9 +11,9 @@ cx.Connect();
 var tx = cx.StartTx();
 
 DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools];
-foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
+//foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
 var firstRun = !db.Users.Exists(tx);
-foreach (var d in definitions) { d.Create(tx); }
+foreach (var d in definitions) { d.Sync(tx); }
 
 using var ui = new UI.Shell();
 
@@ -49,7 +49,6 @@ try
 
         var p = new DB.Record();
         p.Set(db.PoolName, "double");
-        p.Set(db.PoolInfiniteCapacity, false);
         p.Set(db.PoolCreatedBy, u);
         db.Pools.Insert(p, tx);        
 

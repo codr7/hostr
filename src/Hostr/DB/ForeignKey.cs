@@ -23,7 +23,8 @@ public class ForeignKey : Key
         var cc = c.Clone(table, $"{name}{c.Name.Capitalize()}", nullable: nullable, primaryKey: primaryKey);
         return (cc, c);
     }).ToArray(),
-    nullable: nullable, primaryKey: primaryKey)
+    nullable: nullable,
+    primaryKey: primaryKey)
     { }
 
     public (Column, Column)[] ColumnMap => columnMap.ToArray();
