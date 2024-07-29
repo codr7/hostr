@@ -4,11 +4,12 @@ namespace Hostr.UI;
 using System.Drawing;
 using System.Text;
 
-public class Shell: IDisposable
+public class Shell : IDisposable
 {
     private readonly StringBuilder buffer = new StringBuilder();
- 
-    public string? Ask(string prompt = "") {
+
+    public string? Ask(string prompt = "")
+    {
         Write(prompt);
         Flush();
         return Console.ReadLine();
@@ -24,22 +25,12 @@ public class Shell: IDisposable
     {
         buffer.Append((char)27);
         buffer.Append('[');
-
-        foreach (var a in args)
-        {
-            buffer.Append(a);
-        }
+        foreach (var a in args) { buffer.Append(a); }
     }
 
-    public void ClearLine()
-    {
-        CSI(0, 'K');
-    }
+    public void ClearLine() => CSI(0, 'K');
 
-    public void ClearScreen()
-    {
-        CSI(2, 'J');
-    }
+    public void ClearScreen() => CSI(2, 'J');
 
     public void Dispose()
     {
@@ -47,8 +38,7 @@ public class Shell: IDisposable
         Flush();
     }
 
-    public int Height { get => Console.BufferHeight; }
-
+    public int Height => Console.BufferHeight;
 
     public void MoveTo(int x, int? y = null)
     {
@@ -62,40 +52,22 @@ public class Shell: IDisposable
         }
     }
 
-    public void Reset()
-    {
-        CSI("0m");
-    }
+    public void Reset() => CSI("0m");
 
-    public void Restore()
-    {
-        CSI('u');
-    }
+    public void Restore() => CSI('u');
 
-    public void Save()
-    {
-        CSI('s');
-    }
+    public void Save() => CSI('s');
 
     public void SetRegion((int, int) min, (int, int) max)
     {
         CSI(min.Item2, ';', max.Item2, ';', min.Item1, ';', max.Item1, 'r');
     }
 
-    public void SetRegion()
-    {
-        CSI('r');
-    }
+    public void SetRegion() => CSI('r');
 
-    public void ScrollUp(int lines = 1)
-    {
-        CSI(lines, 'S');
-    }
+    public void ScrollUp(int lines = 1) => CSI(lines, 'S');
 
-   public void ScrollDown(int lines = 1)
-    {
-        CSI(lines, 'T');
-    }
+    public void ScrollDown(int lines = 1) => CSI(lines, 'T');
 
     public void SetBg(Color color)
     {
@@ -109,13 +81,7 @@ public class Shell: IDisposable
 
     public int Width { get => Console.BufferWidth; }
 
-    public void Say(object value)
-    {
-        Write($"{value}\n");
-    }
+    public void Say(object value) => Write($"{value}\n");
 
-    public void Write(object value)
-    {
-        buffer.Append(value);
-    }
+    public void Write(object value) => buffer.Append(value);
 }
