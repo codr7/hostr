@@ -2,6 +2,8 @@
 using DB = Hostr.DB;
 using UI = Hostr.UI;
 
+int PASSWORD_ITERATIONS = 10000;
+
 var users = new DB.Table("users");
 var userName = new DB.Columns.Text(users, "name");
 var userEmail = new DB.Columns.Text(users, "email")
@@ -36,7 +38,7 @@ try
         var u = new DB.Record();
         u.Set(userName, name);
         u.Set(userEmail, email);
-        u.Set(userPassword, Password.Hash(password));
+        u.Set(userPassword, Password.Hash(password, PASSWORD_ITERATIONS));
         users.Insert(u, tx);
         user = u;
         ui.Say("Admin user successfully created");
