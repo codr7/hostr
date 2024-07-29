@@ -6,6 +6,14 @@
 * add Table.Update
 ** track stored values in tx
 
+* add rest api
+** add ping endpoint
+
+* add login endpoint
+** generate jwt token
+
+* add openapi spec
+  
 * add Ask echo flag
 ** sharpl
 ** use to read passwords
