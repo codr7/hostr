@@ -1,9 +1,12 @@
-* implement Tx.GetStoredValue
+* implement Tx.GetStoredObject
 ** update when record is stored
 ** add record index
 *** atomic
 *** init in constructor
 
+* add Record.To/FromJSON()
+** add Column.To/FromJSON()
+ 
 * add rest api
 ** add ping endpoint
 
