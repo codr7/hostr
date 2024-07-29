@@ -20,6 +20,8 @@ public class ForeignKey : Key
     this(table, name, foreignTable, [])
     { }
 
+    public (Column, Column)[] ColumnMap => columnMap.ToArray();
+    
     public override string ConstraintType => "FOREIGN KEY";
 
     public override string CreateSQL => 

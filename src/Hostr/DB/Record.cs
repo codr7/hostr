@@ -8,26 +8,23 @@ public struct Record
 
     public Record() { }
 
-    public bool Contains(Column col)
-    {
-        return fields.ContainsKey(col);
-    }
-
-    public T? Get<T>(TypedColumn<T> col)
-    {
-        return (T?)GetObject(col);
-    }
-
-    public object? GetObject(Column col)
-    {
-        return fields[col];
-    }
-
+    public bool Contains(Column col) => fields.ContainsKey(col);
+    public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);
+    public object? GetObject(Column col) => fields[col];
     public (Column, object)[] Fields => fields.Items;
 
-    public Record Set<T>(TypedColumn<T> col, T value) where T : notnull
-    {
-        return SetObject(col, value);
+    public Record Set<T>(TypedColumn<T> col, T value) where T : notnull => SetObject(col, value);
+
+    public Record Set(ForeignKey key, Record rec) {
+        foreach (var (c, fc) in key.ColumnMap) { 
+            if (rec.GetObject(fc) is object v) {
+                SetObject(c, v);
+            } else {
+                throw new Exception($"Missing key: {fc}");
+            } 
+        }
+
+        return this;
     }
 
     public Record SetObject(Column col, object value)

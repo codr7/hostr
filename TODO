@@ -1,4 +1,6 @@
-  
+* set createdBy for admin user to hostr
+** add Rec.Set(ForeignKey, Rec)  
+
 * add Pools
 ** add poolCreatedBy
 

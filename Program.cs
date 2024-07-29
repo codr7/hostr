@@ -29,17 +29,18 @@ try
         var password = ui.Ask("Password: ");
         if (password is null) { throw new Exception("Missing password"); }
 
-        var u = new DB.Record();
-        u.Set(db.UserId, 0);
-        u.Set(db.UserName, "hostr");
-        u.Set(db.UserEmail, "hostr");
-        u.Set(db.UserPassword, "");
-        db.Users.Insert(u, tx);
+        var hu = new DB.Record();
+        hu.Set(db.UserId, 0);
+        hu.Set(db.UserName, "hostr");
+        hu.Set(db.UserEmail, "hostr");
+        hu.Set(db.UserPassword, "");
+        db.Users.Insert(hu, tx);
 
-        u = new DB.Record();
+        var u = new DB.Record();
         u.Set(db.UserName, name);
         u.Set(db.UserEmail, email);
         u.Set(db.UserPassword, Password.Hash(password, PASSWORD_ITERS));
+        u.Set(db.UserCreatedBy, hu);
         db.Users.Insert(u, tx);
         user = u;
         ui.Say("Admin user successfully created");
