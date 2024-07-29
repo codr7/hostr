@@ -1,9 +1,3 @@
-* add Pools
-** add poolCreatedBy
-** add unlimitedCapacity
-*** add Boolean column
-** add single/double on db init
-
 * add Calendars
 ** Pool, StartsAt, EndsAt, TotalCapacity, UsedCapacity, Label
 ** Key Pool, startsAt, endsAt
