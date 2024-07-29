@@ -52,7 +52,7 @@ public class Table : Definition
         return tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
     }
 
-    public Record? FindKey(Record key, Tx tx)
+    public Record? Find(Record key, Tx tx)
     {
         var w = Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray());
         var sql = $"SELECT {string.Join(", ", columns)} FROM {Name} WHERE {w.SQL}";

@@ -15,8 +15,8 @@ cx.Connect();
 var tx = cx.StartTx();
 var firstRun = !users.Exists(tx);
 users.Sync(tx);
-
 using var ui = new UI.Shell();
+
 try
 {
     ui.Say("Hostr v1");
@@ -58,7 +58,7 @@ try
             key.Set(userName, id);
         }
 
-        user = users.FindKey(key, tx);
+        user = users.Find(key, tx);
 
         if (user is DB.Record u)
         {
