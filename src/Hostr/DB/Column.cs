@@ -5,17 +5,19 @@ using Npgsql;
 
 public abstract class Column : TableDefinition, IComparable<Column>
 {
-    public bool Nullable = false;
-    public bool PrimaryKey;
+    public readonly bool Nullable;
+    public readonly bool PrimaryKey;
 
-    public Column(Table table, string name) : base(table, name)
+    public Column(Table table, string name, bool nullable = false, bool primaryKey = false) : base(table, name)
     {
         table.AddColumn(this);
+        Nullable = nullable;
+        PrimaryKey = primaryKey;
     }
 
     public abstract string ColumnType { get; }
 
-    public abstract Column Clone(Table table, string name);
+    public abstract Column Clone(Table table, string name, bool nullable = false, bool primaryKey = false);
 
     public int CompareTo(Column? other)
     {

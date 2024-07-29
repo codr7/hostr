@@ -20,11 +20,11 @@ public class Schema
         UserIds = new DB.Sequence("userIds", SEQUENCE_OFFS);
 
         Users = new DB.Table("users");
-        UserId = new DB.Columns.BigInt(Users, "id") { PrimaryKey = true };
+        UserId = new DB.Columns.BigInt(Users, "id", primaryKey: true);
         UserName = new DB.Columns.Text(Users, "name");
         UserNameKey = new DB.Key(Users, "usersNameKey", [UserName]);
         UserCreatedAt = new DB.Columns.Timestamp(Users, "createdAt");
-        UserCreatedBy = new DB.ForeignKey(Users, "createdBy", Users) { Nullable = true };
+        UserCreatedBy = new DB.ForeignKey(Users, "createdBy", Users, nullable: true);
         UserEmail = new DB.Columns.Text(Users, "email");
         UserEmailKey = new DB.Key(Users, "usersEmailKey", [UserEmail]);
         UserPassword = new DB.Columns.Text(Users, "password");

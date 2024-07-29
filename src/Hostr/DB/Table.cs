@@ -104,8 +104,6 @@ public class Table : Definition
 
     public override void Sync(Tx tx)
     {
-        foreach (var k in foreignKeys) { k.InitColumnMap(); }
- 
         if (Exists(tx))
         {
             foreach (var c in columns) { c.Sync(tx); }

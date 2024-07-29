@@ -3,40 +3,35 @@ namespace Hostr.DB;
 public class ForeignKey : Key
 {
     public readonly Table ForeignTable;
-    public bool Nullable = false;
+    public readonly bool Nullable;
+    public readonly bool PrimaryKey;
     private readonly List<(Column, Column)> columnMap = new List<(Column, Column)>();
-    private readonly string prefix;
 
-    public ForeignKey(Table table, string name, Table foreignTable, (Column, Column)[] columns) :
+    public ForeignKey(Table table, string name, Table foreignTable, (Column, Column)[] columns, bool nullable = false, bool primaryKey = false) :
     base(table, $"{table.Name}{name.Capitalize()}", columns.Select(c => c.Item1).ToArray())
     {
         ForeignTable = foreignTable;
         foreach (var c in columns) { columnMap.Add(c); }
-        prefix = name;
         table.AddForeignKey(this);
+        Nullable = nullable;
+        PrimaryKey = primaryKey;
     }
 
-    public ForeignKey(Table table, string name, Table foreignTable) :
-    this(table, name, foreignTable, [])
+    public ForeignKey(Table table, string name, Table foreignTable, bool nullable = false, bool primaryKey = false) :
+    this(table, name, foreignTable, foreignTable.PrimaryKey.Columns.Select(c =>
+    {
+        var cc = c.Clone(table, $"{name}{c.Name.Capitalize()}", nullable: nullable, primaryKey: primaryKey);
+        return (cc, c);
+    }).ToArray(),
+    nullable: nullable, primaryKey: primaryKey)
     { }
 
     public (Column, Column)[] ColumnMap => columnMap.ToArray();
-    
+
     public override string ConstraintType => "FOREIGN KEY";
 
-    public override string CreateSQL => 
+    public override string CreateSQL =>
       @$"{base.CreateSQL} 
          REFERENCES {ForeignTable} 
          ({string.Join(", ", values: columnMap.Select(c => c.Item2.Name))})";
-
-     internal void InitColumnMap() {
-        if (columnMap.Count == 0) {
-            foreach (var c in ForeignTable.PrimaryKey.Columns) {
-                var cc = c.Clone(Table, $"{prefix}{c.Name.Capitalize()}");
-                cc.Nullable = Nullable;
-                columnMap.Add((cc, c));
-                AddColumn(cc);
-            }
-        }
-    }        
 }
