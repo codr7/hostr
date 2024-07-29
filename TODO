@@ -1,6 +1,11 @@
 * add Pools
 ** add poolCreatedBy
 
+* add Calendars
+** Pool, StartsAt, EndsAt, TotalCapacity, UsedCapacity, Label
+** Key Pool, startsAt, endsAt
+** create min/max in pool AfterInsert
+
 * add Table.Update
 ** track stored values in tx
 
