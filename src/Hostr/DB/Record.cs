@@ -9,19 +9,40 @@ public struct Record
     public Record() { }
 
     public bool Contains(Column col) => fields.ContainsKey(col);
+
+    public void Copy(ref Record to, (Column, Column)[] colMap)
+    {
+        foreach (var (fc, tc) in colMap)
+        {
+            if (GetObject(fc) is object v)
+            {
+                to.SetObject(tc, v);
+            }
+            else
+            {
+                throw new Exception($"Missing field: {fc}");
+            }
+        }
+    }
+
     public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);
     public object? GetObject(Column col) => fields[col];
     public (Column, object)[] Fields => fields.Items;
 
     public Record Set<T>(TypedColumn<T> col, T value) where T : notnull => SetObject(col, value);
 
-    public Record Set(ForeignKey key, Record rec) {
-        foreach (var (c, fc) in key.ColumnMap) { 
-            if (rec.GetObject(fc) is object v) {
+    public Record Set(ForeignKey key, Record rec)
+    {
+        foreach (var (c, fc) in key.ColumnMap)
+        {
+            if (rec.GetObject(fc) is object v)
+            {
                 SetObject(c, v);
-            } else {
+            }
+            else
+            {
                 throw new Exception($"Missing key: {fc}");
-            } 
+            }
         }
 
         return this;

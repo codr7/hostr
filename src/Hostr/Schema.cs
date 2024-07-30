@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace Hostr;
 
 public class Schema
@@ -23,6 +25,17 @@ public class Schema
     public readonly DB.Columns.Timestamp PoolCreatedAt;
     public readonly DB.ForeignKey PoolCreatedBy;
     public readonly DB.Columns.Boolean PoolInfiniteCapacity;
+    public readonly DB.Columns.Boolean PoolCheckIn;
+    public readonly DB.Columns.Boolean PoolCheckOut;
+    public readonly DB.Columns.Boolean PoolVisible;
+
+    public readonly DB.Table Units;
+    public readonly DB.Columns.BigInt UnitId;
+    public readonly DB.ForeignKey UnitPool;
+    public readonly DB.Columns.Text UnitName;
+    public readonly DB.Key UnitNameKey;
+    public readonly DB.Columns.Timestamp UnitCreatedAt;
+    public readonly DB.ForeignKey UnitCreatedBy;
 
     public readonly DB.Sequence UserIds;
 
@@ -65,11 +78,35 @@ public class Schema
         PoolCreatedAt = new DB.Columns.Timestamp(Pools, "createdAt");
         PoolCreatedBy = new DB.ForeignKey(Pools, "createdBy", Users);
         PoolInfiniteCapacity = new DB.Columns.Boolean(Pools, "infiniteCapacity");
+        PoolCheckIn = new DB.Columns.Boolean(Pools, "checkIn", false);
+        PoolCheckOut = new DB.Columns.Boolean(Pools, "checkOut", false);
+        PoolVisible = new DB.Columns.Boolean(Pools, "visible", defaultValue: true);
 
         Pools.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
         {
             if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
             rec.Set(PoolCreatedAt, DateTime.UtcNow);
+        };
+
+        Units = new DB.Table("units");
+        UnitId = new DB.Columns.BigInt(Units, "id", primaryKey: true);
+        UnitPool = new DB.ForeignKey(Units, "pool", Pools, [(UnitId, PoolId)]);
+        UnitName = new DB.Columns.Text(Units, "name");
+        UnitNameKey = new DB.Key(Units, "nameKey", [UnitName]);
+        UnitCreatedAt = new DB.Columns.Timestamp(Units, "createdAt");
+        UnitCreatedBy = new DB.ForeignKey(Units, "createdBy", Users);
+
+        Units.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
+        {
+            if (!rec.Contains(UnitId)) { rec.Set(UnitId, PoolIds.Next(tx)); }
+            rec.Set(UnitCreatedAt, DateTime.UtcNow);
+
+            var p = new DB.Record();
+            p.Set(PoolId, rec.Get(UnitId));
+            p.Set(PoolName, Guid.NewGuid().ToString());
+            rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray());
+            p.Set(PoolVisible, false);
+            Pools.Insert(p, tx);
         };
 
         Calendars = new DB.Table("calendars");
@@ -89,12 +126,12 @@ public class Schema
 
         Pools.AfterInsert += (rec, tx) =>
         {
-            var cal = new DB.Record();
-            CalendarPool.Copy(rec, ref cal);
-            CalendarUpdatedBy.Copy(rec, PoolCreatedBy, ref cal);
-            cal.Set(CalendarStartsAt, DateTime.MinValue);
-            cal.Set(CalendarEndsAt, DateTime.MaxValue);
-            Calendars.Insert(cal, tx);
+            var c = new DB.Record();
+            rec.Copy(ref c, CalendarPool.ForeignColumns.Zip(CalendarPool.Columns).ToArray()); 
+            rec.Copy(ref c, PoolCreatedBy.Columns.Zip(CalendarUpdatedBy.Columns).ToArray());
+            c.Set(CalendarStartsAt, DateTime.MinValue);
+            c.Set(CalendarEndsAt, DateTime.MaxValue);
+            Calendars.Insert(c, tx);
         };
     }
 }

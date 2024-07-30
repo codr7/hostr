@@ -8,7 +8,7 @@ var cx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 cx.Connect();
 var tx = cx.StartTx();
 
-DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools, db.Calendars];
+DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools, db.Units, db.Calendars];
 //foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
 var firstRun = !db.Users.Exists(tx);
 foreach (var d in definitions) { d.Sync(tx); }
@@ -39,10 +39,15 @@ try
         db.Users.Insert(u, tx);
         user = u;
 
-        var p = new DB.Record();
-        p.Set(db.PoolName, "double");
-        p.Set(db.PoolCreatedBy, u);
-        db.Pools.Insert(p, tx);        
+        var r = new DB.Record();
+        r.Set(db.PoolName, "double");
+        r.Set(db.PoolCreatedBy, u);
+        db.Pools.Insert(r, tx);        
+
+        r = new DB.Record();
+        r.Set(db.UnitName, "conf small");
+        r.Set(db.UnitCreatedBy, u);
+        db.Units.Insert(r, tx);        
 
         ui.Say("User successfully created");
     }

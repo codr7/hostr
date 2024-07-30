@@ -7,6 +7,8 @@
 * add Record.To/FromJSON()
 ** add Column.To/FromJSON()
  
+* add settings table
+
 * add rest api
 ** add ping endpoint
 
