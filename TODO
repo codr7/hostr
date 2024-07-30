@@ -1,8 +1,11 @@
-* add tax/rates
+* add event sourcing
+** DB.PostEvent(type, rec, tx)
+
+* add tax types
 ** name (primary key)
 
 * add tax rates
-** tax
+** taxType
 ** startsAt
 ** endsAt
 ** decimal percent

@@ -62,6 +62,9 @@ public class Table : Definition
         return tx.ExecScalar<long>(sql.ToString(), args: args);
     }
 
+    public long Count(Record key, Tx tx) =>
+        Count(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
+
     public override void Create(Tx tx)
     {
         base.Create(tx);
@@ -91,16 +94,27 @@ public class Table : Definition
     public override bool Exists(Tx tx) =>
         tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
 
-    public Record? Find(Record key, Tx tx)
+    public Record? Find(Condition? where, Tx tx)
     {
-        var w = Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray());
-        var sql = $"SELECT {string.Join(", ", columns)} FROM {Name} WHERE {w}";
-        using var reader = tx.ExecReader(sql, args: w.Args);
+        var sql = new StringBuilder();
+        sql.Append($"SELECT {string.Join(", ", columns)} FROM {Name}");
+        object[] args = [];
+
+        if (where is Condition w)
+        {
+            sql.Append($" WHERE {w}");
+            args = w.Args;
+        }
+
+        using var reader = tx.ExecReader(sql.ToString(), args: args);
         if (!reader.Read()) { return null; }
         var result = new Record();
         Load(ref result, reader);
         return result;
     }
+
+    public Record? Find(Record key, Tx tx) =>
+        Find(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
 
     public void Insert(Record rec, Tx tx)
     {
