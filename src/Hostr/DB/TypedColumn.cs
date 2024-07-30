@@ -4,9 +4,9 @@ namespace Hostr.DB;
 
 public abstract class TypedColumn<T> : Column
 {
-    public readonly T DefaultValue;
+    public readonly T? DefaultValue;
 
-    public TypedColumn(Table table, string name, T defaultValue, bool nullable = false, bool primaryKey = false) :
+    public TypedColumn(Table table, string name, T? defaultValue, bool nullable = false, bool primaryKey = false) :
     base(table, name, nullable: nullable, primaryKey: primaryKey)
     { 
         DefaultValue = defaultValue;

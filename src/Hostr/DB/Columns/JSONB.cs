@@ -2,10 +2,10 @@ namespace Hostr.DB.Columns;
 
 using Npgsql;
 
-public class Text : TypedColumn<string>
+public class JSONB : TypedColumn<string>
 {
-    public Text(Table table, string name,
-                string defaultValue = "",
+    public JSONB(Table table, string name,
+                string defaultValue = "null",
                 bool nullable = false,
                 bool primaryKey = false) :
     base(table, name,
@@ -18,12 +18,12 @@ public class Text : TypedColumn<string>
                                  object? defaultValue = null,
                                  bool nullable = false,
                                  bool primaryKey = false) =>
-        new Text(table, name, 
-                 defaultValue: (defaultValue is null) ? "" : (string)defaultValue,
+        new JSONB(table, name,
+                 defaultValue: (defaultValue is null) ? "null" : (string)defaultValue,
                  nullable: nullable, primaryKey: primaryKey);
 
-    public override string ColumnType => "TEXT";
-    public override string DefaultValueSQL => $"'{DefaultValue}'";
-    public override object GetObject(NpgsqlDataReader source, int i) => source.GetString(i);
-    public override string ValueToString(object val) => $"'{val}'";
+    public override string ColumnType => "JSONB";
+    public override string DefaultValueSQL => $"NULL";
+    public override object GetObject(NpgsqlDataReader source, int i) =>  source.GetString(i);
+    public override string ValueToString(object val) => $"\'{val}\'";
 }

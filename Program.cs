@@ -8,8 +8,8 @@ var cx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 cx.Connect();
 var tx = cx.StartTx();
 
-DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools, db.Units, db.Calendars];
-//foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
+DB.Definition[] definitions = [db.UserIds, db.Users, db.EventIds, db.Events, db.PoolIds, db.Pools, db.Units, db.Calendars];
+foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
 var firstRun = !db.Users.Exists(tx) || db.Users.Count(null, tx) == 0;
 foreach (var d in definitions) { d.Sync(tx); }
 

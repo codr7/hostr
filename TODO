@@ -1,7 +1,6 @@
 * add event sourcing
-** add events table
-** add DB.Enum<>
-** add Columns.JSON
+** add type column
+*** add DB.Enum<>
 ** DB.PostEvent(type, Record key, data, tx)
 
 * add tax types

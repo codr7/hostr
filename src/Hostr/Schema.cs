@@ -14,8 +14,16 @@ public class Schema
     public readonly DB.Columns.Integer CalendarBooked;
     public readonly DB.Columns.Text CalendarLabel;
 
-    public readonly DB.Sequence PoolIds;
+    public readonly DB.Sequence EventIds;
+    public readonly DB.Table Events;
+    public readonly DB.Columns.BigInt EventId;
+    public readonly DB.ForeignKey EventParent;
+    public readonly DB.Columns.Timestamp EventCreatedAt;
+    public readonly DB.ForeignKey EventCreatedBy;
+    public readonly DB.Columns.JSONB EventKey;
+    public readonly DB.Columns.JSONB EventData; 
 
+    public readonly DB.Sequence PoolIds;
     public readonly DB.Table Pools;
     public readonly DB.Columns.BigInt PoolId;
     public readonly DB.Columns.Text PoolName;
@@ -36,7 +44,6 @@ public class Schema
     public readonly DB.ForeignKey UnitCreatedBy;
 
     public readonly DB.Sequence UserIds;
-
     public readonly DB.Table Users;
     public readonly DB.Columns.BigInt UserId;
     public readonly DB.Columns.Text UserName;
@@ -51,7 +58,6 @@ public class Schema
     public Schema()
     {
         UserIds = new DB.Sequence("userIds", SEQUENCE_OFFS);
-
         Users = new DB.Table("users");
         UserId = new DB.Columns.BigInt(Users, "id", primaryKey: true);
         UserName = new DB.Columns.Text(Users, "name");
@@ -69,8 +75,22 @@ public class Schema
             rec.Set(UserCreatedAt, DateTime.UtcNow);
         };
 
-        PoolIds = new DB.Sequence("poolIds", SEQUENCE_OFFS);
+        EventIds = new DB.Sequence("eventIds", SEQUENCE_OFFS);
+        Events = new DB.Table("events");
+        EventId = new DB.Columns.BigInt(Events, "id", primaryKey: true);
+        EventParent = new DB.ForeignKey(Events, "parent", Events, nullable: true);
+        EventCreatedAt = new DB.Columns.Timestamp(Events, "createdAt");
+        EventCreatedBy = new DB.ForeignKey(Events, "createdBy", Users);
+        EventKey = new DB.Columns.JSONB(Events, "key");
+        EventData = new DB.Columns.JSONB(Events, "data");
 
+        Events.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
+        {
+            if (!rec.Contains(EventId)) { rec.Set(EventId, EventIds.Next(tx)); }
+            rec.Set(EventCreatedAt, DateTime.UtcNow);
+        };
+
+        PoolIds = new DB.Sequence("poolIds", SEQUENCE_OFFS);
         Pools = new DB.Table("pools");
         PoolId = new DB.Columns.BigInt(Pools, "id", primaryKey: true);
         PoolName = new DB.Columns.Text(Pools, "name");
