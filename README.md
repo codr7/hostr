@@ -13,7 +13,7 @@ Passwords are hashed using pbkdf2 with custom format.
 Pools are things that have a capacity specified in time, even though that capacity may be infinite.<br>
 They also contain rules for booknigs, e.g whether bookings need to be checked in and/or out.<br>
 
-### calendars
+#### calendars
 Calendars specify the total and used capacity for pools in time with minute precision.<br>
 When capacity is updated, new segments are created and existing segments shortened.<br>
 Each segment carries an optional label for display purposes.
@@ -29,11 +29,11 @@ Each product is a pool, which may be used to track its capacity in time.
 ### price lists
 Price lists are used to segment prices.
 
-### prices
+#### prices
 Prices are actual amounts; specified in time per price list, product and pool.
 
-### taxes
-Taxes are different kinds of taxes, e.g VAT.
+### tax types
+Taxes types are different kinds of taxes, e.g VAT.
 
-#### rates
-Tax rates are actual percentages, specified in time.
+#### tax rates
+Tax rates are actual percentages, specified in time per type.
