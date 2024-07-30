@@ -1,6 +1,6 @@
 
 ## concepts
-List in order of decreasing importance and increasing detail.<br>
+Listed in order of decreasing importance and increasing detail.<br>
 Each concept is a separate table in the database.
 
 ### users
