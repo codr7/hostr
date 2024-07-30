@@ -23,7 +23,7 @@ public class Schema
     public readonly DB.Columns.Timestamp EventPostedAt;
     public readonly DB.ForeignKey EventPostedBy;
     public readonly DB.Columns.JSONB EventKey;
-    public readonly DB.Columns.JSONB EventData; 
+    public readonly DB.Columns.JSONB EventData;
 
     public readonly DB.Sequence PoolIds;
     public readonly DB.Table Pools;
@@ -149,7 +149,7 @@ public class Schema
         Pools.AfterInsert += (rec, tx) =>
         {
             var c = new DB.Record();
-            rec.Copy(ref c, CalendarPool.ForeignColumns.Zip(CalendarPool.Columns).ToArray()); 
+            rec.Copy(ref c, CalendarPool.ForeignColumns.Zip(CalendarPool.Columns).ToArray());
             rec.Copy(ref c, PoolCreatedBy.Columns.Zip(CalendarUpdatedBy.Columns).ToArray());
             c.Set(CalendarStartsAt, DateTime.MinValue);
             c.Set(CalendarEndsAt, DateTime.MaxValue);
@@ -157,7 +157,8 @@ public class Schema
         };
     }
 
-    public void PostEvent(Record key, Record data, Tx tx) {
+    public void PostEvent(Events.Type type, Record key, Record data, Tx tx)
+    {
 
     }
 }

@@ -1,9 +1,8 @@
 * add event sourcing
-** finish PostEvent
-** add type column
+** finish Schema.PostEvent
+** add type column to table
 *** add DB.Enum<>
 ** post events in Program.cs
-*** DB.PostEvent(type, Record key, data, tx)
 
 * add tax types
 ** name (primary key)
