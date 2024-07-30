@@ -2,7 +2,7 @@
 
 using DB = Hostr.DB;
 using UI = Hostr.UI;
- 
+
 var db = new Schema();
 var cx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 cx.Connect();
@@ -22,7 +22,7 @@ try
 
     if (firstRun)
     {
-        ui.Say("Fresh database detected, creating user");
+        ui.Say("Setup User");
         var name = ui.Ask("Name: ");
         if (name is null) { throw new Exception("Missing name"); }
         var email = ui.Ask("Email: ");
@@ -34,18 +34,18 @@ try
         hu.Set(db.UserId, 0);
         db.Users.Insert(hu, tx);
 
-        var u = db.MakeUser(name, email, password);    
+        var u = db.MakeUser(name, email, password);
         u.Set(db.UserCreatedBy, hu);
         db.Users.Insert(u, tx);
         user = u;
 
         var r = db.MakePool("double");
         r.Set(db.PoolCreatedBy, u);
-        db.Pools.Insert(r, tx);        
+        db.Pools.Insert(r, tx);
 
         r = db.MakeUnit("conf small");
         r.Set(db.UnitCreatedBy, u);
-        db.Units.Insert(r, tx);        
+        db.Units.Insert(r, tx);
 
         ui.Say("User successfully created");
     }
@@ -64,10 +64,11 @@ try
         {
             var password = ui.Ask("Password: ");
             if (password is null) { throw new Exception("Missing password"); }
-#pragma warning disable CS8604 
+
+#pragma warning disable CS8604
             if (!Password.Check(u.Get(db.UserPassword), password)) { throw new Exception("Wrong password"); }
 #pragma warning restore CS8604
-            
+
             u.Set(db.UserLoginAt, DateTime.UtcNow);
             db.Users.Update(u, tx);
         }

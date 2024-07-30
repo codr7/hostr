@@ -1,3 +1,26 @@
+* add tax/rates
+** name (primary key)
+
+* add tax rates
+** tax
+** startsAt
+** endsAt
+** decimal percent
+
+* add product
+** name
+** every product is a pool (like unit)
+** salesTax
+
+* add price
+** startsAt/endsAt/pool/product/amount
+
+* add price list
+** name/rule
+
+* implement decimal CalculatePrice(PriceList, Product, Pool, from, to)
+** sum all found records
+
 * implement Tx.GetStoredObject
 ** update when record is stored
 ** add record index
