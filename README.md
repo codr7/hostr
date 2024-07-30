@@ -4,7 +4,7 @@ Every concept is a separate table in the database.
 
 ### users
 A user account is needed to log into the system.<br>
-If starting with an empty database, you will be prompted to create a new user in the setup process.<br>
+When starting with an empty database, the setup process prompts to create a user.<br>
 An additional system user (named 'hostr') is automatically created; but since it has an empty password, it can't be used to log in.<br>
 Passwords are hashed using pbkdf2 with a custom format.
 

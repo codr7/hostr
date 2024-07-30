@@ -1,3 +1,6 @@
+* detect empty user table as firstRun
+** add RecordCount(condition, tx)
+
 * add tax/rates
 ** name (primary key)
 
