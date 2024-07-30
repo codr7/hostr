@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-
 namespace Hostr;
 
 public class Schema
@@ -45,6 +43,7 @@ public class Schema
     public readonly DB.Key UserNameKey;
     public readonly DB.Columns.Timestamp UserCreatedAt;
     public readonly DB.ForeignKey UserCreatedBy;
+    public readonly DB.Columns.Timestamp UserLoginAt;
     public readonly DB.Columns.Text UserEmail;
     public readonly DB.Key UserEmailKey;
     public readonly DB.Columns.Text UserPassword;
@@ -59,6 +58,7 @@ public class Schema
         UserNameKey = new DB.Key(Users, "nameKey", [UserName]);
         UserCreatedAt = new DB.Columns.Timestamp(Users, "createdAt");
         UserCreatedBy = new DB.ForeignKey(Users, "createdBy", Users, nullable: true);
+        UserLoginAt = new DB.Columns.Timestamp(Users, "loginAt");
         UserEmail = new DB.Columns.Text(Users, "email");
         UserEmailKey = new DB.Key(Users, "emailKey", [UserEmail]);
         UserPassword = new DB.Columns.Text(Users, "password");

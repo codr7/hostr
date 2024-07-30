@@ -4,7 +4,9 @@
 *** atomic
 *** init in constructor
 
-* add Record.To/FromJSON()
+* only update change fields in Table.Update
+
+* add Record.To/FromJSON(Column[])
 ** add Column.To/FromJSON()
  
 * add settings table

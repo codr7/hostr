@@ -39,13 +39,11 @@ try
         db.Users.Insert(u, tx);
         user = u;
 
-        var r = new DB.Record();
-        r.Set(db.PoolName, "double");
+        var r = db.MakePool("double");
         r.Set(db.PoolCreatedBy, u);
         db.Pools.Insert(r, tx);        
 
-        r = new DB.Record();
-        r.Set(db.UnitName, "conf small");
+        r = db.MakeUnit("conf small");
         r.Set(db.UnitCreatedBy, u);
         db.Units.Insert(r, tx);        
 
@@ -69,7 +67,9 @@ try
 #pragma warning disable CS8604 
             if (!Password.Check(u.Get(db.UserPassword), password)) { throw new Exception("Wrong password"); }
 #pragma warning restore CS8604
-            db.Users.Update((DB.Record)user, tx);
+            
+            u.Set(db.UserLoginAt, DateTime.UtcNow);
+            db.Users.Update(u, tx);
         }
         else
         {
