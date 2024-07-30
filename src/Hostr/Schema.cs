@@ -18,8 +18,8 @@ public class Schema
     public readonly DB.Table Events;
     public readonly DB.Columns.BigInt EventId;
     public readonly DB.ForeignKey EventParent;
-    public readonly DB.Columns.Timestamp EventCreatedAt;
-    public readonly DB.ForeignKey EventCreatedBy;
+    public readonly DB.Columns.Timestamp EventPostedAt;
+    public readonly DB.ForeignKey EventPostedBy;
     public readonly DB.Columns.JSONB EventKey;
     public readonly DB.Columns.JSONB EventData; 
 
@@ -79,15 +79,15 @@ public class Schema
         Events = new DB.Table("events");
         EventId = new DB.Columns.BigInt(Events, "id", primaryKey: true);
         EventParent = new DB.ForeignKey(Events, "parent", Events, nullable: true);
-        EventCreatedAt = new DB.Columns.Timestamp(Events, "createdAt");
-        EventCreatedBy = new DB.ForeignKey(Events, "createdBy", Users);
+        EventPostedAt = new DB.Columns.Timestamp(Events, "postedAt");
+        EventPostedBy = new DB.ForeignKey(Events, "postedBy", Users);
         EventKey = new DB.Columns.JSONB(Events, "key");
         EventData = new DB.Columns.JSONB(Events, "data");
 
         Events.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
         {
             if (!rec.Contains(EventId)) { rec.Set(EventId, EventIds.Next(tx)); }
-            rec.Set(EventCreatedAt, DateTime.UtcNow);
+            rec.Set(EventPostedAt, DateTime.UtcNow);
         };
 
         PoolIds = new DB.Sequence("poolIds", SEQUENCE_OFFS);
