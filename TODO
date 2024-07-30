@@ -24,6 +24,8 @@
 * implement decimal CalculatePrice(PriceList, Product, Pool, from, to)
 ** sum all found records
 
+* add booking
+
 * implement Tx.GetStoredObject
 ** update when record is stored
 ** add record index

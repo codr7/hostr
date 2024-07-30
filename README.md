@@ -1,7 +1,7 @@
 
 ## concepts
 Listed in order of decreasing importance and increasing detail.<br>
-Each concept is a separate table in the database.
+Each concept is represented by a separate table in the database.
 
 ### users
 A user account is needed to log into the system.<br>
@@ -15,7 +15,7 @@ They also contain rules for booknigs, e.g whether bookings need to be checked in
 
 #### calendars
 Calendars specify the total and used capacity for pools in time with minute precision.<br>
-When capacity is updated, new segments are created and existing segments shortened.<br>
+When capacity is updated, new segments are created and existing segments shortened as needed.<br>
 Each segment carries an optional label for display purposes.
 
 ### units
