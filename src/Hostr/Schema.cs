@@ -1,5 +1,3 @@
-using Hostr.DB;
-
 namespace Hostr;
 
 public class Schema
@@ -157,7 +155,7 @@ public class Schema
         };
     }
 
-    public void PostEvent(Events.Type type, Record key, Record data, Tx tx)
+    public void PostEvent(Events.Type type, DB.Record key, DB.Record data, DB.Tx tx)
     {
 
     }

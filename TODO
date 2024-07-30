@@ -1,8 +1,13 @@
 * add event sourcing
-** finish Schema.PostEvent
+** move PostEvent to Hostr.Cx
+*** DB.Cx DBCx
+*** Schema Schema;
+*** DB.Record? User
+** finish PostEvent
 ** add type column to table
 *** add DB.Enum<>
 ** post events in Program.cs
+*** DB.PostEvent(type, Record key, data, tx)
 
 * add tax types
 ** name (primary key)
