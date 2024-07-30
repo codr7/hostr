@@ -52,9 +52,10 @@ public class Table : Definition
         var sql = new StringBuilder();
         sql.Append($"SELECT COUNT(*) FROM {this}");
         object[] args = [];
-        
-        if (where is Condition w) { 
-            sql.Append($" WHERE {w}"); 
+
+        if (where is Condition w)
+        {
+            sql.Append($" WHERE {w}");
             args = w.Args;
         }
 

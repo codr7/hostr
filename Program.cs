@@ -9,7 +9,7 @@ cx.Connect();
 var tx = cx.StartTx();
 
 DB.Definition[] definitions = [db.UserIds, db.Users, db.PoolIds, db.Pools, db.Units, db.Calendars];
-//foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
+foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
 var firstRun = !db.Users.Exists(tx) || db.Users.Count(null, tx) == 0;
 foreach (var d in definitions) { d.Sync(tx); }
 
@@ -33,11 +33,13 @@ try
         var hu = db.MakeUser("hostr", "hostr");
         hu.Set(db.UserId, 0);
         db.Users.Insert(hu, tx);
+        ui.Say("System user 'hostr' created");
 
         var u = db.MakeUser(name, email, password);
         u.Set(db.UserCreatedBy, hu);
         db.Users.Insert(u, tx);
         user = u;
+        ui.Say($"User '{name}' created");
 
         var r = db.MakePool("double");
         r.Set(db.PoolCreatedBy, u);
@@ -47,7 +49,7 @@ try
         r.Set(db.UnitCreatedBy, u);
         db.Units.Insert(r, tx);
 
-        ui.Say("User successfully created");
+        ui.Say("Database seeded with examples");
     }
     else
     {
