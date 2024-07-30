@@ -1,4 +1,4 @@
-public static class StringUtil
+public static class StringUtils
 {
     public static string Capitalize(this string s) =>
         s switch

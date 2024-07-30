@@ -70,4 +70,10 @@ public struct Record
         buf.Append('}');
         return buf.ToString();
     }
+
+    public Record Update(Record source)
+    {
+        foreach (var (c, v) in source.fields) { fields[c] = v; }
+        return this;
+    }
 }

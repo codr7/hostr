@@ -1,6 +1,6 @@
 namespace Hostr;
 
-public static class Pool
+public static class Pools
 {
     public static DB.Record MakePool(this Schema db, string name = "")
     {

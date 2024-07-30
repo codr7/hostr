@@ -1,6 +1,6 @@
 namespace Hostr;
 
-public static class Unit
+public static class Units
 {
     public static DB.Record MakeUnit(this Schema db, string name = "")
     {

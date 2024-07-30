@@ -1,4 +1,5 @@
 * add event sourcing
+** finish PostEvent
 ** add type column
 *** add DB.Enum<>
 ** post events in Program.cs

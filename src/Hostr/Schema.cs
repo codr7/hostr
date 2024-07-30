@@ -1,3 +1,5 @@
+using Hostr.DB;
+
 namespace Hostr;
 
 public class Schema
@@ -153,5 +155,9 @@ public class Schema
             c.Set(CalendarEndsAt, DateTime.MaxValue);
             Calendars.Insert(c, tx);
         };
+    }
+
+    public void PostEvent(Record key, Record data, Tx tx) {
+
     }
 }
