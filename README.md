@@ -1,5 +1,5 @@
 
-## concepts
+## domain concepts
 Listed in order of decreasing importance and increasing detail.<br>
 Each concept is represented by a separate table in the database.
 
