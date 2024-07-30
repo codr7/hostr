@@ -47,6 +47,20 @@ public class Table : Definition
 
     public Column[] Columns => columns.ToArray();
 
+    public long Count(Condition? where, Tx tx)
+    {
+        var sql = new StringBuilder();
+        sql.Append($"SELECT COUNT(*) FROM {this}");
+        object[] args = [];
+        
+        if (where is Condition w) { 
+            sql.Append($" WHERE {w}"); 
+            args = w.Args;
+        }
+
+        return tx.ExecScalar<long>(sql.ToString(), args: args);
+    }
+
     public override void Create(Tx tx)
     {
         base.Create(tx);
@@ -79,7 +93,7 @@ public class Table : Definition
     public Record? Find(Record key, Tx tx)
     {
         var w = Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray());
-        var sql = $"SELECT {string.Join(", ", columns)} FROM {Name} WHERE {w.SQL}";
+        var sql = $"SELECT {string.Join(", ", columns)} FROM {Name} WHERE {w}";
         using var reader = tx.ExecReader(sql, args: w.Args);
         if (!reader.Read()) { return null; }
         var result = new Record();
@@ -100,28 +114,6 @@ public class Table : Definition
 #pragma warning restore CS8620
 
         foreach (var h in afterInsert) { h(rec, tx); }
-    }
-
-   public void Update(Record rec, Tx tx)
-    {
-        foreach (var h in beforeUpdate) { h(ref rec, tx); }
-
-        var cs = columns.Where(c => rec.Contains(c)).Select(c => (c, rec.GetObject(c))).ToArray();
-        var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredObject(rec, c))).ToArray();
-        
-        var w = Condition.And(wcs.Select((f) => {
-            if (f.Item2 is object v) { return f.Item1.Eq(f.Item2); }
-            throw new Exception($"Missing key: {f.Item1}");
-        }).ToArray());
-
-        var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w.SQL}";
-
-
-#pragma warning disable CS8620
-        tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
-#pragma warning restore CS8620
-
-        foreach (var h in afterUpdate) { h(rec, tx); }
     }
 
     public void Load(ref Record rec, NpgsqlDataReader reader)
@@ -162,6 +154,28 @@ public class Table : Definition
         {
             Create(tx);
         }
+    }
+
+    public void Update(Record rec, Tx tx)
+    {
+        foreach (var h in beforeUpdate) { h(ref rec, tx); }
+
+        var cs = columns.Where(c => rec.Contains(c)).Select(c => (c, rec.GetObject(c))).ToArray();
+        var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredObject(rec, c))).ToArray();
+
+        var w = Condition.And(wcs.Select((f) =>
+        {
+            if (f.Item2 is object v) { return f.Item1.Eq(f.Item2); }
+            throw new Exception($"Missing key: {f.Item1}");
+        }).ToArray());
+
+        var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w}";
+
+#pragma warning disable CS8620
+        tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
+#pragma warning restore CS8620
+
+        foreach (var h in afterUpdate) { h(rec, tx); }
     }
 
     internal void AddColumn(Column col) => columns.Add(col);

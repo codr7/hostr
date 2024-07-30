@@ -15,4 +15,6 @@ public struct Condition {
     public Condition And(Condition other) {
         return new Condition($"({SQL}) AND ({other.SQL})", Args.Concat(other.Args));
     }
+
+    public override string ToString() => SQL; 
 }
