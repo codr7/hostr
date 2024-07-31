@@ -21,7 +21,9 @@ public class Table : Definition
 
     private Key? primaryKey = null;
 
-    public Table(Schema schema, string name) : base(schema, name) { }
+    public Table(Schema schema, string name) : base(schema, name) { 
+        schema.AddDefinition(this);
+    }
 
     public TableDefinition? this[string name] => lookup[name];
     

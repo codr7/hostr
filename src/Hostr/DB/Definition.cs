@@ -5,12 +5,10 @@ public abstract class Definition : IComparable<Definition>
     public readonly string Name;
     public readonly Schema Schema;
 
-
     public Definition(Schema schema, string name)
     {
         Schema = schema;
         Name = name;
-        schema.AddDefinition(this);
     }
 
     public int CompareTo(Definition? other) => (other is Definition o) ? Name.CompareTo(o.Name) : -1;

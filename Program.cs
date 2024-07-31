@@ -8,11 +8,9 @@ var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 dbCx.Connect();
 var cx = new Cx(db, dbCx);
 var tx = dbCx.StartTx();
-
-DB.Definition[] definitions = [db.UserIds, db.Users, db.EventIds, db.Events, db.PoolIds, db.Pools, db.Units, db.Calendars];
-foreach (var d in definitions.Reverse()) { d.DropIfExists(tx); }
+db.DropIfExists(tx);
 var firstRun = !db.Users.Exists(tx) || db.Users.Count(null, tx) == 0;
-foreach (var d in definitions) { d.Sync(tx); }
+db.Sync(tx);
 
 using var ui = new UI.Shell();
 
