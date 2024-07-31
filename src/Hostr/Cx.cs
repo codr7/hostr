@@ -18,19 +18,29 @@ public class Cx
     public void PostEvent(Events.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
     {
         var e = new DB.Record();
-        if (user is DB.Record u) { e.Set(DB.EventPostedBy, u); }
-        type.Exec(this, e, key, ref data, tx);
-        if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
-        e.Set(DB.EventData, JsonDocument.Parse(Json.ToString(data)));
-        DB.Events.Insert(ref e, tx);
+        e.Set(DB.EventId, DB.EventIds.Next(tx));
+        e.Set(DB.EventPostedAt, DateTime.UtcNow);
+        if (currentUser is DB.Record u) { e.Set(DB.EventPostedBy, u); }
+        if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.ForeignColumns).ToArray()); }
+        currentEvents.Push(e);
+        
+        try {
+            type.Exec(this, e, key, ref data, tx);
+            if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
+            e.Set(DB.EventData, JsonDocument.Parse(Json.ToString(data)));
+            DB.Events.Insert(ref e, tx);
+        } finally {
+            if (!currentEvents.Pop().Equals(e)) { throw new Exception("Event popped out of order"); }
+        }
     }
 
     public void Login(DB.Record user, DB.Tx tx)
     {
         user.Set(DB.UserLoginAt, DateTime.UtcNow);
         PostEvent(Users.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user, tx);
-        this.user = user;
+        this.currentUser = user;
     }
 
-    private DB.Record? user;
+    private List<DB.Record> currentEvents = new List<DB.Record>();
+    private DB.Record? currentUser;
 }

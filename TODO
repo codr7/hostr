@@ -2,9 +2,10 @@
 ** add type column to table
 *** add DB.Enum/EnumColumn
 *** set in PostEvent
-** add pool events
-** add unit events
 ** commit
+
+* format sql statements in cx.prepare
+** insert values in brackets
 
 * add ForeignKey.OnDelete/Update
 ** set default Block/Cascade

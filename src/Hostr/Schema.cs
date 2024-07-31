@@ -89,12 +89,6 @@ public class Schema: DB.Schema
         EventKey = new DB.Columns.Jsonb(Events, "key", json.Options, nullable: true);
         EventData = new DB.Columns.Jsonb(Events, "data", json.Options);
 
-        Events.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
-        {
-            if (!rec.Contains(EventId)) { rec.Set(EventId, EventIds.Next(tx)); }
-            rec.Set(EventPostedAt, DateTime.UtcNow);
-        };
-
         PoolIds = new DB.Sequence(this, "poolIds", SEQUENCE_OFFS);
         Pools = new DB.Table(this, "pools");
         PoolId = new DB.Columns.BigInt(Pools, "id", primaryKey: true);

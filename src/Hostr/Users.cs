@@ -1,44 +1,41 @@
-using Hostr.DB;
-
 namespace Hostr;
 
 public static class Users
 {
-
     public struct Insert : Events.Type
     {
-        public void Exec(Cx cx, Record evt, Record? key, ref Record data, Tx tx)
+        public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
             cx.DB.Users.Insert(ref data, tx);
         }
 
         public string Id => "InsertUser";
 
-        public Table Table(Cx cx) => cx.DB.Users;
+        public DB.Table Table(Cx cx) => cx.DB.Users;
     }
 
     public static readonly Insert INSERT = new Insert();
 
     public struct Update : Events.Type
     {
-        public void Exec(Cx cx, Record evt, Record? key, ref Record data, Tx tx)
+        public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
-            if (key is null) { throw new Exception("Null key"); }
+            if (key is null) { throw new Exception("Null user key"); }
             var rec = cx.DB.Users.Find((DB.Record)key, tx);
             
-            if (rec is Record r)
+            if (rec is DB.Record r)
             {
                 r.Update(data);
                 cx.DB.Users.Update(ref data, tx);
             }
             else
             {
-                throw new Exception($"Record not found: {key}");
+                throw new Exception($"User not found: {key}");
             }
         }
 
         public string Id => "UpdateUser";
-        public Table Table(Cx cx) => cx.DB.Users;
+        public DB.Table Table(Cx cx) => cx.DB.Users;
     }
 
     public static readonly Update UPDATE = new Update();

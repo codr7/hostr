@@ -43,11 +43,11 @@ try
 
         var r = db.MakePool("double");
         r.Set(db.PoolCreatedBy, u);
-        db.Pools.Insert(ref r, tx);
+        cx.PostEvent(Pools.INSERT, null, ref r, tx);
 
         r = db.MakeUnit("conf small");
         r.Set(db.UnitCreatedBy, u);
-        db.Units.Insert(ref r, tx);
+        cx.PostEvent(Units.INSERT, null, ref r, tx);
 
         ui.Say("Database seeded with examples");
     }
