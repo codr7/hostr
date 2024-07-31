@@ -84,3 +84,18 @@ catch (Exception e)
 {
     ui.Say(e);
 }
+
+WebApplication MakeApp()
+{
+    var builder = WebApplication.CreateBuilder();
+    var app = builder.Build();
+    return app;
+}
+
+var app = MakeApp();
+app.MapGet("/ping", () => "pong");
+app.MapPost("/stop", () => app.StopAsync());
+
+new Thread(() => {
+    app.Run();    
+}).Start();
