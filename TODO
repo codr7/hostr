@@ -4,9 +4,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * strip - from savepoint names
 
-* add authenticated endpoint
-** require jwt bearer token
-
 * add settings
 ** store value as json
 

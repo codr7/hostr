@@ -49,10 +49,8 @@ public static class Users
 
     public static string MakeJwtToken(Cx cx, DB.Record user)
     {
-        var k = Encoding.UTF8.GetBytes(cx.JwtKey);
-
         var creds = new SigningCredentials(
-                    new SymmetricSecurityKey(k),
+                    cx.JwtKey,
                     SecurityAlgorithms.HmacSha256);
 
         var claims = new ClaimsIdentity();

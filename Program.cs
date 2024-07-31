@@ -1,7 +1,10 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Hostr;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.IdentityModel.Tokens;
 using DB = Hostr.DB;
 using UI = Hostr.UI;
 
@@ -74,7 +77,23 @@ catch (Exception e)
 WebApplication MakeApp()
 {
     var builder = WebApplication.CreateBuilder();
+
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+     .AddJwtBearer(options =>
+     {
+         options.TokenValidationParameters = new TokenValidationParameters
+         {
+             ValidateLifetime = true,
+             ValidateIssuerSigningKey = true,
+             IssuerSigningKey = cx.JwtKey
+         };
+     });
+
+    builder.Services.AddAuthentication();
+    builder.Services.AddAuthorization();
     var app = builder.Build();
+    app.UseAuthentication();
+    app.UseAuthorization();
     return app;
 }
 
@@ -93,7 +112,8 @@ app.MapPost("login", async (HttpContext http) =>
     return Users.MakeJwtToken(cx, u);
 });
 
-app.MapPost("/stop", () => app.StopAsync());
+app.MapPost("/stop", () => app.StopAsync()).
+  RequireAuthorization();
 
 new Thread(() =>
 {

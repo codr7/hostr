@@ -1,7 +1,9 @@
 namespace Hostr;
 
 using System.Net;
+using System.Text;
 using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
 
 public class Cx
 {
@@ -10,12 +12,13 @@ public class Cx
         DB = db;
         DBCx = dbCx;
         Json = new Json(db);
+        JwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("eyJhbGciOiJIUzI1NiJ9.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJBbmlzaCBOYXRoIiwNCiAgImlhdCI6IDE1MTYyMzkwMjINCn0.KXlzwhGodgi8yqntLOHggIpvnElHeVImJYNro1NQX00"));
     }
 
     public readonly Schema DB;
     public readonly DB.Cx DBCx;
     public readonly Json Json;
-    public readonly string JwtKey = "eyJhbGciOiJIUzI1NiJ9.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJBbmlzaCBOYXRoIiwNCiAgImlhdCI6IDE1MTYyMzkwMjINCn0.KXlzwhGodgi8yqntLOHggIpvnElHeVImJYNro1NQX00";
+    public readonly SymmetricSecurityKey JwtKey;
 
     public void PostEvent(Events.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
     {
