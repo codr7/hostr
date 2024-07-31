@@ -1,3 +1,6 @@
+* add Schema.Create/Drop(tx)
+** use in program.cs
+
 * add ForeignKey.OnDelete/Update
 ** set default Block/Cascade
 ** add in CreateSQL

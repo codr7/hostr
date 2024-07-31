@@ -9,7 +9,7 @@ Passwords are hashed using pbkdf2 with custom format.
 
 ### events
 All modifications to the database are logged as events for audits and statistics.<br>
-Each event carries all information needed to replay it.
+Each event carries all information needed for replay.
 
 ### pools
 Pools are things that have a capacity specified in time, even though that capacity may be infinite.<br>
