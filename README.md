@@ -1,6 +1,4 @@
-
 ## domain concepts
-Listed in order of decreasing importance and increasing detail.<br>
 Each concept is represented by a separate table in the database.
 
 ### users
@@ -8,6 +6,10 @@ A user account is needed to log into the system.<br>
 When starting with an empty database, the setup process prompts to create a user.<br>
 An additional system user (named `hostr`) is automatically created; but since it has an empty password, it can't be used to log in.<br>
 Passwords are hashed using pbkdf2 with custom format.
+
+### events
+All modifications to the database are logged as events for audits and statistics.<br>
+Each event carries all information needed to replay it.
 
 ### pools
 Pools are things that have a capacity specified in time, even though that capacity may be infinite.<br>

@@ -6,8 +6,8 @@ namespace Hostr;
 public class Json {
     public static JsonSerializerOptions GetOptions(Schema schema) {
         var os = new JsonSerializerOptions();
-        os.Converters.Add(new DocumentJsonConverter());
-        os.Converters.Add(new RecordJsonConverter(schema));
+        os.Converters.Add(new DocumentConverter());
+        os.Converters.Add(new RecordConverter(schema));
         return os;
     }
     

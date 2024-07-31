@@ -19,6 +19,7 @@ public class Cx
     {
         var e = new DB.Record();
         e.Set(DB.EventId, DB.EventIds.Next(tx));
+        e.Set(DB.EventType, type.Id);
         e.Set(DB.EventPostedAt, DateTime.UtcNow);
         if (currentUser is DB.Record u) { e.Set(DB.EventPostedBy, u); }
         if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.ForeignColumns).ToArray()); }

@@ -1,15 +1,12 @@
-* finish event sourcing
-** add type column to table
-*** add DB.Enum/EnumColumn
-*** set in PostEvent
-** commit
-
-* format sql statements in cx.prepare
-** insert values in brackets
-
 * add ForeignKey.OnDelete/Update
 ** set default Block/Cascade
 ** add in CreateSQL
+
+* add settings
+** store value as json
+
+* format sql statements in cx.prepare
+** insert values in brackets
 
 * add tax types
 ** name (primary key)
@@ -47,8 +44,6 @@
 * add Record.To/FromJSON(Column[])
 ** add Column.To/FromJSON()
  
-* add settings table
-
 * add rest api
 ** add ping endpoint
 

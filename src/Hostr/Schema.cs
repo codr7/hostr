@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Npgsql.Internal;
 
@@ -20,6 +21,7 @@ public class Schema: DB.Schema
     public readonly DB.Sequence EventIds;
     public readonly DB.Table Events;
     public readonly DB.Columns.BigInt EventId;
+    public readonly DB.Columns.Text EventType;
     public readonly DB.ForeignKey EventParent;
     public readonly DB.Columns.Timestamp EventPostedAt;
     public readonly DB.ForeignKey EventPostedBy;
@@ -83,6 +85,7 @@ public class Schema: DB.Schema
         EventIds = new DB.Sequence(this, "eventIds", SEQUENCE_OFFS);
         Events = new DB.Table(this, "events");
         EventId = new DB.Columns.BigInt(Events, "id", primaryKey: true);
+        EventType = new DB.Columns.Text(Events, "type");
         EventParent = new DB.ForeignKey(Events, "parent", Events, nullable: true);
         EventPostedAt = new DB.Columns.Timestamp(Events, "postedAt");
         EventPostedBy = new DB.ForeignKey(Events, "postedBy", Users, nullable: true);

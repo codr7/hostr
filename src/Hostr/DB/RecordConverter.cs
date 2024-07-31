@@ -3,11 +3,11 @@ namespace Hostr.DB;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class RecordJsonConverter : JsonConverter<Record>
+public class RecordConverter : JsonConverter<Record>
 {
     private Schema db;
 
-    public RecordJsonConverter(Schema db)
+    public RecordConverter(Schema db)
     {
         this.db = db;
     }

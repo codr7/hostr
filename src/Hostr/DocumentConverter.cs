@@ -3,9 +3,9 @@ namespace Hostr.DB;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-public class DocumentJsonConverter : JsonConverter<JsonDocument>
+public class DocumentConverter : JsonConverter<JsonDocument>
 {
-    public DocumentJsonConverter() {}
+    public DocumentConverter() {}
 
     public override bool CanConvert(Type objectType) => objectType == typeof(JsonDocument);
 
