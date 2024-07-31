@@ -21,7 +21,7 @@ public static class Units
         public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
             if (key is null) { throw new Exception("Null unit key"); }
-            var rec = cx.DB.Units.Find((DB.Record)key, tx);
+            var rec = cx.DB.Units.FindFirst((DB.Record)key, tx);
 
             if (rec is DB.Record r)
             {

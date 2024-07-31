@@ -21,7 +21,7 @@ public static class Pools
         public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
             if (key is null) { throw new Exception("Null pool key"); }
-            var rec = cx.DB.Pools.Find((DB.Record)key, tx);
+            var rec = cx.DB.Pools.FindFirst((DB.Record)key, tx);
 
             if (rec is DB.Record r)
             {

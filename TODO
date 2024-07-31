@@ -1,7 +1,11 @@
 curl -X POST http://localhost:5000/stop
 
-* add post login endpoint
-** create jwt token
+curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}'http://localhost:5000/login
+
+* strip - from savepoint names
+
+* add authenticated endpoint
+** require jwt bearer token
 
 * add settings
 ** store value as json

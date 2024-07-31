@@ -118,7 +118,7 @@ public class Table : Definition
         return result;
     }
 
-    public Record? Find(Record key, Tx tx) =>
+    public Record? FindFirst(Record key, Tx tx) =>
         FindFirst(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
 
     public void Insert(ref Record rec, Tx tx)

@@ -1,4 +1,6 @@
-﻿using Hostr;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Hostr;
 
 using DB = Hostr.DB;
 using UI = Hostr.UI;
@@ -54,27 +56,11 @@ try
         tx.Commit();
         tx = dbCx.StartTx();
         ui.Say("Login");
-        var id = ui.Ask("User: ");
-        if (id is null) { throw new Exception("Missing user"); }
-        var key = new DB.Record();
-        key.Set(id.Contains('@') ? db.UserEmail : db.UserName, id);
-        var fu = db.Users.Find(key, tx);
-
-        if (fu is DB.Record u)
-        {
-            var password = ui.Ask("Password: ");
-            if (password is null) { throw new Exception("Missing password"); }
-
-#pragma warning disable CS8604
-            if (!Password.Check(u.Get(db.UserPassword), password)) { throw new Exception("Wrong password"); }
-#pragma warning restore CS8604
-
-            cx.Login(u, tx);
-        }
-        else
-        {
-            throw new Exception($"User not found: {id}");
-        }
+        var email = ui.Ask("Email: ");
+        if (email is null) { throw new Exception("Missing email"); }
+        var password = ui.Ask("Password: ");
+        if (password is null) { throw new Exception("Missing password"); }
+        cx.Login(email, password, tx);
     }
 
     Console.WriteLine("EVENT " + db.Events.FindFirst(null, tx));
@@ -93,9 +79,29 @@ WebApplication MakeApp()
 }
 
 var app = MakeApp();
+
 app.MapGet("/ping", () => "pong");
+
+app.MapPost("login", async (HttpContext http) =>
+{
+    var request = http.Request;
+    var stream = new StreamReader(request.Body);
+    var body = await stream.ReadToEndAsync();
+    var data = cx.Json.FromString<LoginData>(body)!;
+    using var tx = cx.DBCx.StartTx();
+    var u = cx.Login(data.email, data.password, tx);
+    return Users.MakeJwtToken(cx, u);
+});
+
 app.MapPost("/stop", () => app.StopAsync());
 
-new Thread(() => {
-    app.Run();    
+new Thread(() =>
+{
+    app.Run();
 }).Start();
+
+public class LoginData
+{
+    [JsonRequired] public string email { get; set; }
+    [JsonRequired] public string password { get; set; }
+}

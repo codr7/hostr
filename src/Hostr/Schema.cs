@@ -51,8 +51,7 @@ public class Schema: DB.Schema
     public readonly DB.Sequence UserIds;
     public readonly DB.Table Users;
     public readonly DB.Columns.BigInt UserId;
-    public readonly DB.Columns.Text UserName;
-    public readonly DB.Key UserNameKey;
+    public readonly DB.Columns.Text UserDisplayName;
     public readonly DB.Columns.Timestamp UserCreatedAt;
     public readonly DB.ForeignKey UserCreatedBy;
     public readonly DB.Columns.Timestamp UserLoginAt;
@@ -67,8 +66,7 @@ public class Schema: DB.Schema
         UserIds = new DB.Sequence(this, "userIds", SEQUENCE_OFFS);
         Users = new DB.Table(this, "users");
         UserId = new DB.Columns.BigInt(Users, "id", primaryKey: true);
-        UserName = new DB.Columns.Text(Users, "name");
-        UserNameKey = new DB.Key(Users, "nameKey", [UserName]);
+        UserDisplayName = new DB.Columns.Text(Users, "displayName");
         UserCreatedAt = new DB.Columns.Timestamp(Users, "createdAt");
         UserCreatedBy = new DB.ForeignKey(Users, "createdBy", Users, nullable: true);
         UserLoginAt = new DB.Columns.Timestamp(Users, "loginAt");

@@ -18,4 +18,6 @@ public class Json {
     }
     
     public string ToString(object value) => JsonSerializer.Serialize(value, Options);
+
+    public T? FromString<T>(string value) => JsonSerializer.Deserialize<T>(value, Options);
 }

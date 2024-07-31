@@ -1,5 +1,6 @@
 namespace Hostr;
 
+using System.Net;
 using System.Text.Json;
 
 public class Cx
@@ -11,9 +12,10 @@ public class Cx
         Json = new Json(db);
     }
 
-    public Schema DB;
-    public DB.Cx DBCx;
+    public readonly Schema DB;
+    public readonly DB.Cx DBCx;
     public readonly Json Json;
+    public readonly string JwtKey = "eyJhbGciOiJIUzI1NiJ9.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJBbmlzaCBOYXRoIiwNCiAgImlhdCI6IDE1MTYyMzkwMjINCn0.KXlzwhGodgi8yqntLOHggIpvnElHeVImJYNro1NQX00";
 
     public void PostEvent(Events.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
     {
@@ -24,13 +26,16 @@ public class Cx
         if (currentUser is DB.Record u) { e.Set(DB.EventPostedBy, u); }
         if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.ForeignColumns).ToArray()); }
         currentEvents.Push(e);
-        
-        try {
+
+        try
+        {
             type.Exec(this, e, key, ref data, tx);
             if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
             e.Set(DB.EventData, JsonDocument.Parse(Json.ToString(data)));
             DB.Events.Insert(ref e, tx);
-        } finally {
+        }
+        finally
+        {
             if (!currentEvents.Pop().Equals(e)) { throw new Exception("Event popped out of order"); }
         }
     }
@@ -39,7 +44,23 @@ public class Cx
     {
         user.Set(DB.UserLoginAt, DateTime.UtcNow);
         PostEvent(Users.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user, tx);
-        this.currentUser = user;
+        currentUser = user;
+    }
+
+    public DB.Record Login(string email, string password, DB.Tx tx)
+    {
+        if (DB.Users.FindFirst(DB.UserEmail.Eq(email), tx) is DB.Record u)
+        {
+#pragma warning disable CS8604
+            if (!Password.Check(u.Get(DB.UserPassword), password)) { throw new Exception("Wrong password"); }
+#pragma warning restore CS8604
+            Login(u, tx);
+            return u;
+        }
+        else
+        {
+            throw new Exception($"User not found: {email}");
+        }
     }
 
     private List<DB.Record> currentEvents = new List<DB.Record>();
