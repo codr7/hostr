@@ -13,7 +13,7 @@ Each event carries all information needed to replay it.
 
 ### pools
 Pools are things that have a capacity specified in time, even though that capacity may be infinite.<br>
-They also contain rules for booknigs, e.g whether bookings need to be checked in and/or out.<br>
+They also contain carry rules, e.g whether bookings need to be checked in and/or out.<br>
 
 #### calendars
 Calendars specify the total and used capacity for pools in time with minute precision.<br>
