@@ -1,12 +1,11 @@
-using Hostr;
-using Hostr.DB;
+namespace Hostr;
 
 public static class Events
 {
     public interface Type
     {
-        void Exec(Schema db, Record evt, Record key, Record data, Tx tx);
+        void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx);
         string Id { get; }
-        Table Table(Schema db);
+        DB.Table Table(Cx cx);
     }
 }

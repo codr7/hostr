@@ -4,7 +4,7 @@ public class Sequence : Definition
 {
     private readonly int startValue;
 
-    public Sequence(string name, int startValue) : base(name)
+    public Sequence(Schema schema, string name, int startValue) : base(schema, name)
     {
         this.startValue = startValue;
     }

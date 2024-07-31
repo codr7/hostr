@@ -16,12 +16,15 @@ public class Table : Definition
 
     private readonly List<Column> columns = new List<Column>();
     private readonly List<Constraint> constraints = new List<Constraint>();
+    private readonly Dictionary<string, TableDefinition> lookup = new Dictionary<string, TableDefinition>();
     private readonly List<ForeignKey> foreignKeys = new List<ForeignKey>();
 
     private Key? primaryKey = null;
 
-    public Table(string name) : base(name) { }
+    public Table(Schema schema, string name) : base(schema, name) { }
 
+    public TableDefinition? this[string name] => lookup[name];
+    
     public event AfterHandler AfterInsert
     {
         add => afterInsert.Add(value);
@@ -94,7 +97,7 @@ public class Table : Definition
     public override bool Exists(Tx tx) =>
         tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
 
-    public Record? Find(Condition? where, Tx tx)
+    public Record? FindFirst(Condition? where, Tx tx)
     {
         var sql = new StringBuilder();
         sql.Append($"SELECT {string.Join(", ", columns)} FROM {Name}");
@@ -114,13 +117,14 @@ public class Table : Definition
     }
 
     public Record? Find(Record key, Tx tx) =>
-        Find(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
+        FindFirst(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
 
-    public void Insert(Record rec, Tx tx)
+    public void Insert(ref Record rec, Tx tx)
     {
         foreach (var h in beforeInsert) { h(ref rec, tx); }
 
-        var cs = columns.Where(c => rec.Contains(c)).Select(c => (c, rec.GetObject(c))).ToArray();
+        var d = rec;
+        var cs = columns.Where(c => d.Contains(c)).Select(c => (c, d.GetObject(c))).ToArray();
         var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\""))}) 
                      VALUES ({string.Join(", ", Enumerable.Range(0, cs.Length).Select(i => $"${i + 1}").ToArray())})";
 
@@ -136,7 +140,7 @@ public class Table : Definition
         for (var i = 0; i < columns.Count; i++)
         {
             var c = columns[i];
-            if (!reader.IsDBNull(i)) { rec.SetObject(c, (object)c.GetObject(reader, i)); }
+            if (!reader.IsDBNull(i)) { rec.SetObject(c, c.GetObject(reader, i)); }
         }
     }
 
@@ -171,12 +175,13 @@ public class Table : Definition
         }
     }
 
-    public void Update(Record rec, Tx tx)
+    public void Update(ref Record rec, Tx tx)
     {
         foreach (var h in beforeUpdate) { h(ref rec, tx); }
 
-        var cs = columns.Where(c => rec.Contains(c)).Select(c => (c, rec.GetObject(c))).ToArray();
-        var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredObject(rec, c))).ToArray();
+        var k = rec;
+        var cs = columns.Where(c => k.Contains(c)).Select(c => (c, k.GetObject(c))).ToArray();
+        var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredObject(k, c))).ToArray();
 
         var w = Condition.And(wcs.Select((f) =>
         {
@@ -193,6 +198,7 @@ public class Table : Definition
         foreach (var h in afterUpdate) { h(rec, tx); }
     }
 
+    internal void AddDefinition(TableDefinition def) => lookup[def.Name] = def;
     internal void AddColumn(Column col) => columns.Add(col);
     internal void AddConstraint(Constraint cons) => constraints.Add(cons);
     internal void AddForeignKey(ForeignKey key) => foreignKeys.Add(key);

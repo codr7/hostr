@@ -4,9 +4,10 @@ public abstract class TableDefinition : Definition
 {
     public readonly Table Table;
 
-    public TableDefinition(Table table, string name) : base(name)
+    public TableDefinition(Table table, string name) : base(table.Schema, name)
     {
         Table = table;
+        Table.AddDefinition(this);
     }
 
     public override string CreateSQL => $"ALTER TABLE {Table} ADD {DefinitionType} \"{Name}\"";

@@ -1,6 +1,6 @@
-using System.Text;
-
 namespace Hostr.DB;
+
+using System.Text;
 
 public struct Record
 {
@@ -10,9 +10,9 @@ public struct Record
 
     public bool Contains(Column col) => fields.ContainsKey(col);
 
-    public void Copy(ref Record to, (Column, Column)[] colMap)
+    public void Copy(ref Record to, (Column, Column)[] map)
     {
-        foreach (var (fc, tc) in colMap)
+        foreach (var (fc, tc) in map)
         {
             if (GetObject(fc) is object v)
             {
@@ -23,6 +23,12 @@ public struct Record
                 throw new Exception($"Missing field: {fc}");
             }
         }
+    }
+
+    public Record Copy(Column[] cols) {
+        var c = new Record();
+        Copy(ref c, cols.Zip(cols).ToArray());
+        return c;
     }
 
     public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);
@@ -48,7 +54,7 @@ public struct Record
         return this;
     }
 
-    public Record SetObject(Column col, object value)
+    public Record SetObject(Column col, object? value)
     {
         fields[col] = value;
         return this;
@@ -63,7 +69,7 @@ public struct Record
         foreach (var (c, v) in fields)
         {
             if (i > 0) { buf.Append(", "); }
-            buf.Append($"{c.Name}: {c.ValueToString(v)}");
+            buf.Append($"{c.Name}: {c.ToString(v)}");
             i++;
         }
 

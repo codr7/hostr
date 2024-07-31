@@ -2,6 +2,7 @@ namespace Hostr.DB;
 
 using Npgsql;
 using System.Text;
+using System.Text.Json;
 
 public abstract class Column : TableDefinition, IComparable<Column>
 {
@@ -63,14 +64,8 @@ public abstract class Column : TableDefinition, IComparable<Column>
     }
 
     public abstract object GetObject(NpgsqlDataReader source, int i);
-
-    public override string ToString()
-    {
-        return $"{Table}.\"{Name}\"";
-    }
-
-    public virtual string ValueToString(object val)
-    {
-        return $"{val}";
-    }
+    public abstract object? Read(Utf8JsonReader reader);
+    public override string ToString() => $"{Table}.\"{Name}\"";
+    public virtual string ToString(object val) => $"{val}";
+    public abstract void Write(Utf8JsonWriter writer, object value);
 }

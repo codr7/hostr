@@ -20,7 +20,7 @@ public class ForeignKey : Key
     public ForeignKey(Table table, string name, Table foreignTable, bool nullable = false, bool primaryKey = false) :
     this(table, name, foreignTable, foreignTable.PrimaryKey.Columns.Select(c =>
     {
-        var cc = c.Clone(table, $"{name}{c.Name.Capitalize()}", nullable: nullable, primaryKey: primaryKey);
+        var cc = c.Clone(table, $"{name}{c.Name.Capitalize()}", defaultValue: null, nullable: nullable, primaryKey: primaryKey);
         return (cc, c);
     }).ToArray(),
     nullable: nullable,

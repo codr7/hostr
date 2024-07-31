@@ -1,5 +1,6 @@
 namespace Hostr.DB.Columns;
 
+using System.Text.Json;
 using Npgsql;
 
 public class Timestamp : TypedColumn<DateTime>
@@ -32,4 +33,6 @@ public class Timestamp : TypedColumn<DateTime>
 #pragma warning restore CS8605
 
     public override object GetObject(NpgsqlDataReader source, int i) => source.GetDateTime(i);
+    public override object? Read(Utf8JsonReader reader) => reader.GetDateTime();
+    public override void Write(Utf8JsonWriter writer, object value) => writer.WriteStringValue((DateTime)value);
 }

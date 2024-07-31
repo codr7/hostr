@@ -1,13 +1,14 @@
-* add event sourcing
-** move PostEvent to Hostr.Cx
-*** DB.Cx DBCx
-*** Schema Schema;
-*** DB.Record? User
-** finish PostEvent
+* finish event sourcing
 ** add type column to table
-*** add DB.Enum<>
-** post events in Program.cs
-*** DB.PostEvent(type, Record key, data, tx)
+*** add DB.Enum/EnumColumn
+*** set in PostEvent
+** add pool events
+** add unit events
+** commit
+
+* add ForeignKey.OnDelete/Update
+** set default Block/Cascade
+** add in CreateSQL
 
 * add tax types
 ** name (primary key)

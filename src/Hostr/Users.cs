@@ -5,29 +5,31 @@ namespace Hostr;
 public static class Users
 {
 
-    public struct InsertUser : Events.Type
+    public struct Insert : Events.Type
     {
-        public void Exec(Schema db, Record evt, Record key, Record data, Tx tx)
+        public void Exec(Cx cx, Record evt, Record? key, ref Record data, Tx tx)
         {
-            db.Users.Insert(data, tx);
+            cx.DB.Users.Insert(ref data, tx);
         }
 
         public string Id => "InsertUser";
 
-        public Table Table(Schema db) => db.Users;
+        public Table Table(Cx cx) => cx.DB.Users;
     }
 
-    public static readonly InsertUser INSERT_USER = new InsertUser();
+    public static readonly Insert INSERT = new Insert();
 
-    public struct UpdateUser : Events.Type
+    public struct Update : Events.Type
     {
-        public void Exec(Schema db, Record evt, Record key, Record data, Tx tx)
+        public void Exec(Cx cx, Record evt, Record? key, ref Record data, Tx tx)
         {
-            var rec = db.Users.Find(key, tx);
+            if (key is null) { throw new Exception("Null key"); }
+            var rec = cx.DB.Users.Find((DB.Record)key, tx);
             
             if (rec is Record r)
             {
-                db.Users.Update(r.Update(data), tx);
+                r.Update(data);
+                cx.DB.Users.Update(ref data, tx);
             }
             else
             {
@@ -36,10 +38,10 @@ public static class Users
         }
 
         public string Id => "UpdateUser";
-        public Table Table(Schema db) => db.Users;
+        public Table Table(Cx cx) => cx.DB.Users;
     }
 
-    public static readonly UpdateUser UPDATE_USER = new UpdateUser();
+    public static readonly Update UPDATE = new Update();
 
     public const int PASSWORD_ITERS = 10000;
 

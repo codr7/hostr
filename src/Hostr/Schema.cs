@@ -1,6 +1,9 @@
+using System.Text.Json;
+using Npgsql.Internal;
+
 namespace Hostr;
 
-public class Schema
+public class Schema: DB.Schema
 {
     public static readonly int SEQUENCE_OFFS = 100;
 
@@ -20,8 +23,8 @@ public class Schema
     public readonly DB.ForeignKey EventParent;
     public readonly DB.Columns.Timestamp EventPostedAt;
     public readonly DB.ForeignKey EventPostedBy;
-    public readonly DB.Columns.JSONB EventKey;
-    public readonly DB.Columns.JSONB EventData;
+    public readonly DB.Columns.Jsonb EventKey;
+    public readonly DB.Columns.Jsonb EventData;
 
     public readonly DB.Sequence PoolIds;
     public readonly DB.Table Pools;
@@ -57,8 +60,10 @@ public class Schema
 
     public Schema()
     {
-        UserIds = new DB.Sequence("userIds", SEQUENCE_OFFS);
-        Users = new DB.Table("users");
+        var json = new Json(this);
+
+        UserIds = new DB.Sequence(this, "userIds", SEQUENCE_OFFS);
+        Users = new DB.Table(this, "users");
         UserId = new DB.Columns.BigInt(Users, "id", primaryKey: true);
         UserName = new DB.Columns.Text(Users, "name");
         UserNameKey = new DB.Key(Users, "nameKey", [UserName]);
@@ -75,14 +80,14 @@ public class Schema
             rec.Set(UserCreatedAt, DateTime.UtcNow);
         };
 
-        EventIds = new DB.Sequence("eventIds", SEQUENCE_OFFS);
-        Events = new DB.Table("events");
+        EventIds = new DB.Sequence(this, "eventIds", SEQUENCE_OFFS);
+        Events = new DB.Table(this, "events");
         EventId = new DB.Columns.BigInt(Events, "id", primaryKey: true);
         EventParent = new DB.ForeignKey(Events, "parent", Events, nullable: true);
         EventPostedAt = new DB.Columns.Timestamp(Events, "postedAt");
-        EventPostedBy = new DB.ForeignKey(Events, "postedBy", Users);
-        EventKey = new DB.Columns.JSONB(Events, "key");
-        EventData = new DB.Columns.JSONB(Events, "data");
+        EventPostedBy = new DB.ForeignKey(Events, "postedBy", Users, nullable: true);
+        EventKey = new DB.Columns.Jsonb(Events, "key", json.Options, nullable: true);
+        EventData = new DB.Columns.Jsonb(Events, "data", json.Options);
 
         Events.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
         {
@@ -90,8 +95,8 @@ public class Schema
             rec.Set(EventPostedAt, DateTime.UtcNow);
         };
 
-        PoolIds = new DB.Sequence("poolIds", SEQUENCE_OFFS);
-        Pools = new DB.Table("pools");
+        PoolIds = new DB.Sequence(this, "poolIds", SEQUENCE_OFFS);
+        Pools = new DB.Table(this, "pools");
         PoolId = new DB.Columns.BigInt(Pools, "id", primaryKey: true);
         PoolName = new DB.Columns.Text(Pools, "name");
         PoolNameKey = new DB.Key(Pools, "nameKey", [PoolName]);
@@ -108,7 +113,7 @@ public class Schema
             rec.Set(PoolCreatedAt, DateTime.UtcNow);
         };
 
-        Units = new DB.Table("units");
+        Units = new DB.Table(this, "units");
         UnitId = new DB.Columns.BigInt(Units, "id", primaryKey: true);
         UnitPool = new DB.ForeignKey(Units, "pool", Pools, [(UnitId, PoolId)]);
         UnitName = new DB.Columns.Text(Units, "name");
@@ -126,10 +131,10 @@ public class Schema
             p.Set(PoolName, Guid.NewGuid().ToString());
             rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray());
             p.Set(PoolVisible, false);
-            Pools.Insert(p, tx);
+            Pools.Insert(ref p, tx);
         };
 
-        Calendars = new DB.Table("calendars");
+        Calendars = new DB.Table(this, "calendars");
         CalendarPool = new DB.ForeignKey(Calendars, "pool", Pools, primaryKey: true);
         CalendarStartsAt = new DB.Columns.Timestamp(Calendars, "startsAt", primaryKey: true);
         CalendarEndsAt = new DB.Columns.Timestamp(Calendars, "endsAt");
@@ -151,12 +156,7 @@ public class Schema
             rec.Copy(ref c, PoolCreatedBy.Columns.Zip(CalendarUpdatedBy.Columns).ToArray());
             c.Set(CalendarStartsAt, DateTime.MinValue);
             c.Set(CalendarEndsAt, DateTime.MaxValue);
-            Calendars.Insert(c, tx);
+            Calendars.Insert(ref c, tx);
         };
-    }
-
-    public void PostEvent(Events.Type type, DB.Record key, DB.Record data, DB.Tx tx)
-    {
-
     }
 }
