@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using DB = Hostr.DB;
 using UI = Hostr.UI;
 using Web = Hostr.Web;
+using static Hostr.Web.RouteExtensions;
 
 var db = new Schema();
 var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");

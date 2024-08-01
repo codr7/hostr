@@ -4,6 +4,11 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * strip - from savepoint names
 
+* make route properties abstract?
+** replaces constructor
+
+* move MakeApp to Web.App.Make
+* 
 * post ddl statements as events
 ** add virtual ExecDDL?
 *** unless table is events
