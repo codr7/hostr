@@ -1,7 +1,7 @@
-namespace Hostr.DB;
-
 using Npgsql;
 using System.Text.RegularExpressions;
+
+namespace Hostr.DB;
 
 public class Cx: ValueStore
 {

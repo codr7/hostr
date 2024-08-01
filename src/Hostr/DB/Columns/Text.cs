@@ -1,7 +1,7 @@
-namespace Hostr.DB.Columns;
-
-using System.Text.Json;
 using Npgsql;
+using System.Text.Json;
+
+namespace Hostr.DB.Columns;
 
 public class Text : TypedColumn<string>
 {

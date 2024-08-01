@@ -1,8 +1,8 @@
-namespace Hostr;
-
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
+
+namespace Hostr;
 
 public class Cx
 {

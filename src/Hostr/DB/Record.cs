@@ -1,6 +1,6 @@
-namespace Hostr.DB;
-
 using System.Text;
+
+namespace Hostr.DB;
 
 using RecordId = ulong;
 

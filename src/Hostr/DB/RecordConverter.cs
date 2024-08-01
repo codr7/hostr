@@ -1,7 +1,7 @@
-namespace Hostr.DB;
-
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+namespace Hostr.DB;
 
 public class RecordConverter : JsonConverter<Record>
 {

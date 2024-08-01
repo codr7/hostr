@@ -1,8 +1,8 @@
-namespace Hostr.DB;
-
 using Npgsql;
 using System.Text;
 using System.Text.Json;
+
+namespace Hostr.DB;
 
 public abstract class Column : TableDefinition, IComparable<Column>
 {

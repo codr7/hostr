@@ -1,8 +1,8 @@
 
-namespace Hostr.UI;
-
 using System.Drawing;
 using System.Text;
+
+namespace Hostr.UI;
 
 public class Shell : IDisposable
 {

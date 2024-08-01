@@ -1,9 +1,8 @@
-namespace Hostr.DB;
-
+using Npgsql;
 using System.Data;
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Npgsql;
+
+namespace Hostr.DB;
 
 public class Table : Definition
 {

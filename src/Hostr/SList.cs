@@ -1,7 +1,7 @@
-namespace Hostr;
-
 using System.Collections;
 using System.Text;
+
+namespace Hostr;
 
 public class SList<T> : IEnumerable<T>, IList<T>
 {
