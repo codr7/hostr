@@ -1,6 +1,6 @@
-namespace Hostr.Web;
+namespace Hostr.Web.Routes;
 
-public static class Login
+public class Login: Route
 {
     private struct Data
     {
@@ -8,10 +8,11 @@ public static class Login
         public required string password { get; set; }
     }
 
-    async public static Task<object> Handler(HttpContext http)
-    {
-        var cx = (Cx)http.Items["cx"]!;
-        var request = http.Request;
+    public Login(): base(Method.Post, "/login") {}
+
+    async public override Task<object> Exec(HttpContext hcx) {
+        var cx = (Cx)hcx.Items["cx"]!;
+        var request = hcx.Request;
         var stream = new StreamReader(request.Body);
         var body = await stream.ReadToEndAsync();
         var data = cx.Json.FromString<Data>(body)!;

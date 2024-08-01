@@ -4,6 +4,8 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * strip - from savepoint names
 
+* move filters into Route class
+
 * post ddl statements as events
 ** add virtual ExecDDL?
 *** unless table is events
