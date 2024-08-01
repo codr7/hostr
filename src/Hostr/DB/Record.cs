@@ -11,13 +11,14 @@ public struct Record
 
     private readonly OrderedMap<Column, object> fields = new OrderedMap<Column, object>();
 
-    public Record(RecordId? id = null)
+    public Record(RecordId id)
     {
-        Id = id ?? NextId();
+        Id = id;
     }
 
-    public Record() {
-
+    public Record()
+    {
+        Id = NextId();
     }
 
     public bool Contains(Column col) => fields.ContainsKey(col);

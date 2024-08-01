@@ -1,6 +1,8 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}'http://localhost:5000/login
 curl -X POST http://localhost:5000/stop
 
+* add calendar events
+
 * strip - from savepoint names
 
 * move stored values to prev tx and finally cx on commit

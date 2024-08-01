@@ -6,41 +6,8 @@ namespace Hostr;
 
 public static class Users
 {
-    public struct Insert : Events.Type
-    {
-        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
-        {
-            return cx.DB.Users.Insert(ref data, tx);
-        }
-
-        public string Id => "InsertUser";
-
-        public DB.Table Table(Cx cx) => cx.DB.Users;
-    }
-
-    public static readonly Insert INSERT = new Insert();
-
-    public struct Update : Events.Type
-    {
-        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
-        {
-            if (key is null) { throw new Exception("Null user key"); }
-            var rec = cx.DB.Users.FindFirst((DB.Record)key, tx);
-
-            if (rec is DB.Record r)
-            {
-                r.Update(data);
-                return cx.DB.Users.Update(ref r, tx);
-            }
-
-            throw new Exception($"User not found: {key}");
-        }
-
-        public string Id => "UpdateUser";
-        public DB.Table Table(Cx cx) => cx.DB.Users;
-    }
-
-    public static readonly Update UPDATE = new Update();
+    public static Events.Type INSERT => new Events.Insert("InsertUser", "users");
+    public static Events.Type UPDATE => new Events.Update("UpdateUser", "users");
 
     public const int PASSWORD_ITERS = 10000;
 
