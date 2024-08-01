@@ -1,6 +1,5 @@
-curl -X POST http://localhost:5000/stop
-
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}'http://localhost:5000/login
+curl -X POST http://localhost:5000/stop
 
 * strip - from savepoint names
 

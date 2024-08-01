@@ -204,7 +204,8 @@ public class Table : Definition
             return sv == null || !sv.Equals(c.Item2);
           }).
           ToArray();
-
+        
+        if (cs.Length == 0) { return rec; }
         var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredValue(k.Id, c)!)).ToArray();
 
         var w = Condition.And(wcs.
