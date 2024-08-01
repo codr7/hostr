@@ -4,11 +4,15 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * strip - from savepoint names
 
-* make route properties abstract?
-** replaces constructor
+* change pool/unit name from unique to index
+** add index
 
-* move MakeApp to Web.App.Make
-* 
+* add error filter
+** catch exceptions and return json object
+** internal server error default
+** use HttpException as base for HttpError with code/message
+*** special case in middleware to set status
+
 * post ddl statements as events
 ** add virtual ExecDDL?
 *** unless table is events

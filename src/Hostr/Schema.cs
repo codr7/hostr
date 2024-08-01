@@ -1,6 +1,6 @@
 namespace Hostr;
 
-public class Schema: DB.Schema
+public class Schema : DB.Schema
 {
     public static readonly int SEQUENCE_OFFS = 100;
 
@@ -31,6 +31,7 @@ public class Schema: DB.Schema
     public readonly DB.Key PoolNameKey;
     public readonly DB.Columns.Timestamp PoolCreatedAt;
     public readonly DB.ForeignKey PoolCreatedBy;
+    public readonly DB.ForeignKey PoolOwnedBy;
     public readonly DB.Columns.Boolean PoolInfiniteCapacity;
     public readonly DB.Columns.Boolean PoolCheckIn;
     public readonly DB.Columns.Boolean PoolCheckOut;
@@ -43,6 +44,7 @@ public class Schema: DB.Schema
     public readonly DB.Key UnitNameKey;
     public readonly DB.Columns.Timestamp UnitCreatedAt;
     public readonly DB.ForeignKey UnitCreatedBy;
+    public readonly DB.ForeignKey UnitOwnedBy;
 
     public readonly DB.Sequence UserIds;
     public readonly DB.Table Users;
@@ -93,6 +95,7 @@ public class Schema: DB.Schema
         PoolNameKey = new DB.Key(Pools, "nameKey", [PoolName]);
         PoolCreatedAt = new DB.Columns.Timestamp(Pools, "createdAt");
         PoolCreatedBy = new DB.ForeignKey(Pools, "createdBy", Users);
+        PoolOwnedBy = new DB.ForeignKey(Pools, "ownedBy", Users);
         PoolInfiniteCapacity = new DB.Columns.Boolean(Pools, "infiniteCapacity", defaultValue: false);
         PoolCheckIn = new DB.Columns.Boolean(Pools, "checkIn", defaultValue: false);
         PoolCheckOut = new DB.Columns.Boolean(Pools, "checkOut", defaultValue: false);
@@ -102,6 +105,7 @@ public class Schema: DB.Schema
         {
             if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
             rec.Set(PoolCreatedAt, DateTime.UtcNow);
+            rec.Copy(ref rec, PoolCreatedBy.Columns.Zip(PoolOwnedBy.Columns).ToArray());
         };
 
         Units = new DB.Table(this, "units");
@@ -111,11 +115,13 @@ public class Schema: DB.Schema
         UnitNameKey = new DB.Key(Units, "nameKey", [UnitName]);
         UnitCreatedAt = new DB.Columns.Timestamp(Units, "createdAt");
         UnitCreatedBy = new DB.ForeignKey(Units, "createdBy", Users);
+        UnitOwnedBy = new DB.ForeignKey(Units, "ownedBy", Users);
 
         Units.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
         {
             if (!rec.Contains(UnitId)) { rec.Set(UnitId, PoolIds.Next(tx)); }
             rec.Set(UnitCreatedAt, DateTime.UtcNow);
+            rec.Copy(ref rec, UnitCreatedBy.Columns.Zip(UnitOwnedBy.Columns).ToArray());
 
             var p = new DB.Record();
             p.Set(PoolId, rec.Get(UnitId));
