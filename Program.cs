@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Hostr;
+﻿using Hostr;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using DB = Hostr.DB;
@@ -95,10 +94,11 @@ WebApplication MakeApp()
 
     app.MapGet("/ping", () => "pong");
 
-    app.MapPost("login", (Delegate)Web.Login.Handler);
+    app.MapPost("login", (Delegate)Web.Login.Handler).
+        AddEndpointFilter<Web.CxFilter>();
  
     app.MapPost("/stop", () => app.StopAsync()).
-      RequireAuthorization();
+        RequireAuthorization();
 
     return app;
 }

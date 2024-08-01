@@ -4,12 +4,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * strip - from savepoint names
 
-* create new cx for each request
-** init in middleware?
-** pass in http context?
-** only apply to certain routes via property?
-*** /login
-
 * add settings
 ** store value as json
 

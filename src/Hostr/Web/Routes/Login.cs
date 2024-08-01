@@ -12,7 +12,9 @@ public static class Login
 
     async public static Task<object> Handler(HttpContext http)
     {
-        Cx cx = new Cx(new Schema(), new DB.Cx("", "", "", "")); //TEMPORARY
+#pragma warning disable CS8600
+        var cx = (Cx)http.Items["cx"];
+#pragma warning restore CS8600
         var request = http.Request;
         var stream = new StreamReader(request.Body);
         var body = await stream.ReadToEndAsync();
