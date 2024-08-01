@@ -4,8 +4,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * strip - from savepoint names
 
-* move filters into Route class
-
 * post ddl statements as events
 ** add virtual ExecDDL?
 *** unless table is events
@@ -50,7 +48,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 *** atomic
 *** init in constructor
 
-* only update change fields in Table.Update
+* only update changed fields in Table.Update
 
 * add Record.To/FromJSON(Column[])
 ** add Column.To/FromJSON()

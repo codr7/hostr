@@ -94,8 +94,7 @@ WebApplication MakeApp()
 
     app.MapGet("/ping", () => "pong");
 
-    new Web.Routes.Login().Bind(app).
-      AddEndpointFilter<Web.CxFilter>();
+    new Web.Routes.Login().Bind(app);
     
     app.MapPost("/stop", () => app.StopAsync()).
         RequireAuthorization();

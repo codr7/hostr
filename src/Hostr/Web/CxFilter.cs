@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.Filters;
-
 namespace Hostr.Web;
 
 public class CxFilter : IEndpointFilter

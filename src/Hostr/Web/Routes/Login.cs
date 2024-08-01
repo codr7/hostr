@@ -8,7 +8,7 @@ public class Login: Route
         public required string password { get; set; }
     }
 
-    public Login(): base(Method.Post, "/login") {}
+    public Login(): base(Method.Post, "/login", new CxFilter()) {}
 
     async public override Task<object> Exec(HttpContext hcx) {
         var cx = (Cx)hcx.Items["cx"]!;
