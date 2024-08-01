@@ -28,7 +28,7 @@ public static class App
 
         app.MapGet("/ping", () => "pong");
 
-        new Web.Routes.Login().Bind(app);
+        new Routes.Login().Bind(app);
 
         app.MapPost("/stop", () => app.StopAsync()).
             RequireAuthorization();

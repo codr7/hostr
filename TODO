@@ -26,11 +26,11 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 *** manually?
 ** add Cx.PostMigration(sql, tx)
 
-* add settings
-** store value as json
-
 * format sql statements in cx.prepare
 ** insert values in brackets
+
+* add settings
+** store value as json
 
 * add tax types
 ** name (primary key)
