@@ -1,12 +1,10 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Hostr;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
 using DB = Hostr.DB;
 using UI = Hostr.UI;
+using Web = Hostr.Web;
 
 var db = new Schema();
 var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
@@ -94,34 +92,16 @@ WebApplication MakeApp()
     var app = builder.Build();
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.MapGet("/ping", () => "pong");
+
+    app.MapPost("login", (Delegate)Web.Login.Handler);
+ 
+    app.MapPost("/stop", () => app.StopAsync()).
+      RequireAuthorization();
+
     return app;
 }
 
 var app = MakeApp();
-
-app.MapGet("/ping", () => "pong");
-
-app.MapPost("login", async (HttpContext http) =>
-{
-    var request = http.Request;
-    var stream = new StreamReader(request.Body);
-    var body = await stream.ReadToEndAsync();
-    var data = cx.Json.FromString<LoginData>(body)!;
-    using var tx = cx.DBCx.StartTx();
-    var u = cx.Login(data.email, data.password, tx);
-    return Users.MakeJwtToken(cx, u);
-});
-
-app.MapPost("/stop", () => app.StopAsync()).
-  RequireAuthorization();
-
-new Thread(() =>
-{
-    app.Run();
-}).Start();
-
-public class LoginData
-{
-    [JsonRequired] public string email { get; set; }
-    [JsonRequired] public string password { get; set; }
-}
+new Thread(() => app.Run()).Start();
