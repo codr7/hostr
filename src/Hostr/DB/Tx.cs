@@ -2,7 +2,7 @@ using Npgsql;
 
 namespace Hostr.DB;
 
-public class Tx: IDisposable
+public class Tx: ValueStore, IDisposable
 {
     public readonly Cx Cx;
     public readonly Tx? ParentTx;
@@ -40,8 +40,6 @@ public class Tx: IDisposable
     public void Exec(string statement, params object[] args) => Cx.Exec(statement, args: args);
     public NpgsqlDataReader ExecReader(string statement, params object[] args) => Cx.ExecReader(statement, args: args);
     public T ExecScalar<T>(string statement, params object[] args) => Cx.ExecScalar<T>(statement, args: args);
-
-    public object? GetStoredObject(Record rec, Column col) => rec.GetObject(col);
 
     public void Rollback()
     {

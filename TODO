@@ -2,8 +2,14 @@ curl -X POST http://localhost:5000/stop
 
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}'http://localhost:5000/login
 
-* strip - from savepoint names
+* only update changed fields in Table.Update
 
+* add Auth flag to Route (stop)
+** add global Dev flag
+*** bypass auth
+
+* strip - from savepoint names
+  
 * change pool/unit name from unique to index
 ** add index
 
@@ -50,14 +56,6 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 ** sum all found records
 
 * add booking
-
-* implement Tx.GetStoredObject
-** update when record is stored
-** add record index
-*** atomic
-*** init in constructor
-
-* only update changed fields in Table.Update
 
 * add Record.To/FromJSON(Column[])
 ** add Column.To/FromJSON()

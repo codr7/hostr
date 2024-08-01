@@ -57,7 +57,7 @@ public class Schema : DB.Schema
     public readonly DB.Key UserEmailKey;
     public readonly DB.Columns.Text UserPassword;
 
-    public Schema()
+    public Schema(Cx cx)
     {
         var json = new Json(this);
 
@@ -86,7 +86,7 @@ public class Schema : DB.Schema
         EventPostedAt = new DB.Columns.Timestamp(Events, "postedAt");
         EventPostedBy = new DB.ForeignKey(Events, "postedBy", Users, nullable: true);
         EventKey = new DB.Columns.Jsonb(Events, "key", json.Options, nullable: true);
-        EventData = new DB.Columns.Jsonb(Events, "data", json.Options);
+        EventData = new DB.Columns.Jsonb(Events, "data", json.Options, nullable: true);
 
         PoolIds = new DB.Sequence(this, "poolIds", SEQUENCE_OFFS);
         Pools = new DB.Table(this, "pools");
@@ -128,7 +128,7 @@ public class Schema : DB.Schema
             p.Set(PoolName, Guid.NewGuid().ToString());
             rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray());
             p.Set(PoolVisible, false);
-            Pools.Insert(ref p, tx);
+            cx.PostEvent(Hostr.Pools.INSERT, null, ref p, tx);
         };
 
         Calendars = new DB.Table(this, "calendars");
@@ -136,15 +136,21 @@ public class Schema : DB.Schema
         CalendarStartsAt = new DB.Columns.Timestamp(Calendars, "startsAt", primaryKey: true);
         CalendarEndsAt = new DB.Columns.Timestamp(Calendars, "endsAt");
         CalendarUpdatedAt = new DB.Columns.Timestamp(Calendars, "updatedAt");
-        CalendarUpdatedBy = new DB.ForeignKey(Calendars, "updatedBy", Users, nullable: true);
+        CalendarUpdatedBy = new DB.ForeignKey(Calendars, "updatedBy", Users);
         CalendarTotal = new DB.Columns.Integer(Calendars, "total");
         CalendarBooked = new DB.Columns.Integer(Calendars, "booked");
         CalendarLabel = new DB.Columns.Text(Calendars, "label");
 
-        Calendars.BeforeUpdate += (ref DB.Record rec, DB.Tx tx) =>
+        DB.Table.BeforeHandler beforeHandler = (ref DB.Record rec, DB.Tx tx) =>
         {
             rec.Set(CalendarUpdatedAt, DateTime.UtcNow);
+#pragma warning disable CS8629 
+            rec.Set(CalendarUpdatedBy, (DB.Record)cx.CurrentUser);
+#pragma warning restore CS8629
         };
+        
+        Calendars.BeforeInsert += beforeHandler;
+        Calendars.BeforeUpdate += beforeHandler;
 
         Pools.AfterInsert += (rec, tx) =>
         {

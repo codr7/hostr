@@ -1,19 +1,16 @@
 ﻿using Hostr;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+
 using DB = Hostr.DB;
 using UI = Hostr.UI;
 using Web = Hostr.Web;
-using static Hostr.Web.RouteExtensions;
 
-var db = new Schema();
 var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 dbCx.Connect();
-var cx = new Cx(db, dbCx);
+var cx = new Cx(dbCx);
 var tx = dbCx.StartTx();
-db.DropIfExists(tx);
-var firstRun = !db.Users.Exists(tx) || db.Users.Count(null, tx) == 0;
-db.Sync(tx);
+cx.DB.DropIfExists(tx);
+var firstRun = !cx.DB.Users.Exists(tx) || cx.DB.Users.Count(null, tx) == 0;
+cx.DB.Sync(tx);
 
 using var ui = new UI.Shell();
 
@@ -31,23 +28,23 @@ try
         var password = ui.Ask("Password: ");
         if (password is null) { throw new Exception("Missing password"); }
 
-        var hu = db.MakeUser("hostr", "hostr");
-        hu.Set(db.UserId, 0);
+        var hu = cx.DB.MakeUser("hostr", "hostr");
+        hu.Set(cx.DB.UserId, 0);
         cx.PostEvent(Users.INSERT, null, ref hu, tx);
         ui.Say("System user 'hostr' created");
 
-        var u = db.MakeUser(name, email, password);
-        u.Set(db.UserCreatedBy, hu);
+        var u = cx.DB.MakeUser(name, email, password);
+        u.Set(cx.DB.UserCreatedBy, hu);
         cx.PostEvent(Users.INSERT, null, ref u, tx);
         cx.Login(u, tx);
         ui.Say($"User '{name}' created");
 
-        var r = db.MakePool("double");
-        r.Set(db.PoolCreatedBy, u);
+        var r = cx.DB.MakePool("double");
+        r.Set(cx.DB.PoolCreatedBy, u);
         cx.PostEvent(Pools.INSERT, null, ref r, tx);
 
-        r = db.MakeUnit("conf small");
-        r.Set(db.UnitCreatedBy, u);
+        r = cx.DB.MakeUnit("conf small");
+        r.Set(cx.DB.UnitCreatedBy, u);
         cx.PostEvent(Units.INSERT, null, ref r, tx);
 
         ui.Say("Database seeded with examples");
@@ -64,7 +61,7 @@ try
         cx.Login(email, password, tx);
     }
 
-    Console.WriteLine("EVENT " + db.Events.FindFirst(null, tx));
+    //Console.WriteLine("EVENT " + cx.DB.Events.FindFirst(null, tx));
     tx.Commit();
 }
 catch (Exception e)

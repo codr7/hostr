@@ -6,14 +6,14 @@ using Microsoft.IdentityModel.Tokens;
 
 public class Cx
 {
-    public Cx(Schema db, DB.Cx dbCx)
+    public Cx(DB.Cx dbCx)
     {
-        DB = db;
+        DB = new Schema(this);
         DBCx = dbCx;
-        Json = new Json(db);
+        Json = new Json(DB);
         JwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("eyJhbGciOiJIUzI1NiJ9.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJBbmlzaCBOYXRoIiwNCiAgImlhdCI6IDE1MTYyMzkwMjINCn0.KXlzwhGodgi8yqntLOHggIpvnElHeVImJYNro1NQX00"));
     }
-
+    public DB.Record? CurrentUser => currentUser;
     public readonly Schema DB;
     public readonly DB.Cx DBCx;
     public readonly Json Json;
@@ -26,7 +26,7 @@ public class Cx
         e.Set(DB.EventType, type.Id);
         e.Set(DB.EventPostedAt, DateTime.UtcNow);
         if (currentUser is DB.Record u) { e.Set(DB.EventPostedBy, u); }
-        if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.ForeignColumns).ToArray()); }
+        if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.Columns).ToArray()); }
         currentEvents.Push(e);
 
         try
@@ -34,7 +34,22 @@ public class Cx
             type.Exec(this, e, key, ref data, tx);
             if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
             e.Set(DB.EventData, JsonDocument.Parse(Json.ToString(data)));
-            DB.Events.Insert(ref e, tx);
+
+            for (var i = 0; i < currentEvents.Count; i++)
+            {
+                var ce = currentEvents[i];
+
+                if (ce.Id == e.Id)
+                {
+                    DB.Events.Store(ref ce, tx);
+                }
+                else if (!DB.Events.Stored(ce, tx))
+                {
+                    DB.Events.Insert(ref ce, tx);
+                }
+
+                currentEvents[i] = ce;
+            };
         }
         finally
         {

@@ -2,11 +2,19 @@ namespace Hostr.DB;
 
 using System.Text;
 
+using RecordId = ulong;
+
 public struct Record
 {
+    private static RecordId nextId = 0;
+    public static RecordId NextId() => Interlocked.Increment(ref nextId);
+
     private OrderedMap<Column, object> fields = new OrderedMap<Column, object>();
 
-    public Record() { }
+    public Record()
+    {
+        Id = NextId();
+    }
 
     public bool Contains(Column col) => fields.ContainsKey(col);
 
@@ -25,16 +33,19 @@ public struct Record
         }
     }
 
-    public Record Copy(Column[] cols) {
+    public Record Copy(Column[] cols)
+    {
         var c = new Record();
         Copy(ref c, cols.Zip(cols).ToArray());
         return c;
     }
 
-    public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);
-    public object? GetObject(Column col) => fields[col];
     public (Column, object)[] Fields => fields.Items;
 
+    public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);
+    public object? GetObject(Column col) => fields[col];
+
+    public readonly RecordId Id;
     public Record Set<T>(TypedColumn<T> col, T value) where T : notnull => SetObject(col, value);
 
     public Record Set(ForeignKey key, Record rec)

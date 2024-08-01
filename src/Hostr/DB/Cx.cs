@@ -3,7 +3,7 @@ namespace Hostr.DB;
 using Npgsql;
 using System.Text.RegularExpressions;
 
-public class Cx
+public class Cx: ValueStore
 {
     private string host;
     private string database;

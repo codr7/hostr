@@ -2,6 +2,7 @@ namespace Hostr.DB;
 
 using System.Data;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Npgsql;
 
 public class Table : Definition
@@ -21,12 +22,13 @@ public class Table : Definition
 
     private Key? primaryKey = null;
 
-    public Table(Schema schema, string name) : base(schema, name) { 
+    public Table(Schema schema, string name) : base(schema, name)
+    {
         schema.AddDefinition(this);
     }
 
     public TableDefinition? this[string name] => lookup[name];
-    
+
     public event AfterHandler AfterInsert
     {
         add => afterInsert.Add(value);
@@ -114,7 +116,7 @@ public class Table : Definition
         using var reader = tx.ExecReader(sql.ToString(), args: args);
         if (!reader.Read()) { return null; }
         var result = new Record();
-        Load(ref result, reader);
+        Load(ref result, reader, tx);
         return result;
     }
 
@@ -126,23 +128,26 @@ public class Table : Definition
         foreach (var h in beforeInsert) { h(ref rec, tx); }
 
         var d = rec;
-        var cs = columns.Where(c => d.Contains(c)).Select(c => (c, d.GetObject(c))).ToArray();
+        var cs = columns.Where(c => d.Contains(c)).Select(c => (c, d.GetObject(c)!)).ToArray();
         var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\""))}) 
                      VALUES ({string.Join(", ", Enumerable.Range(0, cs.Length).Select(i => $"${i + 1}").ToArray())})";
 
-#pragma warning disable CS8620
         tx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
-#pragma warning restore CS8620
-
+        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
         foreach (var h in afterInsert) { h(rec, tx); }
     }
 
-    public void Load(ref Record rec, NpgsqlDataReader reader)
+    public void Load(ref Record rec, NpgsqlDataReader reader, Tx tx)
     {
         for (var i = 0; i < columns.Count; i++)
         {
             var c = columns[i];
-            if (!reader.IsDBNull(i)) { rec.SetObject(c, c.GetObject(reader, i)); }
+            if (!reader.IsDBNull(i))
+            {
+                var v = c.GetObject(reader, i);
+                rec.SetObject(c, v);
+                tx.StoreValue(rec.Id, c, v);
+            }
         }
     }
 
@@ -152,12 +157,29 @@ public class Table : Definition
         {
             if (primaryKey == null)
             {
-                primaryKey = new Key(this, $"{Name}PrimaryKey", columns.Where(c => c.PrimaryKey).ToArray());
+                primaryKey = new Key(this, "primaryKey", columns.Where(c => c.PrimaryKey).ToArray());
             }
 
             return primaryKey;
         }
     }
+
+    public void Store(ref Record rec, Tx tx)
+    {
+        var stored = Stored(rec, tx);
+
+        if (stored)
+        {
+            Update(ref rec, tx);
+        }
+        else
+        {
+            Insert(ref rec, tx);
+        }
+    }
+
+    public bool Stored(Record rec, Tx tx) =>
+        tx.GetStoredValue(rec.Id, PrimaryKey.Columns[0]) != null;
 
     public override void Sync(Tx tx)
     {
@@ -182,8 +204,8 @@ public class Table : Definition
         foreach (var h in beforeUpdate) { h(ref rec, tx); }
 
         var k = rec;
-        var cs = columns.Where(c => k.Contains(c)).Select(c => (c, k.GetObject(c))).ToArray();
-        var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredObject(k, c))).ToArray();
+        var cs = columns.Where(c => k.Contains(c)).Select(c => (c, k.GetObject(c)!)).ToArray();
+        var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredValue(k.Id, c)!)).ToArray();
 
         var w = Condition.And(wcs.Select((f) =>
         {
@@ -192,11 +214,8 @@ public class Table : Definition
         }).ToArray());
 
         var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w}";
-
-#pragma warning disable CS8620
         tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
-#pragma warning restore CS8620
-
+        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
         foreach (var h in afterUpdate) { h(rec, tx); }
     }
 
