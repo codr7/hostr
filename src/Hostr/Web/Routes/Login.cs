@@ -1,19 +1,17 @@
 namespace Hostr.Web;
 
-using System.Text.Json.Serialization;
-
 public static class Login
 {
     public class Data
     {
-        [JsonRequired] public string email { get; set; }
-        [JsonRequired] public string password { get; set; }
+        public required string email { get; set; }
+        public required string password { get; set; }
     }
 
     async public static Task<object> Handler(HttpContext http)
     {
 #pragma warning disable CS8600
-        var cx = (Cx)http.Items["cx"];
+        var cx = (Cx)http.Items["cx"]!;
 #pragma warning restore CS8600
         var request = http.Request;
         var stream = new StreamReader(request.Body);

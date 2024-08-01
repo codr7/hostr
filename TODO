@@ -4,6 +4,9 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * strip - from savepoint names
 
+* post ddl statements as events
+** add virtual ExecDDL?
+
 * add settings
 ** store value as json
 
