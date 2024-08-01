@@ -19,44 +19,6 @@ public class Cx
     public readonly Json Json;
     public readonly SymmetricSecurityKey JwtKey;
 
-    public void PostEvent(Events.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
-    {
-        var e = new DB.Record();
-        e.Set(DB.EventId, DB.EventIds.Next(tx));
-        e.Set(DB.EventType, type.Id);
-        e.Set(DB.EventPostedAt, DateTime.UtcNow);
-        if (currentUser is DB.Record u) { e.Set(DB.EventPostedBy, u); }
-        if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.Columns).ToArray()); }
-        currentEvents.Push(e);
-
-        try
-        {
-            type.Exec(this, e, key, ref data, tx);
-            if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
-            e.Set(DB.EventData, JsonDocument.Parse(Json.ToString(data)));
-
-            for (var i = 0; i < currentEvents.Count; i++)
-            {
-                var ce = currentEvents[i];
-
-                if (ce.Id == e.Id)
-                {
-                    DB.Events.Store(ref ce, tx);
-                }
-                else if (!DB.Events.Stored(ce, tx))
-                {
-                    DB.Events.Insert(ref ce, tx);
-                }
-
-                currentEvents[i] = ce;
-            };
-        }
-        finally
-        {
-            if (!currentEvents.Pop().Equals(e)) { throw new Exception("Event popped out of order"); }
-        }
-    }
-
     public void Login(DB.Record user, DB.Tx tx)
     {
         user.Set(DB.UserLoginAt, DateTime.UtcNow);
@@ -77,6 +39,44 @@ public class Cx
         else
         {
             throw new Exception($"User not found: {email}");
+        }
+    }
+
+    public void PostEvent(Events.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
+    {
+        var e = new DB.Record();
+        e.Set(DB.EventId, DB.EventIds.Next(tx));
+        e.Set(DB.EventType, type.Id);
+        e.Set(DB.EventPostedAt, DateTime.UtcNow);
+        if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
+        if (currentUser is DB.Record u) { e.Set(DB.EventPostedBy, u); }
+        if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.Columns).ToArray()); }
+        currentEvents.Push(e);
+
+        try
+        {
+            var d = type.Exec(this, e, key, ref data, tx);
+            e.Set(DB.EventData, JsonDocument.Parse(Json.ToString(d)));
+
+            for (var i = 0; i < currentEvents.Count; i++)
+            {
+                var ce = currentEvents[i];
+
+                if (ce.Id == e.Id)
+                {
+                    DB.Events.Store(ref ce, tx);
+                }
+                else if (!DB.Events.Stored(ce, tx))
+                {
+                    DB.Events.Insert(ref ce, tx);
+                }
+
+                currentEvents[i] = ce;
+            };
+        }
+        finally
+        {
+            if (!currentEvents.Pop().Equals(e)) { throw new Exception("Event popped out of order"); }
         }
     }
 

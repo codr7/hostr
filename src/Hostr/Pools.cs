@@ -4,9 +4,9 @@ public static class Pools
 {
     public struct Insert : Events.Type
     {
-        public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
+        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
-            cx.DB.Pools.Insert(ref data, tx);
+            return cx.DB.Pools.Insert(ref data, tx);
         }
 
         public string Id => "InsertPool";
@@ -18,7 +18,7 @@ public static class Pools
 
     public struct Update : Events.Type
     {
-        public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
+        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
             if (key is null) { throw new Exception("Null pool key"); }
             var rec = cx.DB.Pools.FindFirst((DB.Record)key, tx);
@@ -26,12 +26,10 @@ public static class Pools
             if (rec is DB.Record r)
             {
                 r.Update(data);
-                cx.DB.Users.Update(ref r, tx);
+                return cx.DB.Users.Update(ref r, tx);
             }
-            else
-            {
-                throw new Exception($"Pool not found: {key}");
-            }
+
+            throw new Exception($"Pool not found: {key}");
         }
 
         public string Id => "UpdatePool";

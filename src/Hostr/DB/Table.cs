@@ -123,7 +123,7 @@ public class Table : Definition
     public Record? FindFirst(Record key, Tx tx) =>
         FindFirst(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
 
-    public void Insert(ref Record rec, Tx tx)
+    public Record Insert(ref Record rec, Tx tx)
     {
         foreach (var h in beforeInsert) { h(ref rec, tx); }
 
@@ -135,6 +135,10 @@ public class Table : Definition
         tx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
         foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
         foreach (var h in afterInsert) { h(rec, tx); }
+
+        var res = new Record(id: rec.Id);
+        foreach (var (c, v) in cs) { res.SetObject(c, v); }
+        return res;
     }
 
     public void Load(ref Record rec, NpgsqlDataReader reader, Tx tx)
@@ -164,19 +168,8 @@ public class Table : Definition
         }
     }
 
-    public void Store(ref Record rec, Tx tx)
-    {
-        var stored = Stored(rec, tx);
-
-        if (stored)
-        {
-            Update(ref rec, tx);
-        }
-        else
-        {
-            Insert(ref rec, tx);
-        }
-    }
+    public Record Store(ref Record rec, Tx tx) => 
+        Stored(rec, tx) ? Update(ref rec, tx) : Insert(ref rec, tx);
 
     public bool Stored(Record rec, Tx tx) =>
         tx.GetStoredValue(rec.Id, PrimaryKey.Columns[0]) != null;
@@ -199,24 +192,38 @@ public class Table : Definition
         }
     }
 
-    public void Update(ref Record rec, Tx tx)
+    public Record Update(ref Record rec, Tx tx)
     {
         foreach (var h in beforeUpdate) { h(ref rec, tx); }
-
         var k = rec;
-        var cs = columns.Where(c => k.Contains(c)).Select(c => (c, k.GetObject(c)!)).ToArray();
+
+        var cs = columns.
+          Where(c => k.Contains(c)).
+          Select(c => (c, k.GetObject(c)!)).
+          Where(c => {
+            var sv = tx.GetStoredValue(k.Id, c.Item1);
+            return sv == null || !sv.Equals(c.Item2);
+          }).
+          ToArray();
+
         var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredValue(k.Id, c)!)).ToArray();
 
-        var w = Condition.And(wcs.Select((f) =>
-        {
-            if (f.Item2 is object v) { return f.Item1.Eq(f.Item2); }
-            throw new Exception($"Missing key: {f.Item1}");
-        }).ToArray());
+        var w = Condition.And(wcs.
+          Select((f) =>
+          {
+              if (f.Item2 is object v) { return f.Item1.Eq(f.Item2); }
+              throw new Exception($"Missing key: {f.Item1}");
+          }).
+          ToArray());
 
         var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w}";
         tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
         foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
         foreach (var h in afterUpdate) { h(rec, tx); }
+        
+        var res = new Record(id: rec.Id);
+        foreach (var (c, v) in cs) { res.SetObject(c, v); }
+        return res;
     }
 
     internal void AddDefinition(TableDefinition def) => lookup[def.Name] = def;

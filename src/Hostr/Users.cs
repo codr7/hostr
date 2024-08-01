@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Hostr;
@@ -9,9 +8,9 @@ public static class Users
 {
     public struct Insert : Events.Type
     {
-        public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
+        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
-            cx.DB.Users.Insert(ref data, tx);
+            return cx.DB.Users.Insert(ref data, tx);
         }
 
         public string Id => "InsertUser";
@@ -23,7 +22,7 @@ public static class Users
 
     public struct Update : Events.Type
     {
-        public void Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
+        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
             if (key is null) { throw new Exception("Null user key"); }
             var rec = cx.DB.Users.FindFirst((DB.Record)key, tx);
@@ -31,12 +30,10 @@ public static class Users
             if (rec is DB.Record r)
             {
                 r.Update(data);
-                cx.DB.Users.Update(ref data, tx);
+                return cx.DB.Users.Update(ref r, tx);
             }
-            else
-            {
-                throw new Exception($"User not found: {key}");
-            }
+
+            throw new Exception($"User not found: {key}");
         }
 
         public string Id => "UpdateUser";

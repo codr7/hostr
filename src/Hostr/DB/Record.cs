@@ -9,11 +9,15 @@ public struct Record
     private static RecordId nextId = 0;
     public static RecordId NextId() => Interlocked.Increment(ref nextId);
 
-    private OrderedMap<Column, object> fields = new OrderedMap<Column, object>();
+    private readonly OrderedMap<Column, object> fields = new OrderedMap<Column, object>();
 
-    public Record()
+    public Record(RecordId? id = null)
     {
-        Id = NextId();
+        Id = id ?? NextId();
+    }
+
+    public Record() {
+
     }
 
     public bool Contains(Column col) => fields.ContainsKey(col);
@@ -46,7 +50,7 @@ public struct Record
     public object? GetObject(Column col) => fields[col];
 
     public readonly RecordId Id;
-    public Record Set<T>(TypedColumn<T> col, T value) where T : notnull => SetObject(col, value);
+    public Record Set<T>(TypedColumn<T> col, T value) => SetObject(col, value);
 
     public Record Set(ForeignKey key, Record rec)
     {
