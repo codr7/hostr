@@ -1,6 +1,6 @@
 namespace Hostr.Web;
 
-public class CxFilter : IEndpointFilter
+public struct CxFilter : IEndpointFilter
 {
     public ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
