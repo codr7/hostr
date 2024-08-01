@@ -8,11 +8,11 @@ public class Timestamp : TypedColumn<DateTime>
     public static readonly DateTime DEFAULT = DateTime.UtcNow;
 
     public Timestamp(Table table, string name,
-                     DateTime? defaultValue = null,
+                     object? defaultValue = null,
                      bool nullable = false,
                      bool primaryKey = false) :
     base(table, name,
-         defaultValue: defaultValue ?? DateTime.UtcNow,
+         defaultValue: defaultValue,
          nullable: nullable,
          primaryKey: primaryKey)
     { }

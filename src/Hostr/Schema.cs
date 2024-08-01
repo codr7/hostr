@@ -1,7 +1,3 @@
-using System.Diagnostics;
-using System.Text.Json;
-using Npgsql.Internal;
-
 namespace Hostr;
 
 public class Schema: DB.Schema
@@ -69,7 +65,7 @@ public class Schema: DB.Schema
         UserDisplayName = new DB.Columns.Text(Users, "displayName");
         UserCreatedAt = new DB.Columns.Timestamp(Users, "createdAt");
         UserCreatedBy = new DB.ForeignKey(Users, "createdBy", Users, nullable: true);
-        UserLoginAt = new DB.Columns.Timestamp(Users, "loginAt");
+        UserLoginAt = new DB.Columns.Timestamp(Users, "loginAt", nullable: true);
         UserEmail = new DB.Columns.Text(Users, "email");
         UserEmailKey = new DB.Key(Users, "emailKey", [UserEmail]);
         UserPassword = new DB.Columns.Text(Users, "password");
@@ -97,9 +93,9 @@ public class Schema: DB.Schema
         PoolNameKey = new DB.Key(Pools, "nameKey", [PoolName]);
         PoolCreatedAt = new DB.Columns.Timestamp(Pools, "createdAt");
         PoolCreatedBy = new DB.ForeignKey(Pools, "createdBy", Users);
-        PoolInfiniteCapacity = new DB.Columns.Boolean(Pools, "infiniteCapacity");
-        PoolCheckIn = new DB.Columns.Boolean(Pools, "checkIn", false);
-        PoolCheckOut = new DB.Columns.Boolean(Pools, "checkOut", false);
+        PoolInfiniteCapacity = new DB.Columns.Boolean(Pools, "infiniteCapacity", defaultValue: false);
+        PoolCheckIn = new DB.Columns.Boolean(Pools, "checkIn", defaultValue: false);
+        PoolCheckOut = new DB.Columns.Boolean(Pools, "checkOut", defaultValue: false);
         PoolVisible = new DB.Columns.Boolean(Pools, "visible", defaultValue: true);
 
         Pools.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>

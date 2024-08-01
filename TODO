@@ -6,6 +6,9 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 
 * post ddl statements as events
 ** add virtual ExecDDL?
+*** unless table is events
+** events table must be initialized first
+*** manually?
 
 * add settings
 ** store value as json

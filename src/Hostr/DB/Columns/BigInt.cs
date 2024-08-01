@@ -6,7 +6,7 @@ using Npgsql;
 public class BigInt : TypedColumn<long>
 {
     public BigInt(Table table, string name,
-                  long? defaultValue = 0,
+                  long? defaultValue = null,
                   bool nullable = false,
                   bool primaryKey = false) :
     base(table, name,
