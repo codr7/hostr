@@ -9,6 +9,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 *** unless table is events
 ** events table must be initialized first
 *** manually?
+** add Cx.PostMigration(sql, tx)
 
 * add settings
 ** store value as json

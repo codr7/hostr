@@ -2,7 +2,7 @@ namespace Hostr.Web;
 
 public static class Login
 {
-    public class Data
+    private struct Data
     {
         public required string email { get; set; }
         public required string password { get; set; }
@@ -10,9 +10,7 @@ public static class Login
 
     async public static Task<object> Handler(HttpContext http)
     {
-#pragma warning disable CS8600
         var cx = (Cx)http.Items["cx"]!;
-#pragma warning restore CS8600
         var request = http.Request;
         var stream = new StreamReader(request.Body);
         var body = await stream.ReadToEndAsync();
