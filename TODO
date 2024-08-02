@@ -3,6 +3,11 @@ curl -X POST http://localhost:5000/stop
 
 * add calendar events
 
+* inject cx into table event handlers
+** add object data arg
+** replaces cx-arg to schema
+*** allocate one shared instance
+
 * strip - from savepoint names
 
 * move stored values to prev tx and finally cx on commit
