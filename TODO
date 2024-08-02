@@ -1,12 +1,12 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}'http://localhost:5000/login
 curl -X POST http://localhost:5000/stop
 
-* add calendar events
-
 * inject cx into table event handlers
 ** add object data arg
 ** replaces cx-arg to schema
 *** allocate one shared instance
+** use to set created/updatedBy fields in handlers
+* add calendar events
 
 * strip - from savepoint names
 
@@ -19,6 +19,16 @@ curl -X POST http://localhost:5000/stop
 * change pool/unit name from unique to index
 ** add index
 
+* add command loop
+** implement q - stop
+*** send request to own ip/port
+*** restrict to own ip/port in stop imp
+
+* format sql statements in cx.prepare
+** insert values in brackets
+
+--
+  
 * add error filter
 ** catch exceptions and return json object
 ** internal server error default
@@ -31,9 +41,6 @@ curl -X POST http://localhost:5000/stop
 ** events table must be initialized first
 *** manually?
 ** add Cx.PostMigration(sql, tx)
-
-* format sql statements in cx.prepare
-** insert values in brackets
 
 * add settings
 ** store value as json
