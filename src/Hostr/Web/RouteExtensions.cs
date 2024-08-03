@@ -4,10 +4,12 @@ public static class RouteExtensions
 {
     public static RouteHandlerBuilder Bind(this Route route, WebApplication app)
     {
+        var p = $"/api/v1{route.Path}";
+
         var rh = route.Method switch
         {
-            Method.Get => app.MapGet(route.Path, (Delegate)route.Exec),
-            Method.Post => app.MapPost(route.Path, (Delegate)route.Exec),
+            Method.Get => app.MapGet(p, (Delegate)route.Exec),
+            Method.Post => app.MapPost(p, (Delegate)route.Exec),
             _ => throw new Exception("Not implemented")
         };
 

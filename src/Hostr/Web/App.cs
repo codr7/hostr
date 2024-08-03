@@ -20,11 +20,27 @@ public static class App
              };
          });
 
+        var corsPolicyId = "defaultPolicy";
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(name: corsPolicyId,
+                              policy =>
+                              {
+                                  policy
+                                    .AllowAnyMethod()
+                                    .AllowCredentials()
+                                    .SetIsOriginAllowed((host) => true)
+                                    .AllowAnyHeader();
+                              });
+        });
+
         builder.Services.AddAuthentication();
         builder.Services.AddAuthorization();
         var app = builder.Build();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseCors(corsPolicyId);
 
         app.MapGet("/ping", () => "pong");
 

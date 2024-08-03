@@ -12,15 +12,21 @@ public struct Login : Route
         var request = hcx.Request;
         var stream = new StreamReader(request.Body);
         var body = await stream.ReadToEndAsync();
-        var data = cx.Json.FromString<Data>(body)!;
+        var data = cx.Json.FromString<ReqData>(body)!;
         using var tx = cx.DBCx.StartTx();
         var u = cx.Login(data.email, data.password, tx);
-        return Users.MakeJwtToken(cx, u);
+        tx.Commit();
+        return new ResData() { token = Users.MakeJwtToken(cx, u) };
     }
 
-    private struct Data
+    private struct ReqData
     {
         public required string email { get; set; }
         public required string password { get; set; }
+    }
+
+    private struct ResData
+    {
+        public required string token { get; set; }
     }
 }
