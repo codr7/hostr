@@ -100,7 +100,8 @@ public class Table : Definition
     public override bool Exists(Tx tx) =>
         tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
 
-    public Record? FindFirst(Condition? where, Tx tx)
+
+    private NpgsqlDataReader Read(Condition? where, Tx tx)
     {
         var sql = new StringBuilder();
         sql.Append($"SELECT {string.Join(", ", columns)} FROM {Name}");
@@ -112,7 +113,27 @@ public class Table : Definition
             args = w.Args;
         }
 
-        using var reader = tx.ExecReader(sql.ToString(), args: args);
+        return tx.ExecReader(sql.ToString(), args: args);
+    }
+
+    public Record[] FindAll(Condition? where, Tx tx)
+    {
+        using var reader = Read(where, tx);
+        var result = new List<Record>();
+
+        while (reader.Read())
+        {
+            var rec = new Record();
+            Load(ref rec, reader, tx);
+            result.Add(rec);
+        }
+
+        return result.ToArray();
+    }
+
+    public Record? FindFirst(Condition? where, Tx tx)
+    {
+        using var reader = Read(where, tx);
         if (!reader.Read()) { return null; }
         var result = new Record();
         Load(ref result, reader, tx);
@@ -167,7 +188,7 @@ public class Table : Definition
         }
     }
 
-    public Record Store(ref Record rec, Tx tx) => 
+    public Record Store(ref Record rec, Tx tx) =>
         Stored(rec, tx) ? Update(ref rec, tx) : Insert(ref rec, tx);
 
     public bool Stored(Record rec, Tx tx) =>
@@ -199,12 +220,13 @@ public class Table : Definition
         var cs = columns.
           Where(c => k.Contains(c)).
           Select(c => (c, k.GetObject(c)!)).
-          Where(c => {
-            var sv = tx.GetStoredValue(k.Id, c.Item1);
-            return sv == null || !sv.Equals(c.Item2);
+          Where(c =>
+          {
+              var sv = tx.GetStoredValue(k.Id, c.Item1);
+              return sv == null || !sv.Equals(c.Item2);
           }).
           ToArray();
-        
+
         if (cs.Length == 0) { return rec; }
         var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredValue(k.Id, c)!)).ToArray();
 
@@ -220,7 +242,7 @@ public class Table : Definition
         tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
         foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
         foreach (var h in afterUpdate) { h(rec, tx); }
-        
+
         var res = new Record(id: rec.Id);
         foreach (var (c, v) in cs) { res.SetObject(c, v); }
         return res;

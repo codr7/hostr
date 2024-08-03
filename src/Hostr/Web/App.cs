@@ -37,14 +37,20 @@ public static class App
 
         builder.Services.AddAuthentication();
         builder.Services.AddAuthorization();
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.Converters.Add(new RecordConverter());
+        });
+
         var app = builder.Build();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseCors(corsPolicyId);
 
         app.MapGet("/ping", () => "pong");
-
         new Routes.Login().Bind(app);
+
+        new Routes.Events().Bind(app);
 
         app.MapPost("/stop", () => app.StopAsync()).
             RequireAuthorization();

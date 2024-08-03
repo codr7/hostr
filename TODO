@@ -6,20 +6,15 @@ curl -X POST http://localhost:5000/stop
 ** replaces cx-arg to schema
 *** allocate one shared instance
 ** use to set created/updatedBy fields in handlers
+
 * add calendar events
 
 * strip - from savepoint names
 
 * move stored values to prev tx and finally cx on commit
-
-* add Auth flag to Route (stop)
-** add global Dev flag
-*** bypass auth
   
 * change pool/unit name from unique to index
 ** add index
-
-* add events route
 
 * --
 
@@ -99,3 +94,5 @@ alter user hostr with encrypted password ''
 create database hostr
 grant all privileges on hostr to hostr
 grant all on schema public to hostr
+
+sudo service postgresql restart

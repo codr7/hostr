@@ -5,11 +5,15 @@ namespace Hostr;
 public class Json {
     public static JsonSerializerOptions GetOptions(Schema schema) {
         var os = new JsonSerializerOptions();
-        os.Converters.Add(new DB.DocumentConverter());
-        os.Converters.Add(new DB.RecordConverter(schema));
+        InitOptions(os, schema);
         return os;
     }
     
+    public static void InitOptions(JsonSerializerOptions options, Schema schema) {
+        options.Converters.Add(new DB.DocumentConverter());
+        options.Converters.Add(new DB.RecordConverter(schema));
+    }
+
     public readonly JsonSerializerOptions Options;
 
     public Json(Schema schema) {
