@@ -1,6 +1,13 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
+* events
+** only return events for this user
+*** add condition
+** use DB.Query
+** order by postedAt DESC
+** set OFFSET/LIMIT from parameters
+
 * inject cx into table event handlers
 ** add object data arg
 ** replaces cx-arg to schema
@@ -15,8 +22,6 @@ curl -X POST http://localhost:5000/stop
   
 * change pool/unit name from unique to index
 ** add index
-
-* --
 
 * add command loop
 ** implement q - stop
