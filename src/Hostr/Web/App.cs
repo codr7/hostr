@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Hostr.Web;
 
@@ -27,7 +26,6 @@ public static class App
                               });
         });
 
-        //builder.Services.AddAuthentication().AddJwtBearer(options => options.TokenValidationParameters = Users.GetJwtValidationParameters(cx));
         builder.Services.AddAuthorization();
 
         builder.Services.ConfigureHttpJsonOptions(options =>
