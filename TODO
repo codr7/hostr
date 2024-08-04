@@ -1,12 +1,6 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* inject cx into table event handlers
-** add object data arg
-** replaces cx-arg to schema
-*** allocate one shared instance
-** use to set created/updatedBy fields in handlers
-
 * add calendar events
 
 * strip - from savepoint names

@@ -12,7 +12,7 @@ public static class Events
 
         public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
         {
-            return Table(cx).Insert(ref data, tx);
+            return Table(cx).Insert(ref data, cx, tx);
         }
 
 #pragma warning disable CS8600
@@ -45,7 +45,7 @@ public static class Events
             if (rec is DB.Record r)
             {
                 r.Update(data);
-                return t.Update(ref r, tx);
+                return t.Update(ref r, cx, tx);
             }
 
             throw new Exception($"Record not found: {key}");

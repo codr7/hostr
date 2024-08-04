@@ -5,17 +5,18 @@ using System.Text.Json;
 namespace Hostr;
 
 public class Cx
-{
-    public Cx(DB.Cx dbCx)
+{ 
+    public Cx(Schema db, DB.Cx dbCx)
     {
-        DB = new Schema(this);
+        DB = db;
         DBCx = dbCx;
-        Json = new Json(DB);
+        Json = new Json(db);
         JwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("eyJhbGciOiJIUzI1NiJ9.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJBbmlzaCBOYXRoIiwNCiAgImlhdCI6IDE1MTYyMzkwMjINCn0.KXlzwhGodgi8yqntLOHggIpvnElHeVImJYNro1NQX00"));
     }
+
     public DB.Record? CurrentUser => currentUser;
     public readonly Schema DB;
-    public readonly DB.Cx DBCx;
+   public readonly DB.Cx DBCx;
     public readonly Json Json;
     public readonly SymmetricSecurityKey JwtKey;
 
@@ -74,11 +75,11 @@ public class Cx
 
                 if (ce.Id == e.Id)
                 {
-                    DB.Events.Store(ref ce, tx);
+                    DB.Events.Store(ref ce, this, tx);
                 }
                 else if (!DB.Events.Stored(ce, tx))
                 {
-                    DB.Events.Insert(ref ce, tx);
+                    DB.Events.Insert(ref ce, this, tx);
                 }
 
                 currentEvents[i] = ce;

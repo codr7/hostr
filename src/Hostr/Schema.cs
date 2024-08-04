@@ -2,7 +2,9 @@ namespace Hostr;
 
 public class Schema : DB.Schema
 {
+
     public static readonly int SEQUENCE_OFFS = 100;
+    public static readonly Schema Instance = new Schema();
 
     public readonly DB.Table Calendars;
     public readonly DB.ForeignKey CalendarPool;
@@ -30,7 +32,8 @@ public class Schema : DB.Schema
     public readonly DB.Columns.Text PoolName;
     public readonly DB.Key PoolNameKey;
     public readonly DB.Columns.Timestamp PoolCreatedAt;
-    public readonly DB.ForeignKey PoolCreatedBy;
+    public readonly DB.ForeignKey PoolCreatedBy;   public readonly Schema DB;
+
     public readonly DB.ForeignKey PoolOwnedBy;
     public readonly DB.Columns.Boolean PoolInfiniteCapacity;
     public readonly DB.Columns.Boolean PoolCheckIn;
@@ -57,7 +60,9 @@ public class Schema : DB.Schema
     public readonly DB.Key UserEmailKey;
     public readonly DB.Columns.Text UserPassword;
 
-    public Schema(Cx cx)
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+    public Schema()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     {
         var json = new Json(this);
 
@@ -72,7 +77,7 @@ public class Schema : DB.Schema
         UserEmailKey = new DB.Key(Users, "emailKey", [UserEmail]);
         UserPassword = new DB.Columns.Text(Users, "password");
 
-        Users.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
+        Users.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             if (!rec.Contains(UserId)) { rec.Set(UserId, UserIds.Next(tx)); }
             rec.Set(UserCreatedAt, DateTime.UtcNow);
@@ -101,7 +106,7 @@ public class Schema : DB.Schema
         PoolCheckOut = new DB.Columns.Boolean(Pools, "checkOut", defaultValue: false);
         PoolVisible = new DB.Columns.Boolean(Pools, "visible", defaultValue: true);
 
-        Pools.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
+        Pools.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
             rec.Set(PoolCreatedAt, DateTime.UtcNow);
@@ -117,7 +122,7 @@ public class Schema : DB.Schema
         UnitCreatedBy = new DB.ForeignKey(Units, "createdBy", Users);
         UnitOwnedBy = new DB.ForeignKey(Units, "ownedBy", Users);
 
-        Units.BeforeInsert += (ref DB.Record rec, DB.Tx tx) =>
+        Units.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             if (!rec.Contains(UnitId)) { rec.Set(UnitId, PoolIds.Next(tx)); }
             rec.Set(UnitCreatedAt, DateTime.UtcNow);
@@ -128,7 +133,7 @@ public class Schema : DB.Schema
             p.Set(PoolName, Guid.NewGuid().ToString());
             rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray());
             p.Set(PoolVisible, false);
-            cx.PostEvent(Hostr.Pools.INSERT, null, ref p, tx);
+            (cx as Cx)!.PostEvent(Hostr.Pools.INSERT, null, ref p, tx);
         };
 
         Calendars = new DB.Table(this, "calendars");
@@ -141,25 +146,25 @@ public class Schema : DB.Schema
         CalendarBooked = new DB.Columns.Integer(Calendars, "booked");
         CalendarLabel = new DB.Columns.Text(Calendars, "label");
 
-        DB.Table.BeforeHandler beforeHandler = (ref DB.Record rec, DB.Tx tx) =>
+        DB.Table.BeforeHandler beforeHandler = (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             rec.Set(CalendarUpdatedAt, DateTime.UtcNow);
 #pragma warning disable CS8629 
-            rec.Set(CalendarUpdatedBy, (DB.Record)cx.CurrentUser);
+            rec.Set(CalendarUpdatedBy, (DB.Record)(cx as Cx)!.CurrentUser);
 #pragma warning restore CS8629
         };
         
         Calendars.BeforeInsert += beforeHandler;
         Calendars.BeforeUpdate += beforeHandler;
 
-        Pools.AfterInsert += (rec, tx) =>
+        Pools.AfterInsert += (rec, cx, tx) =>
         {
             var c = new DB.Record();
             rec.Copy(ref c, CalendarPool.ForeignColumns.Zip(CalendarPool.Columns).ToArray());
             rec.Copy(ref c, PoolCreatedBy.Columns.Zip(CalendarUpdatedBy.Columns).ToArray());
             c.Set(CalendarStartsAt, DateTime.MinValue);
             c.Set(CalendarEndsAt, DateTime.MaxValue);
-            Calendars.Insert(ref c, tx);
+            Calendars.Insert(ref c, cx, tx);
         };
     }
 }

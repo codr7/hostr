@@ -21,7 +21,7 @@ public struct Events : Route
         HttpRequest req = hcx.Request;
 
         var ro = req.Query["rowOffset"];
-#pragma warning disable CS8604 .
+#pragma warning disable CS8604
         if (ro != StringValues.Empty) { q.Offset(Int64.Parse(ro[0])); }
 #pragma warning restore CS8604 
 

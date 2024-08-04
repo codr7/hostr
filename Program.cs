@@ -6,7 +6,7 @@ using Web = Hostr.Web;
 
 var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 dbCx.Connect();
-var cx = new Cx(dbCx);
+var cx = new Cx(Schema.Instance, dbCx);
 var tx = dbCx.StartTx();
 cx.DB.DropIfExists(tx);
 var firstRun = !cx.DB.Users.Exists(tx) || cx.DB.Users.Count(null, tx) == 0;

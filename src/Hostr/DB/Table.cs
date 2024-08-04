@@ -6,8 +6,8 @@ namespace Hostr.DB;
 
 public class Table : Definition, Source
 {
-    public delegate void AfterHandler(Record rec, Tx tx);
-    public delegate void BeforeHandler(ref Record rec, Tx tx);
+    public delegate void AfterHandler(Record rec, object data, Tx tx);
+    public delegate void BeforeHandler(ref Record rec, object data, Tx tx);
 
     private readonly List<AfterHandler> afterInsert = new List<AfterHandler>();
     private readonly List<AfterHandler> afterUpdate = new List<AfterHandler>();
@@ -127,9 +127,9 @@ public class Table : Definition, Source
     public Record? FindFirst(Record key, Tx tx) =>
         FindFirst(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
 
-    public Record Insert(ref Record rec, Tx tx)
+    public Record Insert(ref Record rec, object data, Tx tx)
     {
-        foreach (var h in beforeInsert) { h(ref rec, tx); }
+        foreach (var h in beforeInsert) { h(ref rec, data, tx); }
 
         var d = rec;
         var cs = columns.Where(c => d.Contains(c)).Select(c => (c, d.GetObject(c)!)).ToArray();
@@ -138,7 +138,7 @@ public class Table : Definition, Source
 
         tx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
         foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
-        foreach (var h in afterInsert) { h(rec, tx); }
+        foreach (var h in afterInsert) { h(rec, data, tx); }
 
         var res = new Record(id: rec.Id);
         foreach (var (c, v) in cs) { res.SetObject(c, v); }
@@ -174,8 +174,8 @@ public class Table : Definition, Source
 
     public string SourceSql => $"\"{Name}\"";
 
-    public Record Store(ref Record rec, Tx tx) =>
-        Stored(rec, tx) ? Update(ref rec, tx) : Insert(ref rec, tx);
+    public Record Store(ref Record rec, object data, Tx tx) =>
+        Stored(rec, tx) ? Update(ref rec, data, tx) : Insert(ref rec, data, tx);
 
     public bool Stored(Record rec, Tx tx) =>
         tx.GetStoredValue(rec.Id, PrimaryKey.Columns[0]) != null;
@@ -198,9 +198,9 @@ public class Table : Definition, Source
         }
     }
 
-    public Record Update(ref Record rec, Tx tx)
+    public Record Update(ref Record rec, object data, Tx tx)
     {
-        foreach (var h in beforeUpdate) { h(ref rec, tx); }
+        foreach (var h in beforeUpdate) { h(ref rec, data, tx); }
         var k = rec;
 
         var cs = columns.
@@ -227,7 +227,7 @@ public class Table : Definition, Source
         var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w}";
         tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
         foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
-        foreach (var h in afterUpdate) { h(rec, tx); }
+        foreach (var h in afterUpdate) { h(rec, data, tx); }
 
         var res = new Record(id: rec.Id);
         foreach (var (c, v) in cs) { res.SetObject(c, v); }

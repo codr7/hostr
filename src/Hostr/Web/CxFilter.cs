@@ -6,7 +6,7 @@ public struct CxFilter : IEndpointFilter
     {
         var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
         dbCx.Connect();
-        context.HttpContext.Items["cx"] = new Cx(dbCx);
+        context.HttpContext.Items["cx"] = new Cx(Schema.Instance, dbCx);
         return next(context);
     }
 }
