@@ -12,7 +12,9 @@ public struct Events : Route
         var cx = (Cx)hcx.Items["cx"]!;
         using var tx = cx.DBCx.StartTx();
 #pragma warning disable CS8629 
-        return Task.FromResult<object>(cx.DB.Events.FindAll(cx.DB.EventPostedBy.Eq((DB.Record)cx.CurrentUser), tx));
+        var rs = cx.DB.Events.FindAll(cx.DB.EventPostedBy.Eq((DB.Record)cx.CurrentUser), tx);
+        Array.Sort(rs, (x, y) => x.Get(cx.DB.EventId).CompareTo(y.Get(cx.DB.EventId)));
+        return Task.FromResult<object>(rs);
 #pragma warning restore CS8629
     }
 }

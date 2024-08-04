@@ -100,22 +100,6 @@ public class Table : Definition
     public override bool Exists(Tx tx) =>
         tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
 
-
-    private NpgsqlDataReader Read(Condition? where, Tx tx)
-    {
-        var sql = new StringBuilder();
-        sql.Append($"SELECT {string.Join(", ", columns)} FROM {Name}");
-        object[] args = [];
-
-        if (where is Condition w)
-        {
-            sql.Append($" WHERE {w}");
-            args = w.Args;
-        }
-
-        return tx.ExecReader(sql.ToString(), args: args);
-    }
-
     public Record[] FindAll(Condition? where, Tx tx)
     {
         using var reader = Read(where, tx);
@@ -252,4 +236,20 @@ public class Table : Definition
     internal void AddColumn(Column col) => columns.Add(col);
     internal void AddConstraint(Constraint cons) => constraints.Add(cons);
     internal void AddForeignKey(ForeignKey key) => foreignKeys.Add(key);
+
+    private NpgsqlDataReader Read(Condition? where, Tx tx)
+    {
+        var sql = new StringBuilder();
+        sql.Append($"SELECT {string.Join(", ", columns)} FROM {Name}");
+        object[] args = [];
+
+        if (where is Condition w)
+        {
+            sql.Append($" WHERE {w}");
+            args = w.Args;
+        }
+
+        return tx.ExecReader(sql.ToString(), args: args);
+    }
+
 };
