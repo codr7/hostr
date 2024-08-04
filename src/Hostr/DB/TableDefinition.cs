@@ -10,6 +10,6 @@ public abstract class TableDefinition : Definition
         Table.AddDefinition(this);
     }
 
-    public override string CreateSQL => $"ALTER TABLE {Table} ADD {DefinitionType} \"{Name}\"";
-    public override string DropSQL => $"ALTER TABLE {Table} DROP {DefinitionType}";
+    public override string CreateSql => $"ALTER TABLE {Table} ADD {DefinitionType} \"{Name}\"";
+    public override string DropSql => $"ALTER TABLE {Table} DROP {DefinitionType}";
 }

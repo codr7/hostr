@@ -17,7 +17,7 @@ public class RecordConverter : JsonConverter<DB.Record>
         writer.WriteStartObject();
         
         foreach(var (c, v) in value.Fields) {
-            writer.WritePropertyName(c.Name);
+            writer.WritePropertyName(c.ValueString);
             c.Write(writer, v);
         }
 

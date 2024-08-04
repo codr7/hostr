@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Hostr.DB;
 
-public abstract class Column : TableDefinition, IComparable<Column>
+public abstract class Column : TableDefinition, IComparable<Column>, Value
 {
     public readonly bool Nullable;
     public readonly bool PrimaryKey;
@@ -32,7 +32,7 @@ public abstract class Column : TableDefinition, IComparable<Column>
         return -1;
     }
 
-    public override string CreateSQL => $"{base.CreateSQL} {DefinitionSQL}";
+    public override string CreateSql => $"{base.CreateSql} {DefinitionSQL}";
 
     public virtual string DefinitionSQL
     {
@@ -47,10 +47,7 @@ public abstract class Column : TableDefinition, IComparable<Column>
 
     public override string DefinitionType => "COLUMN";
 
-    public Condition Eq(object val)
-    {
-        return new Condition($"{this} = $?", val);
-    }
+    public Condition Eq(object val) => new Condition($"{ToString()} = $?", val);
 
     public override bool Exists(Tx tx)
     {
@@ -67,5 +64,15 @@ public abstract class Column : TableDefinition, IComparable<Column>
     public abstract object? Read(Utf8JsonReader reader);
     public override string ToString() => $"{Table}.\"{Name}\"";
     public virtual string ToString(object val) => $"{val}";
+    public string ValueSql => ToString();
+    public string ValueString => Name;
+
     public abstract void Write(Utf8JsonWriter writer, object value);
+
+    public int CompareTo(Value? other)
+    {
+        if (other is Column c) { return ToString().CompareTo(other.ToString()); }
+        if (other is null) { return -1; }
+        throw new Exception($"Expected column: {other}");
+    }
 }

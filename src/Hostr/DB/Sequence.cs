@@ -10,7 +10,7 @@ public class Sequence : Definition
         schema.AddDefinition(this);
     }
 
-    public override string CreateSQL => $"{base.CreateSQL} START {startValue}";
+    public override string CreateSql => $"{base.CreateSql} START {startValue}";
 
     public override string DefinitionType => "SEQUENCE";
 

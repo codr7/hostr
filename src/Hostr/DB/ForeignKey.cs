@@ -58,8 +58,8 @@ public class ForeignKey : Key
 
     public override string ConstraintType => "FOREIGN KEY";
 
-    public override string CreateSQL =>
-      @$"{base.CreateSQL} 
+    public override string CreateSql =>
+      @$"{base.CreateSql} 
          REFERENCES {ForeignTable} 
          ({string.Join(", ", values: columnMap.Select(c => $"\"{c.Item2.Name}\""))})
          ON DELETE {ToString(OnDelete)} ON UPDATE {ToString(OnUpdate)}";

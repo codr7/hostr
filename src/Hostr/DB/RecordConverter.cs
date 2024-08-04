@@ -43,7 +43,7 @@ public class RecordConverter : JsonConverter<Record>
         writer.WriteStartObject();
         
         foreach(var (c, v) in value.Fields) {
-            writer.WritePropertyName($"{c.Table.Name}.{c.Name}");
+            writer.WritePropertyName($"{c.ValueString}");
             c.Write(writer, v);
         }
 

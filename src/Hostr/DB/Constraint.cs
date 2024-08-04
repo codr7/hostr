@@ -15,12 +15,12 @@ public abstract class Constraint : TableDefinition
     public Column[] Columns => columns.ToArray();
     public abstract string ConstraintType { get; }
 
-    public override string CreateSQL
+    public override string CreateSql
     {
         get
         {
             var buf = new StringBuilder();
-            buf.Append(base.CreateSQL);
+            buf.Append(base.CreateSql);
             buf.Append($" {ConstraintType} ({string.Join(", ", values: columns.Select(c => $"\"{c.Name}\""))})");
             return buf.ToString();
         }

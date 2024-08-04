@@ -9,7 +9,7 @@ public struct Record
     private static RecordId nextId = 0;
     public static RecordId NextId() => Interlocked.Increment(ref nextId);
 
-    private readonly OrderedMap<Column, object> fields = new OrderedMap<Column, object>();
+    private readonly OrderedMap<Value, object> fields = new OrderedMap<Value, object>();
 
     public Record(RecordId id)
     {
@@ -66,10 +66,10 @@ public struct Record
     }
 
 
-    public (Column, object)[] Fields => fields.Items;
+    public (Value, object)[] Fields => fields.Items;
 
     public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);
-    public object? GetObject(Column col) => fields[col];
+    public object? GetObject(Value col) => fields[col];
 
     public readonly RecordId Id;
     public Record Set<T>(TypedColumn<T> col, T value) => SetObject(col, value);
@@ -91,7 +91,7 @@ public struct Record
         return this;
     }
 
-    public Record SetObject(Column col, object? value)
+    public Record SetObject(Value col, object? value)
     {
         fields[col] = value;
         return this;
@@ -106,7 +106,7 @@ public struct Record
         foreach (var (c, v) in fields)
         {
             if (i > 0) { buf.Append(", "); }
-            buf.Append($"{c.Name}: {c.ToString(v)}");
+            buf.Append($"{c.ValueString}: {c.ToString(v)}");
             i++;
         }
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Hostr.DB;
 
-public class Table : Definition
+public class Table : Definition, Source
 {
     public delegate void AfterHandler(Record rec, Tx tx);
     public delegate void BeforeHandler(ref Record rec, Tx tx);
@@ -82,12 +82,12 @@ public class Table : Definition
         }
     }
 
-    public override string CreateSQL
+    public override string CreateSql
     {
         get
         {
             var buf = new StringBuilder();
-            buf.Append(base.CreateSQL);
+            buf.Append(base.CreateSql);
             buf.Append(" (");
             buf.Append(string.Join(", ", values: columns.Select(c => $"\"{c.Name}\" {c.DefinitionSQL}")));
             buf.Append(')');
@@ -171,6 +171,8 @@ public class Table : Definition
             return primaryKey;
         }
     }
+
+    public string SourceSql => $"\"{Name}\"";
 
     public Record Store(ref Record rec, Tx tx) =>
         Stored(rec, tx) ? Update(ref rec, tx) : Insert(ref rec, tx);
