@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Primitives;
+
 namespace Hostr.Web.Routes;
 
 public struct Events : Route
@@ -16,12 +18,19 @@ public struct Events : Route
             Select(cx.DB.Events.Columns).
             Where(cx.DB.EventPostedBy.Eq((DB.Record)cx.CurrentUser)).
             OrderBy(cx.DB.EventPostedAt, DB.Query.Order.Descending);
-        
+        HttpRequest req = hcx.Request;
 
+        var ro = req.Query["rowOffset"];
+#pragma warning disable CS8604 .
+        if (ro != StringValues.Empty) { q.Offset(Int64.Parse(ro[0])); }
+#pragma warning restore CS8604 
 
-        var rs = q.FindAll(tx);
-        
-        //var rs = cx.DB.Events.FindAll(cx.DB.EventPostedBy.Eq((DB.Record)cx.CurrentUser), tx);
+        var rl = req.Query["rowLimit"];
+#pragma warning disable CS8604 
+        if (rl != StringValues.Empty) { q.Limit(Int64.Parse(rl[0])); }
+#pragma warning restore CS8604
+
+        var rs = q.FindAll(tx);        
         Array.Sort(rs, (x, y) => x.Get(cx.DB.EventId).CompareTo(y.Get(cx.DB.EventId)));
         return Task.FromResult<object>(rs);
 #pragma warning restore CS8629

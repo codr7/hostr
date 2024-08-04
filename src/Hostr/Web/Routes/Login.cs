@@ -9,8 +9,8 @@ public struct Login : Route
     async public Task<object> Exec(HttpContext hcx)
     {
         var cx = (Cx)hcx.Items["cx"]!;
-        var request = hcx.Request;
-        var stream = new StreamReader(request.Body);
+        var req = hcx.Request;
+        var stream = new StreamReader(req.Body);
         var body = await stream.ReadToEndAsync();
         var data = cx.Json.FromString<ReqData>(body)!;
         using var tx = cx.DBCx.StartTx();

@@ -6,7 +6,6 @@ public struct UserFilter : IEndpointFilter
     {
         if (context.HttpContext.Items["cx"] is Cx cx)
         {
-
             var req = context.HttpContext.Request;
             req.Headers.TryGetValue("Authorization", out var auth);
             var userId = Users.ValidateJwtToken(cx, auth!);

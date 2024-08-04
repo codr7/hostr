@@ -7,6 +7,8 @@ public class Query : Source
 {
     public enum Order { Ascending, Descending };
     private Source from;
+    private long limit = -1;
+    private long offset = -1;
     private readonly List<(Value, Order)> order = new List<(Value, Order)>();
     private readonly List<Value> select = new List<Value>();
     private Condition? where;
@@ -26,7 +28,8 @@ public class Query : Source
 
     public void AddSourceArgs(List<object> result) => AddArgs(result);
 
-    public Record[] FindAll(Tx tx) {
+    public Record[] FindAll(Tx tx)
+    {
         var args = new List<object>();
         AddArgs(args);
         using var reader = tx.ExecReader(Sql, args.ToArray());
@@ -35,9 +38,10 @@ public class Query : Source
         while (reader.Read())
         {
             var rec = new Record();
-            
-            for (var i = 0; i < select.Count; i++) {
-                var v = select[i]; 
+
+            for (var i = 0; i < select.Count; i++)
+            {
+                var v = select[i];
                 if (!reader.IsDBNull(i)) { rec.SetObject(v, v.GetObject(reader, i)); }
             }
 
@@ -45,6 +49,18 @@ public class Query : Source
         }
 
         return result.ToArray();
+    }
+
+    public Query Limit(long n)
+    {
+        limit = n;
+        return this;
+    }
+    
+    public Query Offset(long n)
+    {
+        offset = n;
+        return this;
     }
 
     public Query Select(params Value[] values)
@@ -74,14 +90,16 @@ public class Query : Source
             {
                 sql.Append($" ORDER BY {string.Join(", ", order.Select(v => $"{v.Item1} {((v.Item2 == Order.Ascending) ? "ASC" : "DESC")}").ToArray())}");
             }
-
+            
+            if (offset > -1) { sql.Append($" OFFSET {offset}"); }
+            if (limit > -1) { sql.Append($" LIMIT {limit}"); }
             return sql.ToString();
         }
     }
 
     public Query Where(Condition cond)
     {
-        where = (where is Condition w) ? w.And(cond) : cond; 
+        where = (where is Condition w) ? w.And(cond) : cond;
         return this;
     }
 }
