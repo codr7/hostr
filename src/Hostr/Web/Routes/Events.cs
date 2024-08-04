@@ -10,8 +10,13 @@ public struct Events : Route
     public Task<object> Exec(HttpContext hcx)
     {
         var cx = (Cx)hcx.Items["cx"]!;
-        //var req = hcx.Request;
+        var req = hcx.Request;
+        req.Headers.TryGetValue("Authorization", out var auth);
+        var userId = Users.ValidateJwtToken(cx, auth!);
+        
         using var tx = cx.DBCx.StartTx();
-        return Task.FromResult<object>(cx.DB.Events.FindAll(null, tx));
+#pragma warning disable CS8629 
+        return Task.FromResult<object>(cx.DB.Events.FindAll(cx.DB.Users.PrimaryKey.Eq((DB.Record)cx.CurrentUser), tx));
+#pragma warning restore CS8629
     }
 }

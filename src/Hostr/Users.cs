@@ -11,6 +11,8 @@ public static class Users
 
     public const int PASSWORD_ITERS = 10000;
 
+    public static readonly string JWT_ISSUER = "hostr";
+
     public static string MakeJwtToken(Cx cx, DB.Record user)
     {
         var creds = new SigningCredentials(
@@ -29,12 +31,41 @@ public static class Users
         {
             SigningCredentials = creds,
             Expires = DateTime.UtcNow.AddHours(24),
-            Subject = claims
+            Subject = claims,
+            Issuer = JWT_ISSUER
         };
 
         var h = new JwtSecurityTokenHandler();
-        var t = h.CreateToken(td);
+        
+        var t = h.CreateJwtSecurityToken(td);
         return h.WriteToken(t);
+    }
+
+   public static long ValidateJwtToken(Cx cx, string token)
+    {
+        var ps = new TokenValidationParameters();
+        ps.IssuerSigningKey = cx.JwtKey;
+        ps.ValidateIssuer = true;
+        ps.ValidIssuer = JWT_ISSUER;
+        ps.ValidateLifetime = true;
+        ps.ValidateIssuerSigningKey = true;
+        ps.ValidateAudience = false;
+        ps.ValidAudience = "";
+
+        var h = new JwtSecurityTokenHandler();
+        SecurityToken st;
+        h.ValidateToken(token[7..], ps, out st);
+#pragma warning disable CS8602 
+        var p = (st as JwtSecurityToken).Payload;
+#pragma warning restore CS8602 
+        object v;
+        p.TryGetValue("id", out v);
+#pragma warning disable CS8600
+#pragma warning disable CS8604 
+        var id = long.Parse((string)v);
+#pragma warning restore CS8604
+#pragma warning restore CS8600
+        return id;
     }
 
     public static DB.Record MakeUser(this Schema db, string name = "", string email = "", string password = "")
