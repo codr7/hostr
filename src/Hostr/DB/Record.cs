@@ -45,6 +45,27 @@ public struct Record
         return c;
     }
 
+    public Condition Eq(Column[] columns) => Eq(columns.Zip(columns).ToArray());
+    public Condition Eq((Column, Column)[] columns)
+    {
+        var conds = new List<Condition>();
+
+        foreach (var (rc, cc) in columns)
+        {
+            if (GetObject(rc) is object v)
+            {
+                conds.Add(cc.Eq(v));
+            }
+            else
+            {
+                throw new Exception($"Missing value: {rc}");
+            }
+        }
+
+        return Condition.And(conds.ToArray());
+    }
+
+
     public (Column, object)[] Fields => fields.Items;
 
     public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);

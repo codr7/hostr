@@ -2,7 +2,8 @@ namespace Hostr.DB;
 
 public class ForeignKey : Key
 {
-    public enum Action {
+    public enum Action
+    {
         Cascade,
         NoAction,
         Restrict,
@@ -10,13 +11,14 @@ public class ForeignKey : Key
         SetNull
     }
 
-    public static string ToString(Action a) => a switch {
-            Action.Cascade => "CASCADE",
-            Action.NoAction => "NO ACTION",
-            Action.Restrict => "RESTRICT",
-            Action.SetDefault => "SET DEFAULT",
-            Action.SetNull => "SET NULL",
-            _ => throw new Exception($"Invalid action: {a}")
+    public static string ToString(Action a) => a switch
+    {
+        Action.Cascade => "CASCADE",
+        Action.NoAction => "NO ACTION",
+        Action.Restrict => "RESTRICT",
+        Action.SetDefault => "SET DEFAULT",
+        Action.SetNull => "SET NULL",
+        _ => throw new Exception($"Invalid action: {a}")
     };
 
     public readonly Table ForeignTable;
@@ -26,10 +28,10 @@ public class ForeignKey : Key
     public readonly bool PrimaryKey;
     private readonly List<(Column, Column)> columnMap = new List<(Column, Column)>();
 
-    public ForeignKey(Table table, string name, Table foreignTable, (Column, Column)[] columns, 
-                      bool nullable = false, 
-                      Action onDelete = Action.Restrict, 
-                      Action onUpdate = Action.Cascade, 
+    public ForeignKey(Table table, string name, Table foreignTable, (Column, Column)[] columns,
+                      bool nullable = false,
+                      Action onDelete = Action.Restrict,
+                      Action onUpdate = Action.Cascade,
                       bool primaryKey = false) :
     base(table, name, columns.Select(c => c.Item1).ToArray())
     {
@@ -62,5 +64,7 @@ public class ForeignKey : Key
          ({string.Join(", ", values: columnMap.Select(c => $"\"{c.Item2.Name}\""))})
          ON DELETE {ToString(OnDelete)} ON UPDATE {ToString(OnUpdate)}";
 
+    public new Condition Eq(Record rec) => rec.Eq(ForeignColumns.Zip(Columns).ToArray());
+   
     public Column[] ForeignColumns => columnMap.Select(m => m.Item2).ToArray();
 }

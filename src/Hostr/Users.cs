@@ -20,7 +20,7 @@ public static class Users
                     SecurityAlgorithms.HmacSha256);
 
         var claims = new ClaimsIdentity();
-        claims.AddClaim(new Claim("id", $"{user.Get(cx.DB.UserId)}"));
+        claims.AddClaim(new Claim("userId", $"{user.Get(cx.DB.UserId)}"));
 #pragma warning disable CS8604
         claims.AddClaim(new Claim("displayName", user.Get(cx.DB.UserDisplayName)));
         claims.AddClaim(new Claim(ClaimTypes.Email, user.Get(cx.DB.UserEmail)));
@@ -36,30 +36,33 @@ public static class Users
         };
 
         var h = new JwtSecurityTokenHandler();
-        
+
         var t = h.CreateJwtSecurityToken(td);
         return h.WriteToken(t);
     }
 
-   public static long ValidateJwtToken(Cx cx, string token)
+    public static TokenValidationParameters GetJwtValidationParameters(Cx cx) => new TokenValidationParameters
     {
-        var ps = new TokenValidationParameters();
-        ps.IssuerSigningKey = cx.JwtKey;
-        ps.ValidateIssuer = true;
-        ps.ValidIssuer = JWT_ISSUER;
-        ps.ValidateLifetime = true;
-        ps.ValidateIssuerSigningKey = true;
-        ps.ValidateAudience = false;
-        ps.ValidAudience = "";
+        IssuerSigningKey = cx.JwtKey,
+        ValidateIssuer = true,
+        ValidIssuer = JWT_ISSUER,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidateAudience = false,
+        ValidAudience = ""
+    };
 
+    public static long ValidateJwtToken(Cx cx, string token)
+    {
+        var ps = GetJwtValidationParameters(cx);
         var h = new JwtSecurityTokenHandler();
         SecurityToken st;
         h.ValidateToken(token[7..], ps, out st);
 #pragma warning disable CS8602 
         var p = (st as JwtSecurityToken).Payload;
 #pragma warning restore CS8602 
-        object v;
-        p.TryGetValue("id", out v);
+        object? v;
+        p.TryGetValue("userId", out v);
 #pragma warning disable CS8600
 #pragma warning disable CS8604 
         var id = long.Parse((string)v);

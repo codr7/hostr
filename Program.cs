@@ -32,6 +32,7 @@ try
         hu.Set(cx.DB.UserId, 0);
         cx.PostEvent(Users.INSERT, null, ref hu, tx);
         ui.Say("System user 'hostr' created");
+        cx.Login(hu, tx);
 
         var u = cx.DB.MakeUser(name, email, password);
         u.Set(cx.DB.UserCreatedBy, hu);

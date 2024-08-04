@@ -2,7 +2,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 curl -X POST http://localhost:5000/stop
 
  * events
-**  load cx.user using userid from jwt in events
+** extract logic from Events to Route/bind
 ** add/use DB.Query
 ** order by postedAt DESC
 ** set OFFSET/LIMIT from parameters

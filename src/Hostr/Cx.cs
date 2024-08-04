@@ -21,9 +21,19 @@ public class Cx
 
     public void Login(DB.Record user, DB.Tx tx)
     {
+        currentUser = user;
         user.Set(DB.UserLoginAt, DateTime.UtcNow);
         PostEvent(Users.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user, tx);
-        currentUser = user;
+    }
+
+    public DB.Record Login(long userId, DB.Tx tx)
+    {
+        if (DB.Users.FindFirst(DB.UserId.Eq(userId), tx) is DB.Record u) {
+            currentUser = u;    
+            return u;
+        }
+
+        throw new Exception($"User not found: {userId}");
     }
 
     public DB.Record Login(string email, string password, DB.Tx tx)

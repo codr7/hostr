@@ -10,15 +10,7 @@ public static class App
         var builder = WebApplication.CreateBuilder();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-         .AddJwtBearer(options =>
-         {
-             options.TokenValidationParameters = new TokenValidationParameters
-             {
-                 ValidateLifetime = true,
-                 ValidateIssuerSigningKey = true,
-                 IssuerSigningKey = cx.JwtKey
-             };
-         });
+         .AddJwtBearer(options => options.TokenValidationParameters = Users.GetJwtValidationParameters(cx));
 
         var corsPolicyId = "defaultPolicy";
 
@@ -35,8 +27,9 @@ public static class App
                               });
         });
 
-        builder.Services.AddAuthentication();
+        //builder.Services.AddAuthentication().AddJwtBearer(options => options.TokenValidationParameters = Users.GetJwtValidationParameters(cx));
         builder.Services.AddAuthorization();
+
         builder.Services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.Converters.Add(new RecordConverter());
