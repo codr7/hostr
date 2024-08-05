@@ -16,12 +16,7 @@ curl -X POST http://localhost:5000/stop
 * --
   
 * move stored values to prev tx and finally cx on commit
-  
-* change pool/unit name from unique to index
-** add index
-
---
-  
+    
 * add error filter
 ** catch exceptions and return json object
 ** internal server error default

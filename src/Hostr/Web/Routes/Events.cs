@@ -25,7 +25,7 @@ public struct Events : Route
         if (req.GetDateTime("postedBefore") is DateTime pb) { q.Where(cx.DB.EventPostedAt.Lt(pb)); }
         if (req.GetDateTime("postedAfter") is DateTime pa) { q.Where(cx.DB.EventPostedAt.Gt(pa)); }
         if (req.GetLong("rowOffset") is long ro) { q.Offset(ro); }
-        if (req.GetLong("rowLimit") is long rl) { q.Offset(rl); }
+        if (req.GetLong("rowLimit") is long rl) { q.Limit(rl); }
  
         var rs = q.FindAll(tx);        
         Array.Sort(rs, (x, y) => x.Get(cx.DB.EventId).CompareTo(y.Get(cx.DB.EventId)));
