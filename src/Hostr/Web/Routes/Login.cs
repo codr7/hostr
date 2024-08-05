@@ -4,9 +4,9 @@ namespace Hostr.Web.Routes;
 
 public struct Login : Route
 {
-    public Method Method => Method.Post;
-    public string Path => "/login";
-    public IEndpointFilter[] Filters => [new CxFilter()];
+    public readonly Method Method => Method.Post;
+    public readonly string Path => "/login";
+    public readonly IEndpointFilter[] Filters => [new CxFilter()];
 
     async public Task<object> Exec(HttpContext hcx)
     {

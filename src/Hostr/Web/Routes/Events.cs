@@ -4,10 +4,10 @@ namespace Hostr.Web.Routes;
 
 public struct Events : Route
 {
-    public bool Auth => true;
-    public Method Method => Method.Get;
-    public string Path => "/events";
-    public IEndpointFilter[] Filters => [new CxFilter(), new UserFilter()];
+    public readonly bool Auth => true;
+    public readonly Method Method => Method.Get;
+    public readonly string Path => "/events";
+    public readonly IEndpointFilter[] Filters => [new CxFilter(), new UserFilter()];
 
     public Task<object> Exec(HttpContext hcx)
     {
