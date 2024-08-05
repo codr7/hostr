@@ -1,3 +1,5 @@
+using Hostr.Domain;
+
 namespace Hostr.Web.Routes;
 
 public struct Login : Route
@@ -16,7 +18,7 @@ public struct Login : Route
         using var tx = cx.DBCx.StartTx();
         var u = cx.Login(data.email, data.password, tx);
         tx.Commit();
-        return new ResData() { token = Users.MakeJwtToken(cx, u) };
+        return new ResData() { token = User.MakeJwtToken(cx, u) };
     }
 
     private struct ReqData

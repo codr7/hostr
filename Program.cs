@@ -1,4 +1,5 @@
 ﻿using Hostr;
+using Hostr.Domain;
 
 using DB = Hostr.DB;
 using UI = Hostr.UI;
@@ -28,47 +29,38 @@ try
         var password = ui.Ask("Password: ");
         if (password is null) { throw new Exception("Missing password"); }
 
-        var hu = cx.DB.MakeUser("hostr", "hostr");
+        var hu = User.Make(cx, "hostr", "hostr");
         hu.Set(cx.DB.UserId, 0);
-        cx.PostEvent(Users.INSERT, null, ref hu, tx);
+        cx.PostEvent(User.INSERT, null, ref hu, tx);
         ui.Say("System user 'hostr' created");
         cx.Login(hu, tx);
 
-        var u = cx.DB.MakeUser(name, email, password);
+        var u = User.Make(cx, name, email, password);
         u.Set(cx.DB.UserCreatedBy, hu);
-        cx.PostEvent(Users.INSERT, null, ref u, tx);
+        cx.PostEvent(User.INSERT, null, ref u, tx);
         cx.Login(u, tx);
         ui.Say($"User '{name}' created");
 
-        var r = cx.DB.MakePool("double");
+        var r = User.Make(cx, "double");
         r.Set(cx.DB.PoolCreatedBy, u);
-        cx.PostEvent(Pools.INSERT, null, ref r, tx);
+        cx.PostEvent(Pool.INSERT, null, ref r, tx);
 
-        r = cx.DB.MakeUnit("conf small");
+        r = Unit.Make(cx, "conf small");
         r.Set(cx.DB.UnitCreatedBy, u);
-        cx.PostEvent(Units.INSERT, null, ref r, tx);
+        cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
         ui.Say("Database seeded with examples");
     }
-    else
-    {
-        tx.Commit();
-        tx = dbCx.StartTx();
-        ui.Say("Login");
-        var email = ui.Ask("Email: ");
-        if (email is null) { throw new Exception("Missing email"); }
-        var password = ui.Ask("Password: ");
-        if (password is null) { throw new Exception("Missing password"); }
-        cx.Login(email, password, tx);
-    }
 
-    //Console.WriteLine("EVENT " + cx.DB.Events.FindFirst(null, tx));
     tx.Commit();
 }
 catch (Exception e)
 {
     ui.Say(e);
+    ui.Flush();
+    Environment.Exit(-1);
 }
 
+ui.Flush();
 var app = Web.App.Make(cx);
-new Thread(() => app.Run()).Start();
+app.Run();

@@ -5,6 +5,18 @@ curl -X POST http://localhost:5000/stop
 
 * strip - from savepoint names
 
+* add key on pool/unit name/ownedBy
+
+* add non-uique index on pool/unit name
+** add indexes
+
+* format sql statements in cx.prepare
+** insert values in brackets
+
+* remove login from Program.cs
+  
+* --
+  
 * move stored values to prev tx and finally cx on commit
   
 * change pool/unit name from unique to index
@@ -12,9 +24,6 @@ curl -X POST http://localhost:5000/stop
 
 * add Web.RequestExtensions
 ** simplify getting params & reading body
-
-* format sql statements in cx.prepare
-** insert values in brackets
 
 --
   

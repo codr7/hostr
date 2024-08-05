@@ -1,6 +1,6 @@
-namespace Hostr;
+namespace Hostr.Domain;
 
-public static class Events
+public static class Event
 {
     public struct Insert : Type
     {

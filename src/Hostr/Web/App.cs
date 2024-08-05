@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Hostr.Domain;
 
 namespace Hostr.Web;
 
@@ -9,7 +10,7 @@ public static class App
         var builder = WebApplication.CreateBuilder();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-         .AddJwtBearer(options => options.TokenValidationParameters = Users.GetJwtValidationParameters(cx));
+         .AddJwtBearer(options => options.TokenValidationParameters = User.GetJwtValidationParameters(cx));
 
         var corsPolicyId = "defaultPolicy";
 

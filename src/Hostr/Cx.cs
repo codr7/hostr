@@ -1,6 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
+using Hostr.Domain;
 
 namespace Hostr;
 
@@ -24,7 +25,7 @@ public class Cx
     {
         currentUser = user;
         user.Set(DB.UserLoginAt, DateTime.UtcNow);
-        PostEvent(Users.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user, tx);
+        PostEvent(User.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user, tx);
     }
 
     public DB.Record Login(long userId, DB.Tx tx)
@@ -53,7 +54,7 @@ public class Cx
         }
     }
 
-    public void PostEvent(Events.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
+    public void PostEvent(Event.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
     {
         var e = new DB.Record();
         e.Set(DB.EventId, DB.EventIds.Next(tx));

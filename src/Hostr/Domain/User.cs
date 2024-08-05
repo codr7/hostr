@@ -2,12 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Hostr;
+namespace Hostr.Domain;
 
-public static class Users
+public static class User
 {
-    public static Events.Type INSERT => new Events.Insert("InsertUser", "users");
-    public static Events.Type UPDATE => new Events.Update("UpdateUser", "users");
+    public static Event.Type INSERT => new Event.Insert("InsertUser", "users");
+    public static Event.Type UPDATE => new Event.Update("UpdateUser", "users");
 
     public const int PASSWORD_ITERS = 10000;
 
@@ -71,12 +71,12 @@ public static class Users
         return id;
     }
 
-    public static DB.Record MakeUser(this Schema db, string name = "", string email = "", string password = "")
+    public static DB.Record Make(Cx cx, string name = "", string email = "", string password = "")
     {
         var u = new DB.Record();
-        u.Set(db.UserDisplayName, name);
-        u.Set(db.UserEmail, email);
-        u.Set(db.UserPassword, (password == "") ? "" : Password.Hash(password, PASSWORD_ITERS));
+        u.Set(cx.DB.UserDisplayName, name);
+        u.Set(cx.DB.UserEmail, email);
+        u.Set(cx.DB.UserPassword, (password == "") ? "" : Password.Hash(password, PASSWORD_ITERS));
         return u;
     }
 }

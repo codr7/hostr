@@ -1,8 +1,9 @@
 namespace Hostr;
 
+using Hostr.Domain;
+
 public class Schema : DB.Schema
 {
-
     public static readonly int SEQUENCE_OFFS = 100;
     public static readonly Schema Instance = new Schema();
 
@@ -32,7 +33,7 @@ public class Schema : DB.Schema
     public readonly DB.Columns.Text PoolName;
     public readonly DB.Key PoolNameKey;
     public readonly DB.Columns.Timestamp PoolCreatedAt;
-    public readonly DB.ForeignKey PoolCreatedBy;   public readonly Schema DB;
+    public readonly DB.ForeignKey PoolCreatedBy;
 
     public readonly DB.ForeignKey PoolOwnedBy;
     public readonly DB.Columns.Boolean PoolInfiniteCapacity;
@@ -60,9 +61,7 @@ public class Schema : DB.Schema
     public readonly DB.Key UserEmailKey;
     public readonly DB.Columns.Text UserPassword;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public Schema()
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     {
         var json = new Json(this);
 
@@ -133,7 +132,7 @@ public class Schema : DB.Schema
             p.Set(PoolName, Guid.NewGuid().ToString());
             rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray());
             p.Set(PoolVisible, false);
-            (cx as Cx)!.PostEvent(Hostr.Pools.INSERT, null, ref p, tx);
+            (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
         };
 
         Calendars = new DB.Table(this, "calendars");
@@ -153,7 +152,7 @@ public class Schema : DB.Schema
             rec.Set(CalendarUpdatedBy, (DB.Record)(cx as Cx)!.CurrentUser);
 #pragma warning restore CS8629
         };
-        
+
         Calendars.BeforeInsert += beforeHandler;
         Calendars.BeforeUpdate += beforeHandler;
 
