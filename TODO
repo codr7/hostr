@@ -1,11 +1,8 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
-  
-* massage GetCalendars result
-** return one array per pool
-*** id/name/calendar
-**** one item per interval (minutes)
-**** add parameter
+
+* figure out why calendar returns empty pool names
+** limit query to visible pools
 
 * add error filter
 ** catch exceptions and return json object

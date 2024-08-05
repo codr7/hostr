@@ -16,6 +16,8 @@ public static class RequestExtensions
 
     public static long? GetLong(this HttpRequest req, string name) => (req.Get(name) is string v) ? long.Parse(v) : null;
 
+    public static int? GetInt(this HttpRequest req, string name) => (req.Get(name) is string v) ? int.Parse(v) : null;
+
     public static T Json<T>(this HttpRequest req) {
         var stream = new StreamReader(req.Body);
         var body = stream.ReadToEndAsync();

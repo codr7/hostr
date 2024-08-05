@@ -41,7 +41,7 @@ public struct GetCalendars : Route
         }
         else { throw new Exception("Missnig endAt"); }
 
-        if (req.GetLong("interval") is long it)
+        if (req.GetInt("interval") is int it)
         {
             interval = it;
             q.Where(cx.DB.CalendarStartsAt.Lt(ea));
@@ -71,7 +71,6 @@ public struct GetCalendars : Route
             var poolId = r.Get(cx.DB.PoolId);
             
             Console.WriteLine(t + " " + r.Get(cx.DB.CalendarStartsAt) + " " + r.Get(cx.DB.CalendarEndsAt));
-
             
             while (t.CompareTo(endAt) < 0 && t.CompareTo(r.Get(cx.DB.CalendarEndsAt)) < 0)
             {
