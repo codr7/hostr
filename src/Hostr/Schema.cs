@@ -14,7 +14,7 @@ public class Schema : DB.Schema
     public readonly DB.Columns.Timestamp CalendarUpdatedAt;
     public readonly DB.ForeignKey CalendarUpdatedBy;
     public readonly DB.Columns.Integer CalendarTotal;
-    public readonly DB.Columns.Integer CalendarBooked;
+    public readonly DB.Columns.Integer CalendarUsed;
     public readonly DB.Columns.Text CalendarLabel;
 
     public readonly DB.Sequence EventIds;
@@ -150,7 +150,7 @@ public class Schema : DB.Schema
         CalendarUpdatedAt = new DB.Columns.Timestamp(Calendars, "updatedAt");
         CalendarUpdatedBy = new DB.ForeignKey(Calendars, "updatedBy", Users);
         CalendarTotal = new DB.Columns.Integer(Calendars, "total");
-        CalendarBooked = new DB.Columns.Integer(Calendars, "booked");
+        CalendarUsed = new DB.Columns.Integer(Calendars, "used");
         CalendarLabel = new DB.Columns.Text(Calendars, "label");
 
         DB.Table.BeforeHandler beforeHandler = (ref DB.Record rec, object cx, DB.Tx tx) =>

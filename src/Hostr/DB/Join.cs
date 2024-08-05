@@ -7,6 +7,6 @@ public readonly record struct Join(Source left, Source right, Condition cond): S
         cond.AddArgs(result);
     }
 
-    public string SourceSql => $"${left.SourceSql} JOIN {right.SourceSql} ON {cond.Sql}";
+    public string SourceSql => $"{left.SourceSql} JOIN {right.SourceSql} ON {cond.Sql}";
 
 }

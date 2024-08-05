@@ -14,7 +14,7 @@ public static class Calendar
         c.Set(cx.DB.CalendarPool, pool);
         c.Set(cx.DB.CalendarStartsAt, DateTime.MinValue);
         c.Set(cx.DB.CalendarEndsAt, DateTime.MaxValue);
-        c.Set(cx.DB.CalendarBooked, 0);
+        c.Set(cx.DB.CalendarUsed, 0);
         c.Set(cx.DB.CalendarTotal, 0);
         return c;
     }
