@@ -3,13 +3,16 @@ using System.Text.RegularExpressions;
 
 namespace Hostr.DB;
 
-public class Cx: ValueStore
+public class Cx : ValueStore
 {
+    public static string MakeSavePoint() => $"SP{new string(Guid.NewGuid().ToString().Where(c => c != '-').ToArray())}";
+
     private string host;
     private string database;
     private string user;
     private string password;
     private NpgsqlDataSource? source;
+    private NpgsqlConnection? connection;
     private Tx? tx = null;
 
 
@@ -24,6 +27,7 @@ public class Cx: ValueStore
     public void Connect()
     {
         source = NpgsqlDataSource.Create($"Host={host};Database={database};Username={user};Password={password}");
+        connection = source.OpenConnection();
     }
 
     public void Disconnect()
@@ -35,14 +39,14 @@ public class Cx: ValueStore
     {
         string? sp = null;
 
-        if (tx is Tx)
+        if (tx is null)
         {
-            sp = Guid.NewGuid().ToString();
-            Exec($"SAVEPOINT {sp}");
+            Exec("BEGIN");
         }
         else
         {
-            Exec("BEGIN");
+            sp = MakeSavePoint();
+            Exec($"SAVEPOINT {sp}");
         }
 
         tx = new Tx(this, tx, sp);
@@ -64,8 +68,9 @@ public class Cx: ValueStore
             argIndex++;
         }
 
-        if (source is null) { throw new Exception("Not connected"); }
-        var cmd = source.CreateCommand(statement);
+        if (connection is null) { throw new Exception("Not connected"); }
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = statement;
         foreach (var a in args) { cmd.Parameters.AddWithValue(a); }
         return cmd;
     }

@@ -61,6 +61,11 @@ catch (Exception e)
     Environment.Exit(-1);
 }
 
+var tx1 = dbCx.StartTx();
+var tx2 = dbCx.StartTx();
+tx2.Rollback();
+tx1.Commit();
+
 ui.Flush();
 var app = Web.App.Make(cx);
 app.Run();

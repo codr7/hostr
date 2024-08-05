@@ -156,14 +156,11 @@ public class Schema : DB.Schema
         Calendars.BeforeInsert += beforeHandler;
         Calendars.BeforeUpdate += beforeHandler;
 
-        Pools.AfterInsert += (rec, cx, tx) =>
+        Pools.AfterInsert += (rec, _cx, tx) =>
         {
-            var c = new DB.Record();
-            rec.Copy(ref c, CalendarPool.ForeignColumns.Zip(CalendarPool.Columns).ToArray());
-            rec.Copy(ref c, PoolCreatedBy.Columns.Zip(CalendarUpdatedBy.Columns).ToArray());
-            c.Set(CalendarStartsAt, DateTime.MinValue);
-            c.Set(CalendarEndsAt, DateTime.MaxValue);
-            Calendars.Insert(ref c, cx, tx);
+            var cx = (Cx)_cx;
+            var c = Calendar.Make(cx, rec);
+            cx.PostEvent(Calendar.INSERT, null, ref c, tx);
         };
     }
 }
