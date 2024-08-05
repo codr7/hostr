@@ -10,9 +10,6 @@ curl -X POST http://localhost:5000/stop
 * add non-uique index on pool/unit name
 ** add indexes
 
-* format sql statements in cx.prepare
-** insert values in brackets
-
 * --
   
 * move stored values to prev tx and finally cx on commit

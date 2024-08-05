@@ -134,7 +134,7 @@ public class Table : Definition, Source
         var d = rec;
         var cs = columns.Where(c => d.Contains(c)).Select(c => (c, d.GetObject(c)!)).ToArray();
         var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\""))}) 
-                     VALUES ({string.Join(", ", Enumerable.Range(0, cs.Length).Select(i => $"${i + 1}").ToArray())})";
+                     VALUES ({string.Join(", ", Enumerable.Repeat("$?", cs.Length))})";
 
         tx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
         foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }

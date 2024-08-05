@@ -56,7 +56,18 @@ public class Cx : ValueStore
     internal NpgsqlCommand PrepareCommand(string statement, params object[] args)
     {
         statement = Regex.Replace(statement, @"\s+", " ");
-        Console.WriteLine(statement);
+        var ss = statement;
+        var ai = 0;
+
+        while (true)
+        {
+            var i = ss.IndexOf("$?");
+            if (i == -1) { break; }
+            ss = ss.Remove(i, 2).Insert(i, $"[{args[ai]}]");
+            ai++;
+        }
+
+        Console.WriteLine(ss);
         var argIndex = 1;
 
         while (true)
