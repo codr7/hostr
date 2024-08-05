@@ -18,7 +18,6 @@ They also contain carry rules, e.g whether bookings need to be checked in and/or
 #### calendars
 Calendars specify the total and used capacity for pools in time with minute precision.<br>
 When capacity is updated, new segments are created and existing segments shortened as needed.<br>
-Each segment carries an optional label for display purposes.
 
 ### units
 Units are physical objects, e.g hotel rooms or snowboards.<br>
