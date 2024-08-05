@@ -2,6 +2,14 @@ curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password"
 curl -X POST http://localhost:5000/stop
 
 * return infiniteCapacity per pool from /calendars
+** rename to hasInfiniteCapacity
+
+* add pool.defaultInterval in minutes
+* add pool.isClean bool
+* add pool.useCleaning bool
+
+* rename existing bool flags to use
+** useCheckIn etc.
 
 * add error filter
 ** catch exceptions and return json object
