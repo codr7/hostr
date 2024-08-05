@@ -1,11 +1,6 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* add Web.RequestExtensions
-** simplify getting params & reading body
-
-* handle postedAfter param in events
-
 * add key on pool/unit name/ownedBy
 
 * add non-uique index on pool/unit name
@@ -14,8 +9,10 @@ curl -X POST http://localhost:5000/stop
 * format sql statements in cx.prepare
 ** insert values in brackets
 
-* remove login from Program.cs
-  
+* more Web.RequestExtensions
+** simplify reading body
+*** Login
+
 * --
   
 * move stored values to prev tx and finally cx on commit
