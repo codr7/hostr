@@ -13,11 +13,6 @@ curl -X POST http://localhost:5000/stop
 * add Web.RequestExtensions
 ** simplify getting params & reading body
 
-* add command loop
-** implement q - stop
-*** send request to own ip/port
-*** restrict to own ip/port in stop imp
-
 * format sql statements in cx.prepare
 ** insert values in brackets
 
@@ -63,15 +58,8 @@ curl -X POST http://localhost:5000/stop
 ** sum all found records
 
 * add booking
-
-* add Record.To/FromJSON(Column[])
-** add Column.To/FromJSON()
  
-* add rest api
-** add ping endpoint
-
-* add login endpoint
-** generate jwt token
+* add slog
 
 * add openapi spec
   
@@ -80,7 +68,10 @@ curl -X POST http://localhost:5000/stop
 ** use to read passwords
 ** add password repeat/check on new admin
 
-* add slog
+* add command loop
+** implement q - stop
+*** send request to own ip/port
+*** restrict to own ip/port in stop imp
 
 sudo -u postgres psql [hostr]
 alter user postgres with encrypted password ''
