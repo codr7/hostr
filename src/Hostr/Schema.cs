@@ -23,7 +23,9 @@ public class Schema : DB.Schema
     public readonly DB.Columns.Text EventType;
     public readonly DB.ForeignKey EventParent;
     public readonly DB.Columns.Timestamp EventPostedAt;
+    public readonly DB.Index EventPostedAtIndex;
     public readonly DB.ForeignKey EventPostedBy;
+    public readonly DB.Index EventPostedByIndex;
     public readonly DB.Columns.Jsonb EventKey;
     public readonly DB.Columns.Jsonb EventData;
 
@@ -31,7 +33,8 @@ public class Schema : DB.Schema
     public readonly DB.Table Pools;
     public readonly DB.Columns.BigInt PoolId;
     public readonly DB.Columns.Text PoolName;
-    public readonly DB.Key PoolOwnedNameKey;
+    public readonly DB.Index PoolNameIndex;
+    public readonly DB.Key PoolOwnedByNameKey;
     public readonly DB.Columns.Timestamp PoolCreatedAt;
     public readonly DB.ForeignKey PoolCreatedBy;
 
@@ -45,7 +48,8 @@ public class Schema : DB.Schema
     public readonly DB.Columns.BigInt UnitId;
     public readonly DB.ForeignKey UnitPool;
     public readonly DB.Columns.Text UnitName;
-    public readonly DB.Key UnitOwnedNameKey;
+    public readonly DB.Index UnitNameIndex;
+    public readonly DB.Key UnitOwnedByNameKey;
     public readonly DB.Columns.Timestamp UnitCreatedAt;
     public readonly DB.ForeignKey UnitCreatedBy;
     public readonly DB.ForeignKey UnitOwnedBy;
@@ -88,7 +92,9 @@ public class Schema : DB.Schema
         EventType = new DB.Columns.Text(Events, "type");
         EventParent = new DB.ForeignKey(Events, "parent", Events, nullable: true);
         EventPostedAt = new DB.Columns.Timestamp(Events, "postedAt");
+        EventPostedAtIndex = new DB.Index(Events, "postedAtIndex", [EventPostedAt]);
         EventPostedBy = new DB.ForeignKey(Events, "postedBy", Users, nullable: true);
+        EventPostedByIndex = new DB.Index(Events, "postedByIndex", [EventPostedBy]);
         EventKey = new DB.Columns.Jsonb(Events, "key", json.Options, nullable: true);
         EventData = new DB.Columns.Jsonb(Events, "data", json.Options, nullable: true);
 
@@ -96,7 +102,7 @@ public class Schema : DB.Schema
         Pools = new DB.Table(this, "pools");
         PoolId = new DB.Columns.BigInt(Pools, "id", primaryKey: true);
         PoolName = new DB.Columns.Text(Pools, "name");
-        PoolOwnedNameKey = new DB.Key(Pools, "nameKey", [PoolName]);
+        PoolNameIndex = new DB.Index(Pools, "nameIndex", [PoolName]);
         PoolCreatedAt = new DB.Columns.Timestamp(Pools, "createdAt");
         PoolCreatedBy = new DB.ForeignKey(Pools, "createdBy", Users);
         PoolOwnedBy = new DB.ForeignKey(Pools, "ownedBy", Users);
@@ -104,7 +110,7 @@ public class Schema : DB.Schema
         PoolCheckIn = new DB.Columns.Boolean(Pools, "checkIn", defaultValue: false);
         PoolCheckOut = new DB.Columns.Boolean(Pools, "checkOut", defaultValue: false);
         PoolVisible = new DB.Columns.Boolean(Pools, "visible", defaultValue: true);
-        PoolOwnedNameKey = new DB.Key(Pools, "ownedNameKey", [PoolOwnedBy, PoolName]);
+        PoolOwnedByNameKey = new DB.Key(Pools, "ownedByNameKey", [PoolOwnedBy, PoolName]);
 
         Pools.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
@@ -117,10 +123,11 @@ public class Schema : DB.Schema
         UnitId = new DB.Columns.BigInt(Units, "id", primaryKey: true);
         UnitPool = new DB.ForeignKey(Units, "pool", Pools, [(UnitId, PoolId)]);
         UnitName = new DB.Columns.Text(Units, "name");
+        UnitNameIndex = new DB.Index(Units, "nameIndex", [UnitName]);
         UnitCreatedAt = new DB.Columns.Timestamp(Units, "createdAt");
         UnitCreatedBy = new DB.ForeignKey(Units, "createdBy", Users);
         UnitOwnedBy = new DB.ForeignKey(Units, "ownedBy", Users);
-        UnitOwnedNameKey = new DB.Key(Units, "ownedNameKey", [UnitOwnedBy, UnitName]);
+        UnitOwnedByNameKey = new DB.Key(Units, "ownedByNameKey", [UnitOwnedBy, UnitName]);
 
         Units.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {

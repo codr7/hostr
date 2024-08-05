@@ -18,6 +18,7 @@ public class Table : Definition, Source
     private readonly List<Constraint> constraints = new List<Constraint>();
     private readonly Dictionary<string, TableDefinition> lookup = new Dictionary<string, TableDefinition>();
     private readonly List<ForeignKey> foreignKeys = new List<ForeignKey>();
+    private readonly List<Index> indexes = new List<Index>();
 
     private Key? primaryKey = null;
 
@@ -80,6 +81,8 @@ public class Table : Definition, Source
         {
             if (c != PrimaryKey) { c.Create(tx); }
         }
+
+        foreach (var i in indexes) { i.Create(tx); }
     }
 
     public override string CreateSql
@@ -238,6 +241,7 @@ public class Table : Definition, Source
     internal void AddColumn(Column col) => columns.Add(col);
     internal void AddConstraint(Constraint cons) => constraints.Add(cons);
     internal void AddForeignKey(ForeignKey key) => foreignKeys.Add(key);
+    internal void AddIndex(Index idx) => indexes.Add(idx);
 
     private NpgsqlDataReader Read(Condition? where, Tx tx)
     {

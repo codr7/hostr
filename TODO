@@ -1,18 +1,15 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* add non-uique index on pool/unit name
-** add indexes
-
-* --
+* add /calendars endpoint
   
-* move stored values to prev tx and finally cx on commit
-    
 * add error filter
 ** catch exceptions and return json object
 ** internal server error default
 ** use HttpException as base for HttpError with code/message
 *** special case in middleware to set status
+
+* move stored values to prev tx and finally cx on commit
 
 * post ddl statements as events
 ** add virtual ExecDDL?
