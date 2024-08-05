@@ -57,7 +57,6 @@ public class Cx : ValueStore
     {
         statement = Regex.Replace(statement, @"\s+", " ");
         Console.WriteLine(statement);
-        foreach (var a in args) { Console.WriteLine("ARG " + a); }
         var argIndex = 1;
 
         while (true)

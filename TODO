@@ -1,17 +1,17 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* add key on pool/unit name/ownedBy
+* more Web.RequestExtensions
+** simplify reading body
+*** Login
+
+* add change name keys on pool/unit to name/ownedBy
 
 * add non-uique index on pool/unit name
 ** add indexes
 
 * format sql statements in cx.prepare
 ** insert values in brackets
-
-* more Web.RequestExtensions
-** simplify reading body
-*** Login
 
 * --
   
