@@ -47,8 +47,6 @@ public abstract class Column : TableDefinition, IComparable<Column>, Value
 
     public override string DefinitionType => "COLUMN";
 
-    public Condition Eq(object val) => new Condition($"{ToString()} = $?", val);
-
     public override bool Exists(Tx tx)
     {
         return tx.ExecScalar<bool>(@"SELECT EXISTS (

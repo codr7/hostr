@@ -41,12 +41,12 @@ public class Cx : ValueStore
 
         if (tx is null)
         {
-            Exec("BEGIN");
+            Exec("BEGIN", []);
         }
         else
         {
             sp = MakeSavePoint();
-            Exec($"SAVEPOINT {sp}");
+            Exec($"SAVEPOINT {sp}", []);
         }
 
         tx = new Tx(this, tx, sp);
@@ -57,6 +57,7 @@ public class Cx : ValueStore
     {
         statement = Regex.Replace(statement, @"\s+", " ");
         Console.WriteLine(statement);
+        foreach (var a in args) { Console.WriteLine("ARG " + a); }
         var argIndex = 1;
 
         while (true)
@@ -75,21 +76,21 @@ public class Cx : ValueStore
         return cmd;
     }
 
-    internal void Exec(string statement, params object[] args)
+    internal void Exec(string statement, object[] args)
     {
-        PrepareCommand(statement, args: args).ExecuteNonQuery();
+        PrepareCommand(statement, args).ExecuteNonQuery();
     }
 
-    internal NpgsqlDataReader ExecReader(string statement, params object[] args)
+    internal NpgsqlDataReader ExecReader(string statement, object[] args)
     {
-        return PrepareCommand(statement, args: args).ExecuteReader();
+        return PrepareCommand(statement, args).ExecuteReader();
     }
 
-    internal T ExecScalar<T>(string statement, params object[] args)
+    internal T ExecScalar<T>(string statement, object[] args)
     {
 #pragma warning disable CS8600
 #pragma warning disable CS8603
-        return (T)PrepareCommand(statement, args: args).ExecuteScalar(); ;
+        return (T)PrepareCommand(statement, args).ExecuteScalar(); ;
 #pragma warning restore CS8603
 #pragma warning restore CS8600
     }

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Primitives;
+using static Hostr.DB.ValueExtensions;
 
 namespace Hostr.Web.Routes;
 
@@ -13,26 +13,22 @@ public struct Events : Route
     {
         var cx = (Cx)hcx.Items["cx"]!;
         using var tx = cx.DBCx.StartTx();
-#pragma warning disable CS8629 
-        var q = new DB.Query(cx.DB.Events).
-            Select(cx.DB.Events.Columns).
-            Where(cx.DB.EventPostedBy.Eq((DB.Record)cx.CurrentUser)).
-            OrderBy(cx.DB.EventPostedAt, DB.Query.Order.Descending);
         HttpRequest req = hcx.Request;
 
-        var ro = req.Query["rowOffset"];
-#pragma warning disable CS8604
-        if (ro != StringValues.Empty) { q.Offset(Int64.Parse(ro[0])); }
-#pragma warning restore CS8604 
+        var q = new DB.Query(cx.DB.Events).
+            Select(cx.DB.Events.Columns).
+#pragma warning disable CS8629 
+            Where(cx.DB.EventPostedBy.Eq((DB.Record)cx.CurrentUser)).
+#pragma warning restore CS8629
+            OrderBy(cx.DB.EventPostedAt, DB.Query.Order.Descending);
 
-        var rl = req.Query["rowLimit"];
-#pragma warning disable CS8604 
-        if (rl != StringValues.Empty) { q.Limit(Int64.Parse(rl[0])); }
-#pragma warning restore CS8604
-
+        if (req.GetDateTime("postedBefore") is DateTime pb) { q.Where(cx.DB.EventPostedAt.Lt(pb)); }
+        if (req.GetDateTime("postedAfter") is DateTime pa) { q.Where(cx.DB.EventPostedAt.Gt(pa)); }
+        if (req.GetLong("rowOffset") is long ro) { q.Offset(ro); }
+        if (req.GetLong("rowLimit") is long rl) { q.Offset(rl); }
+ 
         var rs = q.FindAll(tx);        
         Array.Sort(rs, (x, y) => x.Get(cx.DB.EventId).CompareTo(y.Get(cx.DB.EventId)));
         return Task.FromResult<object>(rs);
-#pragma warning restore CS8629
     }
 }
