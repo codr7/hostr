@@ -19,6 +19,7 @@ public struct GetCalendars : Route
             Join(cx.DB.CalendarPool).
             Select(cx.DB.Calendars.Columns).
             Select(cx.DB.PoolId, cx.DB.PoolName).
+            Where(cx.DB.PoolVisible.Eq(true)).
             OrderBy(cx.DB.PoolName).
             OrderBy(cx.DB.CalendarStartsAt);
 
@@ -60,18 +61,15 @@ public struct GetCalendars : Route
         }
 
         var pools = new Dictionary<long, ResData.Pool>();
-        var lastPoolId = -1L;
-        var lastPoolName = "";
         var calendar = new List<ResData.Calendar>();
         t = startAt;
 
         for (var i = 0; i < rs.Length; i++)
         {
             var r = rs[i];
+            Console.WriteLine(r);
             var poolId = r.Get(cx.DB.PoolId);
-            
-            Console.WriteLine(t + " " + r.Get(cx.DB.CalendarStartsAt) + " " + r.Get(cx.DB.CalendarEndsAt));
-            
+                        
             while (t.CompareTo(endAt) < 0 && t.CompareTo(r.Get(cx.DB.CalendarEndsAt)) < 0)
             {
                 calendar.Add(new ResData.Calendar()
@@ -83,19 +81,18 @@ public struct GetCalendars : Route
                 t = t.AddMinutes(interval);
             }
 
-            if (i == rs.Length-1 || (rs[i + 1].Get(cx.DB.PoolId) != lastPoolId && lastPoolId != -1))
+            if (i == rs.Length-1 || (rs[i + 1].Get(cx.DB.PoolId) != poolId))
             {
 #pragma warning disable CS8601 
                 pools[poolId] = new ResData.Pool()
                 {
-                    poolId = lastPoolId,
-                    poolName = lastPoolName,
+                    poolId = poolId,
+                    poolName = r.Get(cx.DB.PoolName),
                     calendar = calendar.ToArray()
                 };
 #pragma warning restore CS8601
-                lastPoolId = poolId;
-                lastPoolName = r.Get(cx.DB.PoolName);
                 t = startAt;
+                calendar.Clear();
             }
         }
 

@@ -46,7 +46,7 @@ try
         cx.Login(u, tx);
         Say($"User '{name}' created");
 
-        var r = User.Make(cx, "double");
+        var r = Pool.Make(cx, "double");
         r.Set(cx.DB.PoolCreatedBy, u);
         cx.PostEvent(Pool.INSERT, null, ref r, tx);
 
