@@ -1,5 +1,5 @@
-using System.Data.SqlTypes;
 using System.Text;
+using System.Threading.Tasks.Dataflow;
 
 namespace Hostr.DB;
 
@@ -51,6 +51,12 @@ public class Query : Source
         return result.ToArray();
     }
 
+    public Query Join(ForeignKey source) {
+        var cond = Condition.And(source.ColumnMap.Select(c => c.Item2.Eq(c.Item1)).ToArray());
+        from = new Join(from, source.ForeignTable, cond);
+        return this;
+    }
+
     public Query Limit(long n)
     {
         limit = n;
@@ -69,7 +75,7 @@ public class Query : Source
         return this;
     }
 
-    public Query OrderBy(Column col, Order ord)
+    public Query OrderBy(Column col, Order ord = Order.Ascending)
     {
         order.Add((col, ord));
         return this;

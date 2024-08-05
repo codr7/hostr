@@ -1,7 +1,5 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
-
-* add /calendars endpoint
   
 * add error filter
 ** catch exceptions and return json object
@@ -20,6 +18,7 @@ curl -X POST http://localhost:5000/stop
 
 * add settings
 ** store value as json
+** dynamic ui
 
 * add tax types
 ** name (primary key)
