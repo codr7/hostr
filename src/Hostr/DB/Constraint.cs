@@ -6,11 +6,13 @@ public abstract class Constraint : TableDefinition
 {
     private readonly List<Column> columns = new List<Column>();
 
-    public Constraint(Table table, string name, Column[] columns) : base(table, name)
+    public Constraint(Table table, string name, Definition[] columns) : base(table, name)
     {
-        foreach (var c in columns) { this.columns.Add(c); }
+        foreach (var c in columns) { c.AddColumns(this.columns); }
         table.AddConstraint(this);
     }
+
+    public override void AddColumns(List<Column> result) => result.AddRange(columns);
 
     public Column[] Columns => columns.ToArray();
     public abstract string ConstraintType { get; }

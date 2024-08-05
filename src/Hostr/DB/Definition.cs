@@ -11,6 +11,8 @@ public abstract class Definition : IComparable<Definition>
         Name = name;
     }
 
+    public virtual void AddColumns(List<Column> result) {}
+
     public int CompareTo(Definition? other) => (other is Definition o) ? Name.CompareTo(o.Name) : -1;
 
     public virtual void Create(Tx tx) => tx.Exec(CreateSql);

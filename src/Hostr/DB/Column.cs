@@ -17,6 +17,7 @@ public abstract class Column : TableDefinition, IComparable<Column>, Value
         PrimaryKey = primaryKey;
     }
 
+    public override void AddColumns(List<Column> result) => result.Add(this);
     public abstract string ColumnType { get; }
 
     public abstract Column Clone(Table table, string name, object? defaultValue = null, bool nullable = false, bool primaryKey = false);
