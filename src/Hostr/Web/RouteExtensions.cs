@@ -13,7 +13,7 @@ public static class RouteExtensions
             _ => throw new Exception("Not implemented")
         };
 
-        if (route.Auth) { rh.RequireAuthorization(); }
+        if (!Config.Dev && route.Auth) { rh.RequireAuthorization(); }
         foreach (var f in route.Filters) { rh.AddEndpointFilter(f); }        
         return rh;
     }

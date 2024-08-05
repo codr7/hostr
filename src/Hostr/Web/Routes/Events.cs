@@ -4,7 +4,7 @@ namespace Hostr.Web.Routes;
 
 public struct Events : Route
 {
-    public bool Auth => !Config.Dev;
+    public bool Auth => true;
     public Method Method => Method.Get;
     public string Path => "/events";
     public IEndpointFilter[] Filters => [new CxFilter(), new UserFilter()];
