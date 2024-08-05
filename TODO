@@ -1,6 +1,8 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
+* return infiniteCapacity per pool from /calendars
+
 * add error filter
 ** catch exceptions and return json object
 ** internal server error default
