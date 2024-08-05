@@ -8,17 +8,15 @@ public struct Login : Route
     public readonly string Path => "/login";
     public readonly IEndpointFilter[] Filters => [new CxFilter()];
 
-    async public Task<object> Exec(HttpContext hcx)
+    public Task<object> Exec(HttpContext hcx)
     {
         var cx = (Cx)hcx.Items["cx"]!;
         var req = hcx.Request;
-        var stream = new StreamReader(req.Body);
-        var body = await stream.ReadToEndAsync();
-        var data = cx.Json.FromString<ReqData>(body)!;
+        var body = req.Json<ReqData>();
         using var tx = cx.DBCx.StartTx();
-        var u = cx.Login(data.email, data.password, tx);
+        var u = cx.Login(body.email, body.password, tx);
         tx.Commit();
-        return new ResData() { token = User.MakeJwtToken(cx, u) };
+        return Task.FromResult<object>(new ResData() { token = User.MakeJwtToken(cx, u) });
     }
 
     private struct ReqData
