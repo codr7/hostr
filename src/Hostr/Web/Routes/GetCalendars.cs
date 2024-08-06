@@ -19,7 +19,7 @@ public struct GetCalendars : Route
             Join(cx.DB.CalendarPool).
             Select(cx.DB.Calendars.Columns).
             Select(cx.DB.PoolId, cx.DB.PoolName).
-            Where(cx.DB.PoolVisible.Eq(true)).
+            Where(cx.DB.PoolIsVisible.Eq(true)).
             OrderBy(cx.DB.PoolName).
             OrderBy(cx.DB.CalendarStartsAt);
 

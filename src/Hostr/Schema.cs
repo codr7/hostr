@@ -38,10 +38,9 @@ public class Schema : DB.Schema
     public readonly DB.ForeignKey PoolCreatedBy;
 
     public readonly DB.ForeignKey PoolOwnedBy;
-    public readonly DB.Columns.Boolean PoolInfiniteCapacity;
-    public readonly DB.Columns.Boolean PoolCheckIn;
-    public readonly DB.Columns.Boolean PoolCheckOut;
-    public readonly DB.Columns.Boolean PoolVisible;
+    public readonly DB.Columns.Boolean PoolHasInfiniteCapacity;
+    public readonly DB.Columns.Integer PoolDefaultInterval;
+    public readonly DB.Columns.Boolean PoolIsVisible;
 
     public readonly DB.Table Units;
     public readonly DB.Columns.BigInt UnitId;
@@ -52,6 +51,9 @@ public class Schema : DB.Schema
     public readonly DB.Columns.Timestamp UnitCreatedAt;
     public readonly DB.ForeignKey UnitCreatedBy;
     public readonly DB.ForeignKey UnitOwnedBy;
+    public readonly DB.Columns.Boolean UnitUseCheckIn;
+    public readonly DB.Columns.Boolean UnitUseCheckOut;
+    public readonly DB.Columns.Boolean UnitUseCleaning;
 
     public readonly DB.Sequence UserIds;
     public readonly DB.Table Users;
@@ -105,12 +107,11 @@ public class Schema : DB.Schema
         PoolCreatedAt = new DB.Columns.Timestamp(Pools, "createdAt");
         PoolCreatedBy = new DB.ForeignKey(Pools, "createdBy", Users);
         PoolOwnedBy = new DB.ForeignKey(Pools, "ownedBy", Users);
-        PoolInfiniteCapacity = new DB.Columns.Boolean(Pools, "infiniteCapacity", defaultValue: false);
-        PoolCheckIn = new DB.Columns.Boolean(Pools, "checkIn", defaultValue: false);
-        PoolCheckOut = new DB.Columns.Boolean(Pools, "checkOut", defaultValue: false);
-        PoolVisible = new DB.Columns.Boolean(Pools, "visible", defaultValue: true);
         PoolOwnedByNameKey = new DB.Key(Pools, "ownedByNameKey", [PoolOwnedBy, PoolName]);
-
+        PoolHasInfiniteCapacity = new DB.Columns.Boolean(Pools, "hasInfiniteCapacity", defaultValue: false);
+        PoolDefaultInterval = new DB.Columns.Integer(Pools, "defaultInterval", defaultValue: 24*60);
+        PoolIsVisible = new DB.Columns.Boolean(Pools, "isVisible", defaultValue: true);
+        
         Pools.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
@@ -127,6 +128,10 @@ public class Schema : DB.Schema
         UnitCreatedBy = new DB.ForeignKey(Units, "createdBy", Users);
         UnitOwnedBy = new DB.ForeignKey(Units, "ownedBy", Users);
         UnitOwnedByNameKey = new DB.Key(Units, "ownedByNameKey", [UnitOwnedBy, UnitName]);
+        UnitUseCheckIn = new DB.Columns.Boolean(Units, "useCheckIn", defaultValue: false);
+        UnitUseCheckOut = new DB.Columns.Boolean(Units, "useCheckOut", defaultValue: false);
+        UnitUseCleaning = new DB.Columns.Boolean(Units, "useCleaning", defaultValue: false);
+
 
         Units.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
@@ -138,7 +143,7 @@ public class Schema : DB.Schema
             p.Set(PoolId, rec.Get(UnitId));
             p.Set(PoolName, Guid.NewGuid().ToString());
             rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray());
-            p.Set(PoolVisible, false);
+            p.Set(PoolIsVisible, false);
             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
         };
 
