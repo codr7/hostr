@@ -59,6 +59,7 @@ public class Schema : DB.Schema
     public readonly DB.Table Users;
     public readonly DB.Columns.BigInt UserId;
     public readonly DB.Columns.Text UserDisplayName;
+    public readonly DB.Key UserDisplayNameKey;
     public readonly DB.Columns.Timestamp UserCreatedAt;
     public readonly DB.ForeignKey UserCreatedBy;
     public readonly DB.Columns.Timestamp UserLoginAt;
@@ -74,6 +75,7 @@ public class Schema : DB.Schema
         Users = new DB.Table(this, "users");
         UserId = new DB.Columns.BigInt(Users, "id", primaryKey: true);
         UserDisplayName = new DB.Columns.Text(Users, "displayName");
+        UserDisplayNameKey = new DB.Key(Users, "displayNameKey", [UserDisplayName]);
         UserCreatedAt = new DB.Columns.Timestamp(Users, "createdAt");
         UserCreatedBy = new DB.ForeignKey(Users, "createdBy", Users, nullable: true);
         UserLoginAt = new DB.Columns.Timestamp(Users, "loginAt", nullable: true);
@@ -84,6 +86,12 @@ public class Schema : DB.Schema
         Users.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             if (!rec.Contains(UserId)) { rec.Set(UserId, UserIds.Next(tx)); }
+
+            if ((!rec.Contains(UserDisplayName) || rec.Get(UserDisplayName) == "") && rec.Contains(UserEmail))
+            {
+                rec.Set(UserDisplayName, rec.Get(UserEmail!)!);
+            }
+
             rec.Set(UserCreatedAt, DateTime.UtcNow);
         };
 
@@ -109,9 +117,9 @@ public class Schema : DB.Schema
         PoolOwnedBy = new DB.ForeignKey(Pools, "ownedBy", Users);
         PoolOwnedByNameKey = new DB.Key(Pools, "ownedByNameKey", [PoolOwnedBy, PoolName]);
         PoolHasInfiniteCapacity = new DB.Columns.Boolean(Pools, "hasInfiniteCapacity", defaultValue: false);
-        PoolDefaultInterval = new DB.Columns.Integer(Pools, "defaultInterval", defaultValue: 24*60);
+        PoolDefaultInterval = new DB.Columns.Integer(Pools, "defaultInterval", defaultValue: 24 * 60);
         PoolIsVisible = new DB.Columns.Boolean(Pools, "isVisible", defaultValue: true);
-        
+
         Pools.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
