@@ -18,7 +18,7 @@ public struct GetCalendars : Route
         var q = new DB.Query(cx.DB.Calendars).
             Join(cx.DB.CalendarPool).
             Select(cx.DB.Calendars.Columns).
-            Select(cx.DB.PoolId, cx.DB.PoolName).
+            Select(cx.DB.PoolId, cx.DB.PoolName, cx.DB.PoolHasInfiniteCapacity).
             Where(cx.DB.PoolIsVisible.Eq(true)).
             OrderBy(cx.DB.PoolName).
             OrderBy(cx.DB.CalendarStartsAt);
@@ -60,8 +60,8 @@ public struct GetCalendars : Route
             t = t.AddMinutes(interval);
         }
 
-        var pools = new Dictionary<long, ResData.Pool>();
-        var calendar = new List<ResData.Calendar>();
+        var calendars = new Dictionary<long, ResData.Calendar>();
+        var capacity = new List<ResData.Capacity>();
         t = startAt;
 
         for (var i = 0; i < rs.Length; i++)
@@ -72,7 +72,7 @@ public struct GetCalendars : Route
                         
             while (t.CompareTo(endAt) < 0 && t.CompareTo(r.Get(cx.DB.CalendarEndsAt)) < 0)
             {
-                calendar.Add(new ResData.Calendar()
+                capacity.Add(new ResData.Capacity()
                 {
                     total = r.Get(cx.DB.CalendarTotal),
                     used = r.Get(cx.DB.CalendarUsed)
@@ -84,22 +84,25 @@ public struct GetCalendars : Route
             if (i == rs.Length-1 || (rs[i + 1].Get(cx.DB.PoolId) != poolId))
             {
 #pragma warning disable CS8601 
-                pools[poolId] = new ResData.Pool()
+                calendars[poolId] = new ResData.Calendar()
                 {
-                    poolId = poolId,
-                    poolName = r.Get(cx.DB.PoolName),
-                    calendar = calendar.ToArray()
+                    pool = new ResData.Pool {
+                        id = poolId,
+                        name = r.Get(cx.DB.PoolName),
+                        hasInfiniteCapacity = r.Get(cx.DB.PoolHasInfiniteCapacity)
+                    },
+                    capacity = capacity.ToArray()
                 };
 #pragma warning restore CS8601
                 t = startAt;
-                calendar.Clear();
+                capacity.Clear();
             }
         }
 
         var result = new ResData()
         {
             intervals = intervals.ToArray(),
-            pools = pools.Values.ToArray()
+            calendars = calendars.Values.ToArray()
         };
 
         return Task.FromResult<object>(result);
@@ -108,16 +111,22 @@ public struct GetCalendars : Route
     private struct ResData
     {
         public required DateTime[] intervals { get; set; }
-        public required Pool[] pools { get; set; }
+        public required Calendar[] calendars { get; set; }
+
+        public struct Calendar
+        {
+            public required Pool pool { get; set; }
+            public required Capacity[] capacity { get; set; }
+        }
 
         public struct Pool
         {
-            public required long poolId { get; set; }
-            public required string poolName { get; set; }
-            public required Calendar[] calendar { get; set; }
+            public required long id { get; set; }
+            public required string name { get; set; }
+            public required bool hasInfiniteCapacity { get; set; }
         }
 
-        public struct Calendar
+        public struct Capacity
         {
             public required int total { get; set; }
             public required int used { get; set; }
