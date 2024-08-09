@@ -1,6 +1,8 @@
-namespace Hostr;
-
 using Hostr.Domain;
+
+using static Hostr.DB.ValueExtensions;
+
+namespace Hostr;
 
 public class Schema : DB.Schema
 {
@@ -45,9 +47,6 @@ public class Schema : DB.Schema
     public readonly DB.Table Units;
     public readonly DB.Columns.BigInt UnitId;
     public readonly DB.ForeignKey UnitPool;
-    public readonly DB.Columns.Text UnitName;
-    public readonly DB.Index UnitNameIndex;
-    public readonly DB.Key UnitOwnedByNameKey;
     public readonly DB.Columns.Timestamp UnitCreatedAt;
     public readonly DB.ForeignKey UnitCreatedBy;
     public readonly DB.ForeignKey UnitOwnedBy;
@@ -124,35 +123,40 @@ public class Schema : DB.Schema
         {
             if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
             rec.Set(PoolCreatedAt, DateTime.UtcNow);
-            rec.Copy(ref rec, PoolCreatedBy.Columns.Zip(PoolOwnedBy.Columns).ToArray());
+            rec.Copy(ref rec, PoolCreatedBy.Columns.Zip(PoolOwnedBy.Columns).ToArray(), force: true);
         };
 
         Units = new DB.Table(this, "units");
         UnitId = new DB.Columns.BigInt(Units, "id", primaryKey: true);
         UnitPool = new DB.ForeignKey(Units, "pool", Pools, [(UnitId, PoolId)]);
-        UnitName = new DB.Columns.Text(Units, "name");
-        UnitNameIndex = new DB.Index(Units, "nameIndex", [UnitName]);
         UnitCreatedAt = new DB.Columns.Timestamp(Units, "createdAt");
         UnitCreatedBy = new DB.ForeignKey(Units, "createdBy", Users);
         UnitOwnedBy = new DB.ForeignKey(Units, "ownedBy", Users);
-        UnitOwnedByNameKey = new DB.Key(Units, "ownedByNameKey", [UnitOwnedBy, UnitName]);
         UnitUseCheckIn = new DB.Columns.Boolean(Units, "useCheckIn", defaultValue: false);
         UnitUseCheckOut = new DB.Columns.Boolean(Units, "useCheckOut", defaultValue: false);
         UnitUseCleaning = new DB.Columns.Boolean(Units, "useCleaning", defaultValue: false);
-
 
         Units.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             if (!rec.Contains(UnitId)) { rec.Set(UnitId, PoolIds.Next(tx)); }
             rec.Set(UnitCreatedAt, DateTime.UtcNow);
-            rec.Copy(ref rec, UnitCreatedBy.Columns.Zip(UnitOwnedBy.Columns).ToArray());
+            rec.Copy(ref rec, UnitCreatedBy.Columns.Zip(UnitOwnedBy.Columns).ToArray(), force: true);
 
             var p = new DB.Record();
             p.Set(PoolId, rec.Get(UnitId));
-            p.Set(PoolName, Guid.NewGuid().ToString());
-            rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray());
-            p.Set(PoolIsVisible, false);
+            rec.Copy(ref p, Pools.Columns);
+            rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray(), force: true);
             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
+        };
+
+        Units.AfterUpdate += (rec, cx, tx) =>
+        {
+            var id = rec.Get(UnitId);
+            var p = Pools.FindFirst(PoolId.Eq(id), tx);
+            if (p is null) { throw new Exception($"Pool not found for unit: {id}"); }
+            var pp = (DB.Record)p;
+            rec.Copy(ref pp, Pools.Columns);
+            (cx as Cx)!.PostEvent(Pool.UPDATE, null, ref pp, tx);
         };
 
         Calendars = new DB.Table(this, "calendars");

@@ -8,7 +8,7 @@ public static class Unit
     public static DB.Record Make(Cx cx, string name = "")
     {
         var u = new DB.Record();
-        u.Set(cx.DB.UnitName, name);
+        u.Set(cx.DB.PoolName, name);
         return u;
     }
 }

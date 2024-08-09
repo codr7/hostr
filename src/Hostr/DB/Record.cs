@@ -23,7 +23,7 @@ public struct Record
 
     public bool Contains(Column col) => fields.ContainsKey(col);
 
-    public void Copy(ref Record to, (Column, Column)[] map)
+    public void Copy(ref Record to, (Column, Column)[] map, bool force = false)
     {
         foreach (var (fc, tc) in map)
         {
@@ -31,14 +31,16 @@ public struct Record
             {
                 to.SetObject(tc, v);
             }
-            else
+            else if (force)
             {
                 throw new Exception($"Missing field: {fc}");
             }
         }
     }
 
-    public Record Copy(Column[] cols)
+    public void Copy(ref Record to, Column[] cols) => Copy(ref to, cols.Zip(cols).ToArray());
+
+    public Record Copy(Column[] cols, bool force = false)
     {
         var c = new Record();
         Copy(ref c, cols.Zip(cols).ToArray());
