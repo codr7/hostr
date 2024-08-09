@@ -2,7 +2,7 @@ namespace Hostr;
 
 public class OrderedMap<K, V> where K : IComparable<K>
 {
-    private readonly SList<(K, V)> items = new SList<(K, V)>();
+    private readonly List<(K, V)> items = new List<(K, V)>();
 
     public V? this[K key]
     {
