@@ -15,6 +15,8 @@ public class Text : TypedColumn<string>
          primaryKey: primaryKey)
     { }
 
+    public Condition Like(string value) => new Condition($"{this} LIKE '{value}'", []);
+
     public override Column Clone(Table table, string name,
                                  object? defaultValue = null,
                                  bool nullable = false,

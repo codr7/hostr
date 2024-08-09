@@ -15,9 +15,12 @@ public struct GetCalendars : Route
         using var tx = cx.DBCx.StartTx();
         HttpRequest req = hcx.Request;
 
+        string? poolName = null;
         DateTime endAt;
         DateTime startAt;
         long interval;
+        
+        if (req.Get("poolName") is string pn && !pn.Equals("%")) { poolName = pn; }
 
         if (req.GetDateTime("startAt") is DateTime sa) { startAt = sa; }
         else { throw new Exception("Missnig startAt"); }
@@ -28,7 +31,7 @@ public struct GetCalendars : Route
         if (req.GetInt("interval") is int it) { interval = it; }
         else { throw new Exception("Missnig interval"); }
 
-        var rs = Calendar.Get(cx, startAt, endAt);
+        var rs = Calendar.Get(cx, startAt, endAt, tx, poolName: poolName);
         var intervals = new List<DateTime>();
         DateTime t = startAt;
 
