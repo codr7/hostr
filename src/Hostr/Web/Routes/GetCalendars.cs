@@ -52,6 +52,7 @@ public struct GetCalendars : Route
             {
                 capacity.Add(new ResData.Capacity()
                 {
+                    startsAt = t,
                     total = r.Get(cx.DB.CalendarTotal),
                     used = r.Get(cx.DB.CalendarUsed)
                 });
@@ -107,6 +108,7 @@ public struct GetCalendars : Route
 
         public struct Capacity
         {
+            public required DateTime startsAt { get; set; }
             public required int total { get; set; }
             public required int used { get; set; }
         }
