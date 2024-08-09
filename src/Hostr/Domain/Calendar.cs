@@ -1,3 +1,6 @@
+using Hostr.DB;
+using static Hostr.DB.ValueExtensions;
+
 namespace Hostr.Domain;
 
 public static class Calendar
@@ -18,4 +21,15 @@ public static class Calendar
         c.Set(cx.DB.CalendarTotal, 0);
         return c;
     }
+
+    public static DB.Record[] Get(Cx cx, DateTime startAt, DateTime endAt) => new DB.Query(cx.DB.Calendars).
+            Join(cx.DB.CalendarPool).
+            Select(cx.DB.Calendars.Columns).
+            Select(cx.DB.PoolId, cx.DB.PoolName, cx.DB.PoolHasInfiniteCapacity).
+            Where(cx.DB.PoolIsVisible.Eq(true)).
+            Where(cx.DB.CalendarEndsAt.Gt(startAt)).
+            Where(cx.DB.CalendarStartsAt.Lt(endAt)).         
+            OrderBy(cx.DB.PoolName).
+            OrderBy(cx.DB.CalendarStartsAt).
+            FindAll(cx.DBCx.Tx!);
 }

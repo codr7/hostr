@@ -53,6 +53,27 @@ public class Cx : ValueStore
         return tx;
     }
 
+    public Tx? Tx => tx;
+    
+    internal void Exec(string statement, object[] args)
+    {
+        PrepareCommand(statement, args).ExecuteNonQuery();
+    }
+
+    internal NpgsqlDataReader ExecReader(string statement, object[] args)
+    {
+        return PrepareCommand(statement, args).ExecuteReader();
+    }
+
+    internal T ExecScalar<T>(string statement, object[] args)
+    {
+#pragma warning disable CS8600
+#pragma warning disable CS8603
+        return (T)PrepareCommand(statement, args).ExecuteScalar(); ;
+#pragma warning restore CS8603
+#pragma warning restore CS8600
+    }
+
     internal NpgsqlCommand PrepareCommand(string statement, params object[] args)
     {
         statement = Regex.Replace(statement, @"\s+", " ");
@@ -84,25 +105,6 @@ public class Cx : ValueStore
         cmd.CommandText = statement;
         foreach (var a in args) { cmd.Parameters.AddWithValue(a); }
         return cmd;
-    }
-
-    internal void Exec(string statement, object[] args)
-    {
-        PrepareCommand(statement, args).ExecuteNonQuery();
-    }
-
-    internal NpgsqlDataReader ExecReader(string statement, object[] args)
-    {
-        return PrepareCommand(statement, args).ExecuteReader();
-    }
-
-    internal T ExecScalar<T>(string statement, object[] args)
-    {
-#pragma warning disable CS8600
-#pragma warning disable CS8603
-        return (T)PrepareCommand(statement, args).ExecuteScalar(); ;
-#pragma warning restore CS8603
-#pragma warning restore CS8600
     }
 
     internal void PopTx(Tx tx)
