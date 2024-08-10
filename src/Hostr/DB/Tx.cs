@@ -25,11 +25,11 @@ public class Tx : ValueStore, IDisposable
 
         if (savePoint is string sp)
         {
-            Exec($"RELEASE SAVEPOINT {savePoint}");
+            Cx.Exec($"RELEASE SAVEPOINT {savePoint}");
         }
         else
         {
-            Exec("COMMIT");
+            Cx.Exec("COMMIT");
         }
 
         ValueStore? s = Cx.Tx;
@@ -42,10 +42,6 @@ public class Tx : ValueStore, IDisposable
     {
         if (!finished) { Rollback(); }
     }
-
-    public void Exec(string statement, params object[] args) => Cx.Exec(statement, args: args);
-    public NpgsqlDataReader ExecReader(string statement, params object[] args) => Cx.ExecReader(statement, args: args);
-    public T ExecScalar<T>(string statement, params object[] args) => Cx.ExecScalar<T>(statement, args: args);
 
     public override object? GetStoredValue(RecordId recId, Column col)
     {
@@ -61,11 +57,11 @@ public class Tx : ValueStore, IDisposable
 
         if (savePoint is string sp)
         {
-            Exec($"ROLLBACK TO SAVEPOINT {sp}");
+            Cx.Exec($"ROLLBACK TO SAVEPOINT {sp}");
         }
         else
         {
-            Exec("ROLLBACK");
+            Cx.Exec("ROLLBACK");
         }
 
         finished = true;

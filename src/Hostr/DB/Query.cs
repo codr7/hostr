@@ -32,7 +32,7 @@ public class Query : Source
     {
         var args = new List<object>();
         AddArgs(args);
-        using var reader = cx.Tx!.ExecReader(Sql, args.ToArray());
+        using var reader = cx.ExecReader(Sql, args.ToArray());
         var result = new List<Record>();
 
         while (reader.Read())

@@ -15,11 +15,11 @@ public class Sequence : Definition
     public override string DefinitionType => "SEQUENCE";
 
     public override bool Exists(Cx cx) =>
-        cx.Tx!.ExecScalar<bool>(@"SELECT EXISTS (
+        cx.ExecScalar<bool>(@"SELECT EXISTS (
                                 SELECT FROM pg_class
                                 WHERE relkind = 'S'
                                 AND relname = $?
-                              )", Name);
+                              )", [Name]);
 
-    public long Next(Cx cx) => cx.Tx!.ExecScalar<long>($"SELECT NEXTVAL('\"{Name}\"')");
+    public long Next(Cx cx) => cx.ExecScalar<long>($"SELECT NEXTVAL('\"{Name}\"')");
 }

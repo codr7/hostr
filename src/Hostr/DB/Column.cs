@@ -52,13 +52,13 @@ public abstract class Column : TableDefinition, IComparable<Column>, Value
 
     public override bool Exists(Cx cx)
     {
-        return cx.Tx!.ExecScalar<bool>(@"SELECT EXISTS (
+        return cx.ExecScalar<bool>(@"SELECT EXISTS (
                                      SELECT
                                      FROM pg_attribute 
                                      WHERE attrelid = $?::regclass
                                      AND attname = $?
                                      AND NOT attisdropped
-                                   )", Table.Name, Name);
+                                   )", [Table.Name, Name]);
     }
 
     public abstract object GetObject(NpgsqlDataReader source, int i);

@@ -32,11 +32,11 @@ public abstract class Constraint : TableDefinition
 
     public override bool Exists(Cx cx)
     {
-        return cx.Tx!.ExecScalar<bool>(@$"SELECT EXISTS (
+        return cx.ExecScalar<bool>(@$"SELECT EXISTS (
                                      SELECT constraint_name 
                                      FROM information_schema.constraint_column_usage 
                                      WHERE constraint_name = $?
-                                   )", Name);
+                                   )", [Name]);
     }
 
     internal void AddColumn(Column col) => columns.Add(col);

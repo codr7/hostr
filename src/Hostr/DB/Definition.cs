@@ -15,13 +15,13 @@ public abstract class Definition : IComparable<Definition>
 
     public int CompareTo(Definition? other) => (other is Definition o) ? Name.CompareTo(o.Name) : -1;
 
-    public virtual void Create(Cx cx) => cx.Tx!.Exec(CreateSql);
+    public virtual void Create(Cx cx) => cx.Exec(CreateSql);
 
     public virtual string CreateSql => $"CREATE {DefinitionType} \"{Name}\"";
 
     public abstract string DefinitionType { get; }
 
-    public virtual void Drop(Cx cx) => cx.Tx!.Exec(DropSql);
+    public virtual void Drop(Cx cx) => cx.Exec(DropSql);
 
     public virtual void DropIfExists(Cx cx) {
         if (Exists(cx)) { Drop(cx); }

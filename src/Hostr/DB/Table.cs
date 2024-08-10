@@ -66,7 +66,7 @@ public class Table : Definition, Source
             args = w.Args;
         }
 
-        return cx.Tx!.ExecScalar<long>(sql.ToString(), args: args);
+        return cx.ExecScalar<long>(sql.ToString(), args);
     }
 
     public long Count(Record key, Cx cx) =>
@@ -101,7 +101,7 @@ public class Table : Definition, Source
     public override string DefinitionType => "TABLE";
 
     public override bool Exists(Cx cx) =>
-        cx.Tx!.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
+        cx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", [Name]);
 
     public Record[] FindAll(Condition? where, Cx cx)
     {
@@ -139,7 +139,7 @@ public class Table : Definition, Source
         var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\""))}) 
                      VALUES ({string.Join(", ", Enumerable.Repeat("$?", cs.Length))})";
 
-        cx.Tx!.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
+        cx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
         foreach (var h in afterInsert) { h(rec, data); }
         foreach (var (c, v) in cs) { cx.Tx!.StoreValue(rec.Id, c, v); }
 
@@ -228,7 +228,7 @@ public class Table : Definition, Source
           ToArray());
 
         var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w}";
-        cx.Tx!.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
+        cx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
         foreach (var h in afterUpdate) { h(rec, data); }
         foreach (var (c, v) in cs) { cx.Tx!.StoreValue(rec.Id, c, v); }
 
@@ -255,7 +255,7 @@ public class Table : Definition, Source
             args = w.Args;
         }
 
-        return cx.Tx!.ExecReader(sql.ToString(), args: args);
+        return cx.ExecReader(sql.ToString(), args);
     }
 
 };

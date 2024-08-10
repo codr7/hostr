@@ -15,12 +15,12 @@ public class Index : TableDefinition
 
     public override string DefinitionType => $"DROP INDEX {this}";
     public override bool Exists(Cx cx) =>
-        cx.Tx!.ExecScalar<bool>(@"SELECT EXISTS (
+        cx.ExecScalar<bool>(@"SELECT EXISTS (
                                 SELECT FROM pg_class t, pg_class i, pg_index ix
                                 WHERE
                                   t.oid = ix.indrelid
                                   and i.oid = ix.indexrelid
                                   and t.relname = $?
                                   and i.relname = $?
-                              )", Table.Name, Name);
+                              )", [Table.Name, Name]);
 }
