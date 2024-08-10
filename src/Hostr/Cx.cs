@@ -26,7 +26,7 @@ public class Cx
     {
         currentUser = user;
         user.Set(DB.UserLoginAt, DateTime.UtcNow);
-        PostEvent(User.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user, tx);
+        PostEvent(User.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user);
     }
 
     public DB.Record Login(long userId, DB.Tx tx)
@@ -55,10 +55,10 @@ public class Cx
         }
     }
 
-    public void PostEvent(Event.Type type, DB.Record? key, ref DB.Record data, DB.Tx tx)
+    public void PostEvent(Event.Type type, DB.Record? key, ref DB.Record data)
     {
         var e = new DB.Record();
-        e.Set(DB.EventId, DB.EventIds.Next(tx));
+        e.Set(DB.EventId, DB.EventIds.Next(DBCx.Tx!));
         e.Set(DB.EventType, type.Id);
         e.Set(DB.EventPostedAt, DateTime.UtcNow);
         if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
@@ -68,7 +68,7 @@ public class Cx
 
         try
         {
-            var d = type.Exec(this, e, key, ref data, tx);
+            var d = type.Exec(this, e, key, ref data);
             e.Set(DB.EventData, JsonDocument.Parse(Json.ToString(d)));
 
             for (var i = 0; i < currentEvents.Count; i++)
@@ -77,11 +77,11 @@ public class Cx
 
                 if (ce.Id == e.Id)
                 {
-                    DB.Events.Store(ref ce, this, tx);
+                    DB.Events.Store(ref ce, this, DBCx.Tx!);
                 }
-                else if (!DB.Events.Stored(ce, tx))
+                else if (!DB.Events.Stored(ce, DBCx.Tx!))
                 {
-                    DB.Events.Insert(ref ce, this, tx);
+                    DB.Events.Insert(ref ce, this, DBCx.Tx!);
                 }
 
                 currentEvents[i] = ce;

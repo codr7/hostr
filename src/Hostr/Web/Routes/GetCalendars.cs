@@ -31,7 +31,7 @@ public struct GetCalendars : Route
         if (req.GetInt("interval") is int it) { interval = it; }
         else { throw new Exception("Missnig interval"); }
 
-        var rs = Calendar.Get(cx, startAt, endAt, tx, poolName: poolName);
+        var rs = Calendar.Get(cx, startAt, endAt, poolName: poolName);
         var intervals = new List<DateTime>();
         DateTime t = startAt;
 

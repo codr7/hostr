@@ -36,23 +36,23 @@ try
 
         var hu = User.Make(cx, "hostr", "hostr");
         hu.Set(cx.DB.UserId, 0);
-        cx.PostEvent(User.INSERT, null, ref hu, tx);
+        cx.PostEvent(User.INSERT, null, ref hu);
         Say("System user 'hostr' created");
         cx.Login(hu, tx);
 
         var u = User.Make(cx, name, email, password);
         u.Set(cx.DB.UserCreatedBy, hu);
-        cx.PostEvent(User.INSERT, null, ref u, tx);
+        cx.PostEvent(User.INSERT, null, ref u);
         cx.Login(u, tx);
         Say($"User '{name}' created");
 
         var makeTax = (string name, decimal percentage) =>
         {
             var tt = TaxType.Make(cx, name);
-            cx.PostEvent(TaxType.INSERT, null, ref tt, tx);
+            cx.PostEvent(TaxType.INSERT, null, ref tt);
 
             var tr = TaxRate.Make(cx, tt, percentage);
-            cx.PostEvent(TaxRate.INSERT, null, ref tr, tx);
+            cx.PostEvent(TaxRate.INSERT, null, ref tr);
 
             return tt;
         };
@@ -63,28 +63,28 @@ try
 
         var r = Product.Make(cx, "double room");
         r.Set(cx.DB.ProductSalesTax, tt);
-        cx.PostEvent(Product.INSERT, null, ref r, tx);
+        cx.PostEvent(Product.INSERT, null, ref r);
 
         var c = Charge.Make(cx, r, 100M, false);
-        cx.PostEvent(Charge.INSERT, null, ref c, tx);
+        cx.PostEvent(Charge.INSERT, null, ref c);
 
         r = Pool.Make(cx, "rooms");
-        cx.PostEvent(Pool.INSERT, null, ref r, tx);
+        cx.PostEvent(Pool.INSERT, null, ref r);
 
         r = Unit.Make(cx, "room 1");
-        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+        cx.PostEvent(Unit.INSERT, null, ref r);
 
         r = Unit.Make(cx, "room 2");
-        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+        cx.PostEvent(Unit.INSERT, null, ref r);
 
         r = Unit.Make(cx, "conf/S1");
-        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+        cx.PostEvent(Unit.INSERT, null, ref r);
 
         r = Unit.Make(cx, "conf/S2");
-        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+        cx.PostEvent(Unit.INSERT, null, ref r);
 
         r = Unit.Make(cx, "conf/L");
-        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+        cx.PostEvent(Unit.INSERT, null, ref r);
 
         Say("Database seeded with examples");
     }

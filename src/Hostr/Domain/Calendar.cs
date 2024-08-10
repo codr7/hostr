@@ -21,7 +21,7 @@ public static class Calendar
                 return c;
         }
 
-        public static DB.Record[] Get(Cx cx, DateTime startAt, DateTime endAt, DB.Tx tx, string? poolName = null)
+        public static DB.Record[] Get(Cx cx, DateTime startAt, DateTime endAt, string? poolName = null)
         {
                 var q = new DB.Query(cx.DB.Calendars).
                     Join(cx.DB.CalendarPool).
@@ -35,10 +35,10 @@ public static class Calendar
 
                 if (poolName is not null) { q.Where(cx.DB.PoolName.Like(poolName!)); }
 
-                return q.FindAll(tx);
+                return q.FindAll(cx.DBCx.Tx!);
         }
 
-        public static void Update(Cx cx, DB.Record pool, DateTime startAt, DateTime endAt, DB.Tx tx, int total = 0, int used = 0)
+        public static void Update(Cx cx, DB.Record pool, DateTime startAt, DateTime endAt, int total = 0, int used = 0)
         {
                 var q = new DB.Query(cx.DB.Calendars).
                                     Join(cx.DB.CalendarPool).
@@ -48,7 +48,7 @@ public static class Calendar
                                     OrderBy(cx.DB.PoolId).
                                     OrderBy(cx.DB.CalendarStartsAt);
 
-                var cs = q.FindAll(tx);
+                var cs = q.FindAll(cx.DBCx.Tx!);
                 var result = new List<DB.Record>();
 
                 for (var i = 0; i < cs.Length; i++)
@@ -85,7 +85,7 @@ public static class Calendar
                 foreach (var c in result)
                 {
                         var cc = c;
-                        cx.DB.Calendars.Store(ref cc, cx, tx);
+                        cx.DB.Calendars.Store(ref cc, cx, cx.DBCx.Tx!);
                 }
         }
 }

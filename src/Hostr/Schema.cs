@@ -165,7 +165,7 @@ public class Schema : DB.Schema
              var p = new DB.Record();
              rec.Copy(ref p, Pools.Columns);
              p.Set(PoolId, rec.Get(ProductId));
-             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
+             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p);
          };
 
         ChargeIds = new DB.Sequence(this, "chargeIds", SEQUENCE_OFFS);
@@ -190,7 +190,7 @@ public class Schema : DB.Schema
             rec.Copy(ref p, Pools.Columns);
             p.Set(PoolId, rec.Get(UnitId));
             p.Set(PoolCapacity, 1);
-            (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
+            (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p);
         };
 
         Units.AfterUpdate += (rec, cx, tx) =>
@@ -200,7 +200,7 @@ public class Schema : DB.Schema
             if (p is null) { throw new Exception($"Pool not found for unit: {id}"); }
             var pp = (DB.Record)p;
             rec.Copy(ref pp, Pools.Columns);
-            (cx as Cx)!.PostEvent(Pool.UPDATE, null, ref pp, tx);
+            (cx as Cx)!.PostEvent(Pool.UPDATE, null, ref pp);
         };
 
         Calendars = new DB.Table(this, "calendars");
@@ -227,12 +227,12 @@ public class Schema : DB.Schema
         {
             var cx = (Cx)_cx;
             var c = Calendar.Make(cx, rec);
-            cx.PostEvent(Calendar.INSERT, null, ref c, tx);
+            cx.PostEvent(Calendar.INSERT, null, ref c);
         };
 
         Pools.BeforeUpdate += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
-            Calendar.Update((Cx)cx, rec, DateTime.MinValue, DateTime.MaxValue, tx, total: rec.Get(PoolCapacity) - rec.GetStored(PoolCapacity, tx));
+            Calendar.Update((Cx)cx, rec, DateTime.MinValue, DateTime.MaxValue, total: rec.Get(PoolCapacity) - rec.GetStored(PoolCapacity, tx));
         };
     }
 }

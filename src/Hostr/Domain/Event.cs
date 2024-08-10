@@ -10,9 +10,9 @@ public static class Event
             this.tableName = tableName;
         }
 
-        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
+        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data)
         {
-            return Table(cx).Insert(ref data, cx, tx);
+            return Table(cx).Insert(ref data, cx, cx.DBCx.Tx!);
         }
 
 #pragma warning disable CS8600
@@ -36,16 +36,16 @@ public static class Event
             this.tableName = tableName;
         }
 
-        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx)
+        public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data)
         {
             if (key is null) { throw new Exception("Null key"); }
             var t = Table(cx);
-            var rec = t.FindFirst((DB.Record)key, tx);
+            var rec = t.FindFirst((DB.Record)key, cx.DBCx.Tx!);
 
             if (rec is DB.Record r)
             {
                 r.Update(data);
-                return t.Update(ref r, cx, tx);
+                return t.Update(ref r, cx, cx.DBCx.Tx!);
             }
 
             throw new Exception($"Record not found: {key}");
@@ -65,7 +65,7 @@ public static class Event
 
     public interface Type
     {
-        DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data, DB.Tx tx);
+        DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data);
         string Id { get; }
         DB.Table Table(Cx cx);
     }
