@@ -61,7 +61,7 @@ try
         makeTax("VAT/Food", 15);
         makeTax("VAT", 25);
 
-        var r = Product.Make(cx, "double standard");
+        var r = Product.Make(cx, "double room");
         r.Set(cx.DB.ProductSalesTax, tt);
         cx.PostEvent(Product.INSERT, null, ref r, tx);
 
@@ -77,10 +77,13 @@ try
         r = Unit.Make(cx, "room 2");
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
-        r = Unit.Make(cx, "conf S");
+        r = Unit.Make(cx, "conf/S1");
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
-        r = Unit.Make(cx, "conf L");
+        r = Unit.Make(cx, "conf/S2");
+        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+
+        r = Unit.Make(cx, "conf/L");
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
         Say("Database seeded with examples");
