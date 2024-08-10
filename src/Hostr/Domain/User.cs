@@ -74,6 +74,7 @@ public static class User
     public static DB.Record Make(Cx cx, string name = "", string email = "", string password = "")
     {
         var u = new DB.Record();
+        u.Set(cx.DB.UserId, cx.DB.UserIds.Next(cx.DBCx.Tx!));
         u.Set(cx.DB.UserDisplayName, name);
         u.Set(cx.DB.UserEmail, email);
         u.Set(cx.DB.UserPassword, (password == "") ? "" : Password.Hash(password, PASSWORD_ITERS));

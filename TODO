@@ -1,8 +1,9 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* add product
-** underlying pool like unit
+* add unit tests
+** add calendar update test
+** add charge tax calculation test
 
 * add booking
  
@@ -23,11 +24,6 @@ curl -X POST http://localhost:5000/stop
 ** store value as json
 ** dynamic ui
 
-* add product
-** name
-** every product is a pool (like unit)
-** salesTax
-
 * add price
 ** startsAt/endsAt/pool/product/amount
 
@@ -41,16 +37,6 @@ curl -X POST http://localhost:5000/stop
 
 * add openapi spec
   
-* add Ask echo flag
-** sharpl
-** use to read passwords
-** add password repeat/check on new admin
-
-* add command loop
-** implement q - stop
-*** send request to own ip/port
-*** restrict to own ip/port in stop imp
-
 sudo -u postgres psql [hostr]
 alter user postgres with encrypted password ''
 create user hostr

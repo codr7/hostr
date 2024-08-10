@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Hostr.Domain;
 
 using static Hostr.DB.ValueExtensions;
@@ -17,6 +18,15 @@ public class Schema : DB.Schema
     public readonly DB.ForeignKey CalendarUpdatedBy;
     public readonly DB.Columns.Integer CalendarTotal;
     public readonly DB.Columns.Integer CalendarUsed;
+
+    public readonly DB.Sequence ChargeIds;
+    public readonly DB.Table Charges;
+    public readonly DB.Columns.BigInt ChargeId;
+    public readonly DB.Columns.Timestamp ChargeCreatedAt;
+    public readonly DB.ForeignKey ChargeCreatedBy;
+    public readonly DB.ForeignKey ChargeProduct;
+    public readonly DB.Columns.Decimal ChargeNetAmount;
+    public readonly DB.Columns.Decimal ChargeTaxAmount;
 
     public readonly DB.Sequence EventIds;
     public readonly DB.Table Events;
@@ -44,6 +54,12 @@ public class Schema : DB.Schema
     public readonly DB.Columns.Integer PoolDefaultInterval;
     public readonly DB.Columns.Boolean PoolIsVisible;
 
+    public readonly DB.Table Products;
+    public readonly DB.Columns.BigInt ProductId;
+    public readonly DB.ForeignKey ProductPool;
+    public readonly DB.ForeignKey ProductSalesTax;
+
+
     public readonly DB.Table TaxRates;
     public readonly DB.ForeignKey TaxRateType;
     public readonly DB.Columns.Timestamp TaxRateStartsAt;
@@ -57,9 +73,6 @@ public class Schema : DB.Schema
     public readonly DB.Table Units;
     public readonly DB.Columns.BigInt UnitId;
     public readonly DB.ForeignKey UnitPool;
-    public readonly DB.Columns.Timestamp UnitCreatedAt;
-    public readonly DB.ForeignKey UnitCreatedBy;
-    public readonly DB.ForeignKey UnitOwnedBy;
     public readonly DB.Columns.Boolean UnitUseCheckIn;
     public readonly DB.Columns.Boolean UnitUseCheckOut;
     public readonly DB.Columns.Boolean UnitUseCleaning;
@@ -94,8 +107,6 @@ public class Schema : DB.Schema
 
         Users.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
-            if (!rec.Contains(UserId)) { rec.Set(UserId, UserIds.Next(tx)); }
-
             if ((!rec.Contains(UserDisplayName) || rec.Get(UserDisplayName) == "") && rec.Contains(UserEmail))
             {
                 rec.Set(UserDisplayName, rec.Get(UserEmail!)!);
@@ -140,32 +151,45 @@ public class Schema : DB.Schema
 
         Pools.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
-            if (!rec.Contains(PoolId)) { rec.Set(PoolId, PoolIds.Next(tx)); }
             rec.Set(PoolCreatedAt, DateTime.UtcNow);
             rec.Copy(ref rec, PoolCreatedBy.Columns.Zip(PoolOwnedBy.Columns).ToArray(), force: true);
         };
 
+        Products = new DB.Table(this, "products");
+        ProductId = new DB.Columns.BigInt(Products, "id", primaryKey: true);
+        ProductPool = new DB.ForeignKey(Products, "pool", Pools, [(ProductId, PoolId)]);
+        ProductSalesTax = new DB.ForeignKey(Products, "salesTax", TaxTypes);
+
+        Products.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
+         {
+             var p = new DB.Record();
+             rec.Copy(ref p, Pools.Columns);
+             p.Set(PoolId, rec.Get(ProductId));
+             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
+         };
+
+        ChargeIds = new DB.Sequence(this, "chargeIds", SEQUENCE_OFFS);
+        Charges = new DB.Table(this, "charges");
+        ChargeId = new DB.Columns.BigInt(Charges, "id", primaryKey: true);
+        ChargeCreatedAt = new DB.Columns.Timestamp(Charges, "createdAt");
+        ChargeCreatedBy = new DB.ForeignKey(Charges, "createdBy", Users);
+        ChargeProduct = new DB.ForeignKey(Charges, "product", Products);
+        ChargeNetAmount = new DB.Columns.Decimal(Charges, "netAmount");
+        ChargeTaxAmount = new DB.Columns.Decimal(Charges, "taxAmount");
+
         Units = new DB.Table(this, "units");
         UnitId = new DB.Columns.BigInt(Units, "id", primaryKey: true);
         UnitPool = new DB.ForeignKey(Units, "pool", Pools, [(UnitId, PoolId)]);
-        UnitCreatedAt = new DB.Columns.Timestamp(Units, "createdAt");
-        UnitCreatedBy = new DB.ForeignKey(Units, "createdBy", Users);
-        UnitOwnedBy = new DB.ForeignKey(Units, "ownedBy", Users);
         UnitUseCheckIn = new DB.Columns.Boolean(Units, "useCheckIn", defaultValue: false);
         UnitUseCheckOut = new DB.Columns.Boolean(Units, "useCheckOut", defaultValue: false);
         UnitUseCleaning = new DB.Columns.Boolean(Units, "useCleaning", defaultValue: false);
 
         Units.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
-            if (!rec.Contains(UnitId)) { rec.Set(UnitId, PoolIds.Next(tx)); }
-            rec.Set(UnitCreatedAt, DateTime.UtcNow);
-            rec.Copy(ref rec, UnitCreatedBy.Columns.Zip(UnitOwnedBy.Columns).ToArray(), force: true);
-
             var p = new DB.Record();
+            rec.Copy(ref p, Pools.Columns);
             p.Set(PoolId, rec.Get(UnitId));
             p.Set(PoolCapacity, 1);
-            rec.Copy(ref p, Pools.Columns);
-            rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray(), force: true);
             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
         };
 

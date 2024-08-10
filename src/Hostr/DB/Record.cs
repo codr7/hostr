@@ -38,6 +38,13 @@ public struct Record
         }
     }
 
+    public Record Copy((Column, Column)[] map, bool force = false)
+    {
+        var result = new Record();
+        Copy(ref result, map, force);
+        return result;
+    }
+
     public void Copy(ref Record to, Column[] cols) => Copy(ref to, cols.Zip(cols).ToArray());
 
     public Record Copy(Column[] cols, bool force = false)

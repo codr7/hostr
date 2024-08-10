@@ -53,30 +53,34 @@ try
 
             var tr = TaxRate.Make(cx, tt, percentage);
             cx.PostEvent(TaxRate.INSERT, null, ref tr, tx);
+
+            return tt;
         };
 
-        makeTax("VAT/Lodging", 12);
+        var tt = makeTax("VAT/Lodging", 12);
         makeTax("VAT/Food", 15);
         makeTax("VAT", 25);
 
-        var r = Pool.Make(cx, "rooms");
-        r.Set(cx.DB.PoolCreatedBy, u);
+        var r = Product.Make(cx, "double standard");
+        r.Set(cx.DB.ProductSalesTax, tt);
+        cx.PostEvent(Product.INSERT, null, ref r, tx);
+
+        var c = Charge.Make(cx, r, 100M, false);
+        cx.PostEvent(Charge.INSERT, null, ref c, tx);
+
+        r = Pool.Make(cx, "rooms");
         cx.PostEvent(Pool.INSERT, null, ref r, tx);
 
         r = Unit.Make(cx, "room 1");
-        r.Set(cx.DB.UnitCreatedBy, u);
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
         r = Unit.Make(cx, "room 2");
-        r.Set(cx.DB.UnitCreatedBy, u);
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
         r = Unit.Make(cx, "conf S");
-        r.Set(cx.DB.UnitCreatedBy, u);
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
         r = Unit.Make(cx, "conf L");
-        r.Set(cx.DB.UnitCreatedBy, u);
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 
         Say("Database seeded with examples");
