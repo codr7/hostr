@@ -22,8 +22,9 @@ public class Schema : DB.Schema
     public readonly DB.Sequence ChargeIds;
     public readonly DB.Table Charges;
     public readonly DB.Columns.BigInt ChargeId;
-    public readonly DB.Columns.Timestamp ChargeCreatedAt;
-    public readonly DB.ForeignKey ChargeCreatedBy;
+    public readonly DB.Columns.Timestamp ChargeAt;
+    public readonly DB.ForeignKey ChargeBy;
+    public readonly DB.ForeignKey ChargeTo;
     public readonly DB.ForeignKey ChargeProduct;
     public readonly DB.Columns.Decimal ChargeNetAmount;
     public readonly DB.Columns.Decimal ChargeTaxAmount;
@@ -171,8 +172,9 @@ public class Schema : DB.Schema
         ChargeIds = new DB.Sequence(this, "chargeIds", SEQUENCE_OFFS);
         Charges = new DB.Table(this, "charges");
         ChargeId = new DB.Columns.BigInt(Charges, "id", primaryKey: true);
-        ChargeCreatedAt = new DB.Columns.Timestamp(Charges, "createdAt");
-        ChargeCreatedBy = new DB.ForeignKey(Charges, "createdBy", Users);
+        ChargeAt = new DB.Columns.Timestamp(Charges, "at");
+        ChargeBy = new DB.ForeignKey(Charges, "by", Users);
+        ChargeTo = new DB.ForeignKey(Charges, "to", Users);
         ChargeProduct = new DB.ForeignKey(Charges, "product", Products);
         ChargeNetAmount = new DB.Columns.Decimal(Charges, "netAmount");
         ChargeTaxAmount = new DB.Columns.Decimal(Charges, "taxAmount");

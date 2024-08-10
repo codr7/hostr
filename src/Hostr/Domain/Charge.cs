@@ -5,18 +5,18 @@ public static class Charge
     public static readonly Event.Type INSERT = new Event.Insert("InsertCharge", "charges");
     public static readonly Event.Type UPDATE = new Event.Update("UpdateCharge", "charges");
 
-    public static DB.Record Make(Cx cx, DB.Record product, decimal amount, bool isGross)
+    public static DB.Record Make(Cx cx, DB.Record to, DB.Record product, decimal amount, bool isGross)
     {
         var c = new DB.Record();
         c.Set(cx.DB.ChargeId, cx.DB.ChargeIds.Next(cx.DBCx.Tx!));
         c.Set(cx.DB.ChargeProduct, product);
-        var createdAt = DateTime.UtcNow;
-        c.Set(cx.DB.ChargeCreatedAt, createdAt);
+        var at = DateTime.UtcNow;
+        c.Set(cx.DB.ChargeAt, at);
 #pragma warning disable CS8629 
-        c.Set(cx.DB.ChargeCreatedBy, (DB.Record)cx.CurrentUser);
+        c.Set(cx.DB.ChargeBy, (DB.Record)cx.CurrentUser);
 #pragma warning restore CS8629
-
-        var tr = TaxRate.Get(cx, product.Copy(cx.DB.ProductSalesTax.ColumnMap), createdAt);
+        c.Set(cx.DB.ChargeTo, to);
+        var tr = TaxRate.Get(cx, product.Copy(cx.DB.ProductSalesTax.ColumnMap), at);
 
         if (isGross)
         {

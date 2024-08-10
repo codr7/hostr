@@ -65,7 +65,7 @@ try
         r.Set(cx.DB.ProductSalesTax, tt);
         cx.PostEvent(Product.INSERT, null, ref r);
 
-        var c = Charge.Make(cx, r, 100M, false);
+        var c = Charge.Make(cx, u, r, 1000M, true);
         cx.PostEvent(Charge.INSERT, null, ref c);
 
         r = Pool.Make(cx, "rooms");
