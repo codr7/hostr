@@ -3,6 +3,11 @@ curl -X POST http://localhost:5000/stop
 
 * add payments
  
+* add DB.Model interface
+** DB.Record fields
+** Store method
+** define user model
+
 * add unit tests
 ** add calendar update test
 ** add charge tax calculation test
