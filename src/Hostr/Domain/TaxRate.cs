@@ -24,7 +24,7 @@ public static class TaxRate
             Where(cx.DB.TaxRateType.Eq(taxType)).
             Where(cx.DB.TaxRateStartsAt.Lte(timestamp)).
             Where(cx.DB.TaxRateEndsAt.Gt(timestamp)).
-            FindAll(cx.DBCx.Tx!);
+            FindAll(cx.DBCx);
 
         if (rs.Length > 1) { throw new Exception("Multiple tax rates found"); }
         return rs[0].Get(cx.DB.TaxRatePercentage) / 100M;

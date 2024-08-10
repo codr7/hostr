@@ -35,7 +35,7 @@ public static class Calendar
 
                 if (poolName is not null) { q.Where(cx.DB.PoolName.Like(poolName!)); }
 
-                return q.FindAll(cx.DBCx.Tx!);
+                return q.FindAll(cx.DBCx);
         }
 
         public static void Update(Cx cx, DB.Record pool, DateTime startAt, DateTime endAt, int total = 0, int used = 0)
@@ -48,7 +48,7 @@ public static class Calendar
                                     OrderBy(cx.DB.PoolId).
                                     OrderBy(cx.DB.CalendarStartsAt);
 
-                var cs = q.FindAll(cx.DBCx.Tx!);
+                var cs = q.FindAll(cx.DBCx);
                 var result = new List<DB.Record>();
 
                 for (var i = 0; i < cs.Length; i++)

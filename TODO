@@ -4,7 +4,9 @@ curl -X POST http://localhost:5000/stop
 * remove tx arg from query methods
 
 * remove tx arg from table methods
-* 
+
+* add payments
+ 
 * add unit tests
 ** add calendar update test
 ** add charge tax calculation test

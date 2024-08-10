@@ -27,7 +27,7 @@ public struct GetEvents : Route
         if (req.GetLong("rowOffset") is long ro) { q.Offset(ro); }
         if (req.GetLong("rowLimit") is long rl) { q.Limit(rl); }
  
-        var rs = q.FindAll(tx);        
+        var rs = q.FindAll(cx.DBCx);        
         Array.Sort(rs, (x, y) => x.Get(cx.DB.EventId).CompareTo(y.Get(cx.DB.EventId)));
         return Task.FromResult<object>(rs);
     }

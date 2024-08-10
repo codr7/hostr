@@ -28,11 +28,11 @@ public class Query : Source
 
     public void AddSourceArgs(List<object> result) => AddArgs(result);
 
-    public Record[] FindAll(Tx tx)
+    public Record[] FindAll(Cx cx)
     {
         var args = new List<object>();
         AddArgs(args);
-        using var reader = tx.ExecReader(Sql, args.ToArray());
+        using var reader = cx.Tx!.ExecReader(Sql, args.ToArray());
         var result = new List<Record>();
 
         while (reader.Read())
