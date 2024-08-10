@@ -16,14 +16,18 @@ public static class Charge
         c.Set(cx.DB.ChargeCreatedBy, (DB.Record)cx.CurrentUser);
 #pragma warning restore CS8629
 
+        var tr = TaxRate.Get(cx, product.Copy(cx.DB.ProductSalesTax.ColumnMap), createdAt);
+
         if (isGross)
         {
-            throw new Exception("Not implemented");
+            var na = amount / (1 + tr);
+            c.Set(cx.DB.ChargeNetAmount, na);
+            c.Set(cx.DB.ChargeTaxAmount, amount - na);
         }
         else
         {
             c.Set(cx.DB.ChargeNetAmount, amount);
-            c.Set(cx.DB.ChargeTaxAmount, TaxType.CalculateTax(cx, product.Copy(cx.DB.ProductSalesTax.ColumnMap), createdAt, amount));
+            c.Set(cx.DB.ChargeTaxAmount, tr * amount);
         }
 
         return c;

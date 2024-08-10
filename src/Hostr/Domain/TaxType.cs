@@ -13,17 +13,4 @@ public static class TaxType
         t.Set(cx.DB.TaxTypeName, name);
         return t;
     }
-
-    public static decimal CalculateTax(Cx cx, DB.Record taxType, DateTime timestamp, decimal netAmount)
-    {
-        var rs = new DB.Query(cx.DB.TaxRates).
-            Select(cx.DB.TaxRates.Columns).
-            Where(cx.DB.TaxRateType.Eq(taxType)).
-            Where(cx.DB.TaxRateStartsAt.Lte(timestamp)).
-            Where(cx.DB.TaxRateEndsAt.Gt(timestamp)).
-            FindAll(cx.DBCx.Tx!);
-
-        if (rs.Length > 1) { throw new Exception("Multiple tax rates found"); }
-        return rs[0].Get(cx.DB.TaxRatePercentage) / 100M;
-    }
 }
