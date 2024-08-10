@@ -37,14 +37,6 @@ public abstract class Model
 
     protected void Store(object data)
     {
-        foreach (var t in Tables) { 
-            if (rec.Exists(t, Cx)) {
-
-            } else {
-
-            }
-            
-            //t.Store(ref rec, data, Cx);    
-        }
+        foreach (var t in Tables) { t.Store(ref rec, data, Cx); }
     }
 }
