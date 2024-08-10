@@ -140,8 +140,8 @@ public class Table : Definition, Source
                      VALUES ({string.Join(", ", Enumerable.Repeat("$?", cs.Length))})";
 
         tx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
-        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
         foreach (var h in afterInsert) { h(rec, data, tx); }
+        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
 
         var res = new Record(id: rec.Id);
         foreach (var (c, v) in cs) { res.SetObject(c, v); }
@@ -229,8 +229,8 @@ public class Table : Definition, Source
 
         var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w}";
         tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
-        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
         foreach (var h in afterUpdate) { h(rec, data, tx); }
+        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
 
         var res = new Record(id: rec.Id);
         foreach (var (c, v) in cs) { res.SetObject(c, v); }

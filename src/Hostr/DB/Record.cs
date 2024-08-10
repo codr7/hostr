@@ -70,8 +70,10 @@ public struct Record
 
     public (Value, object)[] Fields => fields.Items;
 
-    public T? Get<T>(TypedColumn<T> col) => (T?)GetObject(col);
+    public T? Get<T>(TypedColumn<T> col) => (GetObject(col) is object v) ? (T)v : default;
     public object? GetObject(Value col) => fields[col];
+
+    public T? GetStored<T>(TypedColumn<T> col, Tx tx) => (tx.GetStoredValue(Id, col) is T v) ? v : default;
 
     public readonly RecordId Id;
     public Record Set<T>(TypedColumn<T> col, T value) => SetObject(col, value);

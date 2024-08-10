@@ -40,7 +40,7 @@ public class Schema : DB.Schema
     public readonly DB.ForeignKey PoolCreatedBy;
 
     public readonly DB.ForeignKey PoolOwnedBy;
-    public readonly DB.Columns.Boolean PoolHasInfiniteCapacity;
+    public readonly DB.Columns.Integer PoolCapacity;
     public readonly DB.Columns.Integer PoolDefaultInterval;
     public readonly DB.Columns.Boolean PoolIsVisible;
 
@@ -115,7 +115,7 @@ public class Schema : DB.Schema
         PoolCreatedBy = new DB.ForeignKey(Pools, "createdBy", Users);
         PoolOwnedBy = new DB.ForeignKey(Pools, "ownedBy", Users);
         PoolOwnedByNameKey = new DB.Key(Pools, "ownedByNameKey", [PoolOwnedBy, PoolName]);
-        PoolHasInfiniteCapacity = new DB.Columns.Boolean(Pools, "hasInfiniteCapacity", defaultValue: false);
+        PoolCapacity = new DB.Columns.Integer(Pools, "capacity", defaultValue: 0);
         PoolDefaultInterval = new DB.Columns.Integer(Pools, "defaultInterval", defaultValue: 24 * 60);
         PoolIsVisible = new DB.Columns.Boolean(Pools, "isVisible", defaultValue: true);
 
@@ -144,6 +144,7 @@ public class Schema : DB.Schema
 
             var p = new DB.Record();
             p.Set(PoolId, rec.Get(UnitId));
+            p.Set(PoolCapacity, 1);
             rec.Copy(ref p, Pools.Columns);
             rec.Copy(ref p, UnitCreatedBy.Columns.Zip(PoolCreatedBy.Columns).ToArray(), force: true);
             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p, tx);
@@ -168,7 +169,7 @@ public class Schema : DB.Schema
         CalendarTotal = new DB.Columns.Integer(Calendars, "total");
         CalendarUsed = new DB.Columns.Integer(Calendars, "used");
 
-        DB.Table.BeforeHandler beforeHandler = (ref DB.Record rec, object cx, DB.Tx tx) =>
+        DB.Table.BeforeHandler calendarsBefore = (ref DB.Record rec, object cx, DB.Tx tx) =>
         {
             rec.Set(CalendarUpdatedAt, DateTime.UtcNow);
 #pragma warning disable CS8629 
@@ -176,14 +177,19 @@ public class Schema : DB.Schema
 #pragma warning restore CS8629
         };
 
-        Calendars.BeforeInsert += beforeHandler;
-        Calendars.BeforeUpdate += beforeHandler;
+        Calendars.BeforeInsert += calendarsBefore;
+        Calendars.BeforeUpdate += calendarsBefore;
 
         Pools.AfterInsert += (rec, _cx, tx) =>
         {
             var cx = (Cx)_cx;
             var c = Calendar.Make(cx, rec);
             cx.PostEvent(Calendar.INSERT, null, ref c, tx);
+        };
+
+        Pools.BeforeUpdate += (ref DB.Record rec, object cx, DB.Tx tx) =>
+        {
+            Calendar.Update((Cx)cx, rec, DateTime.MinValue, DateTime.MaxValue, tx, total: rec.Get(PoolCapacity) - rec.GetStored(PoolCapacity, tx));
         };
     }
 }

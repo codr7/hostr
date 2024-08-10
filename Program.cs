@@ -46,11 +46,23 @@ try
         cx.Login(u, tx);
         Say($"User '{name}' created");
 
-        var r = Pool.Make(cx, "double");
+        var r = Pool.Make(cx, "rooms");
         r.Set(cx.DB.PoolCreatedBy, u);
         cx.PostEvent(Pool.INSERT, null, ref r, tx);
 
-        r = Unit.Make(cx, "conf small");
+        r = Unit.Make(cx, "room 1");
+        r.Set(cx.DB.UnitCreatedBy, u);
+        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+
+        r = Unit.Make(cx, "room 2");
+        r.Set(cx.DB.UnitCreatedBy, u);
+        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+
+        r = Unit.Make(cx, "conf S");
+        r.Set(cx.DB.UnitCreatedBy, u);
+        cx.PostEvent(Unit.INSERT, null, ref r, tx);
+
+        r = Unit.Make(cx, "conf L");
         r.Set(cx.DB.UnitCreatedBy, u);
         cx.PostEvent(Unit.INSERT, null, ref r, tx);
 

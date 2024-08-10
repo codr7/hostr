@@ -76,7 +76,6 @@ public struct GetCalendars : Route
                     {
                         id = poolId,
                         name = r.Get(cx.DB.PoolName),
-                        hasInfiniteCapacity = r.Get(cx.DB.PoolHasInfiniteCapacity)
                     },
                     capacity = capacity.ToArray()
                 };
@@ -112,7 +111,6 @@ public struct GetCalendars : Route
         {
             public required long id { get; set; }
             public required string name { get; set; }
-            public required bool hasInfiniteCapacity { get; set; }
         }
 
         public struct Capacity
