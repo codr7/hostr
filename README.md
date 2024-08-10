@@ -1,4 +1,4 @@
-## domain concepts
+## domain
 Each concept is represented by a separate table in the database.
 
 ### users
@@ -25,7 +25,7 @@ Each unit is a pool, which is used to track its availability in time.
 
 ### products
 Products are things that can be sold.<br>
-Each product is a pool, which may be used to track its capacity in time.
+Each product is a pool, which is used to track its capacity in time.
 
 ### price lists
 Price lists are used to segment prices.
