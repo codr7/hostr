@@ -1,15 +1,10 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* move Exec methods from Tx to Cx
+* add doman models
 
 * add payments
  
-* add DB.Model interface
-** DB.Record fields
-** Store method
-** define user model
-
 * add unit tests
 ** add calendar update test
 ** add charge tax calculation test

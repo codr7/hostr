@@ -74,6 +74,15 @@ public struct Record
         return Condition.And(conds.ToArray());
     }
 
+    public bool Exists(Table table, Cx cx)
+    {
+        foreach (var c in table.Columns)
+        {
+            if (cx.GetStoredValue(Id, c) is not null) { return true; }
+        }
+
+        return false;
+    }
 
     public (Value, object)[] Fields => fields.Items;
 

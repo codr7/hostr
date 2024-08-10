@@ -2,6 +2,7 @@
 using Hostr.Domain;
 
 using DB = Hostr.DB;
+using Models = Hostr.Domain.Models;
 using Web = Hostr.Web;
 
 var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
@@ -36,8 +37,7 @@ try
 
         var hu = User.Make(cx, "hostr", "hostr");
         hu.Set(cx.DB.UserId, 0);
-        cx.PostEvent(User.INSERT, null, ref hu);
-        Say("System user 'hostr' created");
+        cx.PostEvent(User.INSERT, null, ref hu); Say("System user 'hostr' created");
         cx.Login(hu);
 
         var u = User.Make(cx, name, email, password);
