@@ -22,16 +22,16 @@ public class Cx
     public readonly Json Json;
     public readonly SymmetricSecurityKey JwtKey;
 
-    public void Login(DB.Record user, DB.Tx tx)
+    public void Login(DB.Record user)
     {
         currentUser = user;
         user.Set(DB.UserLoginAt, DateTime.UtcNow);
         PostEvent(User.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user);
     }
 
-    public DB.Record Login(long userId, DB.Tx tx)
+    public DB.Record Login(long userId)
     {
-        if (DB.Users.FindFirst(DB.UserId.Eq(userId), tx) is DB.Record u) {
+        if (DB.Users.FindFirst(DB.UserId.Eq(userId), DBCx.Tx!) is DB.Record u) {
             currentUser = u;    
             return u;
         }
@@ -39,14 +39,14 @@ public class Cx
         throw new Exception($"User not found: {userId}");
     }
 
-    public DB.Record Login(string email, string password, DB.Tx tx)
+    public DB.Record Login(string email, string password)
     {
-        if (DB.Users.FindFirst(DB.UserEmail.Eq(email), tx) is DB.Record u)
+        if (DB.Users.FindFirst(DB.UserEmail.Eq(email), DBCx.Tx!) is DB.Record u)
         {
 #pragma warning disable CS8604
             if (!Password.Check(u.Get(DB.UserPassword), password)) { throw new Exception("Wrong password"); }
 #pragma warning restore CS8604
-            Login(u, tx);
+            Login(u);
             return u;
         }
         else

@@ -38,12 +38,12 @@ try
         hu.Set(cx.DB.UserId, 0);
         cx.PostEvent(User.INSERT, null, ref hu);
         Say("System user 'hostr' created");
-        cx.Login(hu, tx);
+        cx.Login(hu);
 
         var u = User.Make(cx, name, email, password);
         u.Set(cx.DB.UserCreatedBy, hu);
         cx.PostEvent(User.INSERT, null, ref u);
-        cx.Login(u, tx);
+        cx.Login(u);
         Say($"User '{name}' created");
 
         var makeTax = (string name, decimal percentage) =>

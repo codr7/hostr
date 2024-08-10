@@ -14,7 +14,7 @@ public struct Login : Route
         var req = hcx.Request;
         var body = req.Json<ReqData>();
         using var tx = cx.DBCx.StartTx();
-        var u = cx.Login(body.email, body.password, tx);
+        var u = cx.Login(body.email, body.password);
         tx.Commit();
         return Task.FromResult<object>(new ResData() { token = User.MakeJwtToken(cx, u) });
     }

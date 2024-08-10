@@ -12,7 +12,7 @@ public struct UserFilter : IEndpointFilter
             req.Headers.TryGetValue("Authorization", out var auth);
             var userId = User.ValidateJwtToken(cx, auth!);
             using var tx = cx.DBCx.StartTx();
-            cx.Login(userId, tx);
+            cx.Login(userId);
             tx.Commit();
         }
 
