@@ -38,3 +38,12 @@ Taxes types are different kinds of taxes, e.g VAT.
 
 #### tax rates
 Tax rates are actual percentages, specified in time per type.
+
+### bookings
+Bookings specify a start- and end date; a pool, optionally of a unit variety; a quantity; an optional price list, product and total price.
+Bookings with non zero quantity updates the calendar for the selected pool and specified time period.
+Bookings with non zero total price generate charges.
+
+#### charges
+Charges are economic transactions, things being sold.
+Each charge is tied to a booking and has a timestamp; a product; and a net and a tax amount.
