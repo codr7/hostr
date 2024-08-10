@@ -45,5 +45,5 @@ Bookings with non zero quantity updates the calendar for the selected pool and s
 Bookings with non zero total price generate charges.
 
 #### charges
-Charges are economic transactions, things being sold.
+Charges are economic transactions, amounts representing things being sold.
 Each charge is tied to a booking and has a timestamp; a product; and a net and tax amount.
