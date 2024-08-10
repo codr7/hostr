@@ -35,32 +35,12 @@ public class Cx : ValueStore
         source = null;
     }
 
-    public Tx StartTx()
-    {
-        string? sp = null;
-
-        if (tx is null)
-        {
-            Exec("BEGIN", []);
-        }
-        else
-        {
-            sp = MakeSavePoint();
-            Exec($"SAVEPOINT {sp}", []);
-        }
-
-        tx = new Tx(this, tx, sp);
-        return tx;
-    }
-
-    public Tx? Tx => tx;
-
     public void Exec(string statement, object[] args) =>
         PrepareCommand(statement, args).ExecuteNonQuery();
 
     public void Exec(string statement) => Exec(statement, []);
 
-    public NpgsqlDataReader ExecReader(string statement, object[] args) => 
+    public NpgsqlDataReader ExecReader(string statement, object[] args) =>
         PrepareCommand(statement, args).ExecuteReader();
 
     public T ExecScalar<T>(string statement, object[] args)
@@ -72,8 +52,8 @@ public class Cx : ValueStore
 #pragma warning restore CS8600
     }
 
-   public T ExecScalar<T>(string statement) => ExecScalar<T>(statement, []);
- 
+    public T ExecScalar<T>(string statement) => ExecScalar<T>(statement, []);
+
     public NpgsqlCommand PrepareCommand(string statement, params object[] args)
     {
         statement = Regex.Replace(statement, @"\s+", " ");
@@ -107,9 +87,31 @@ public class Cx : ValueStore
         return cmd;
     }
 
+    public Tx StartTx()
+    {
+        string? sp = null;
+
+        if (tx is null)
+        {
+            Exec("BEGIN", []);
+        }
+        else
+        {
+            sp = MakeSavePoint();
+            Exec($"SAVEPOINT {sp}", []);
+        }
+
+        tx = new Tx(this, tx, sp);
+        return tx;
+    }
+
+
+    public Tx? Tx => tx;
+
     internal void PopTx(Tx tx)
     {
         if (this.tx != tx) { throw new Exception("Transaction finished out of order"); }
         this.tx = tx.ParentTx;
     }
+
 }
