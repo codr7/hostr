@@ -46,6 +46,19 @@ try
         cx.Login(u, tx);
         Say($"User '{name}' created");
 
+        var makeTax = (string name, decimal percentage) =>
+        {
+            var tt = TaxType.Make(cx, name);
+            cx.PostEvent(TaxType.INSERT, null, ref tt, tx);
+
+            var tr = TaxRate.Make(cx, tt, percentage);
+            cx.PostEvent(TaxRate.INSERT, null, ref tr, tx);
+        };
+
+        makeTax("VAT/Lodging", 12);
+        makeTax("VAT/Food", 15);
+        makeTax("VAT", 25);
+
         var r = Pool.Make(cx, "rooms");
         r.Set(cx.DB.PoolCreatedBy, u);
         cx.PostEvent(Pool.INSERT, null, ref r, tx);

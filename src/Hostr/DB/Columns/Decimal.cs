@@ -25,7 +25,7 @@ public class Decimal : TypedColumn<decimal>
                      primaryKey: primaryKey);
 
      /* 28 is C#'s internal precision for decimal. */
-     public override string ColumnType => "DECIMAL(28, 28)";
+     public override string ColumnType => "DECIMAL(28)";
      public override object GetObject(NpgsqlDataReader source, int i) => source.GetDecimal(i);
      public override object? Read(Utf8JsonReader reader) => reader.GetDecimal();
      public override void Write(Utf8JsonWriter writer, object value) => writer.WriteNumberValue((decimal)value);

@@ -44,6 +44,16 @@ public class Schema : DB.Schema
     public readonly DB.Columns.Integer PoolDefaultInterval;
     public readonly DB.Columns.Boolean PoolIsVisible;
 
+    public readonly DB.Table TaxRates;
+    public readonly DB.ForeignKey TaxRateType;
+    public readonly DB.Columns.Timestamp TaxRateStartsAt;
+    public readonly DB.Columns.Timestamp TaxRateEndsAt;
+    public readonly DB.Columns.Decimal TaxRatePercentage;
+
+
+    public readonly DB.Table TaxTypes;
+    public readonly DB.Columns.Text TaxTypeName;
+
     public readonly DB.Table Units;
     public readonly DB.Columns.BigInt UnitId;
     public readonly DB.ForeignKey UnitPool;
@@ -105,6 +115,15 @@ public class Schema : DB.Schema
         EventPostedByIndex = new DB.Index(Events, "postedByIndex", [EventPostedBy]);
         EventKey = new DB.Columns.Jsonb(Events, "key", json.Options, nullable: true);
         EventData = new DB.Columns.Jsonb(Events, "data", json.Options, nullable: true);
+
+        TaxTypes = new DB.Table(this, "taxTypes");
+        TaxTypeName = new DB.Columns.Text(TaxTypes, "name", primaryKey: true);
+
+        TaxRates = new DB.Table(this, "taxRates");
+        TaxRateType = new DB.ForeignKey(TaxRates, "type", TaxTypes, primaryKey: true);
+        TaxRateStartsAt = new DB.Columns.Timestamp(TaxRates, "startsAt", primaryKey: true);
+        TaxRateEndsAt = new DB.Columns.Timestamp(TaxRates, "endsAt");
+        TaxRatePercentage = new DB.Columns.Decimal(TaxRates, "percentage");
 
         PoolIds = new DB.Sequence(this, "poolIds", SEQUENCE_OFFS);
         Pools = new DB.Table(this, "pools");

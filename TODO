@@ -1,11 +1,11 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* add booking
-
 * add product
 ** underlying pool like unit
 
+* add booking
+ 
 * add error filter
 ** catch exceptions and return json object
 ** internal server error default
@@ -22,15 +22,6 @@ curl -X POST http://localhost:5000/stop
 * add settings
 ** store value as json
 ** dynamic ui
-
-* add tax types
-** name (primary key)
-
-* add tax rates
-** taxType
-** startsAt
-** endsAt
-** decimal percent
 
 * add product
 ** name
