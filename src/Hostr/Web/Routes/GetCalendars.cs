@@ -44,20 +44,24 @@ public struct GetCalendars : Route
         var calendars = new Dictionary<long, ResData.Calendar>();
         var capacity = new List<ResData.Capacity>();
         t = startAt;
+        
+        var total = int.MaxValue;
+        var used = int.MinValue;
 
         for (var i = 0; i < rs.Length; i++)
         {
             var r = rs[i];
-            Console.WriteLine(r);
             var poolId = r.Get(cx.DB.PoolId);
+            total = Math.Min(r.Get(cx.DB.CalendarTotal), total);
+            used = Math.Max(r.Get(cx.DB.CalendarUsed), used);
 
             while (t.CompareTo(endAt) < 0 && t.CompareTo(r.Get(cx.DB.CalendarEndsAt)) < 0)
             {
                 capacity.Add(new ResData.Capacity()
                 {
                     interval = t,
-                    total = r.Get(cx.DB.CalendarTotal),
-                    used = r.Get(cx.DB.CalendarUsed)
+                    total = total,
+                    used = used
                 });
 
                 t = t.AddMinutes(interval);
@@ -79,6 +83,8 @@ public struct GetCalendars : Route
 #pragma warning restore CS8601
                 t = startAt;
                 capacity.Clear();
+                total = int.MaxValue;
+                used = int.MinValue;
             }
         }
 
