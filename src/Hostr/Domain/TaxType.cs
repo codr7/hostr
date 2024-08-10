@@ -23,8 +23,7 @@ public static class TaxType
             Where(cx.DB.TaxRateEndsAt.Gt(timestamp)).
             FindAll(cx.DBCx.Tx!);
 
-        decimal taxAmount = 0;
-        foreach (var r in rs) { taxAmount += netAmount * r.Get(cx.DB.TaxRatePercentage) / 100M; }
-        return taxAmount;
+        if (rs.Length > 1) { throw new Exception("Multiple tax rates found"); }
+        return rs[0].Get(cx.DB.TaxRatePercentage) / 100M;
     }
 }
