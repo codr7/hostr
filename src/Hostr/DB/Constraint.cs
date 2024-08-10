@@ -30,9 +30,9 @@ public abstract class Constraint : TableDefinition
 
     public override string DefinitionType => "CONSTRAINT";
 
-    public override bool Exists(Tx tx)
+    public override bool Exists(Cx cx)
     {
-        return tx.ExecScalar<bool>(@$"SELECT EXISTS (
+        return cx.Tx!.ExecScalar<bool>(@$"SELECT EXISTS (
                                      SELECT constraint_name 
                                      FROM information_schema.constraint_column_usage 
                                      WHERE constraint_name = $?

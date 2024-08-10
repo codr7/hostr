@@ -12,7 +12,7 @@ public static class Event
 
         public DB.Record Exec(Cx cx, DB.Record evt, DB.Record? key, ref DB.Record data)
         {
-            return Table(cx).Insert(ref data, cx, cx.DBCx.Tx!);
+            return Table(cx).Insert(ref data, cx, cx.DBCx);
         }
 
 #pragma warning disable CS8600
@@ -40,12 +40,12 @@ public static class Event
         {
             if (key is null) { throw new Exception("Null key"); }
             var t = Table(cx);
-            var rec = t.FindFirst((DB.Record)key, cx.DBCx.Tx!);
+            var rec = t.FindFirst((DB.Record)key, cx.DBCx);
 
             if (rec is DB.Record r)
             {
                 r.Update(data);
-                return t.Update(ref r, cx, cx.DBCx.Tx!);
+                return t.Update(ref r, cx, cx.DBCx);
             }
 
             throw new Exception($"Record not found: {key}");

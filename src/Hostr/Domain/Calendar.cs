@@ -85,7 +85,7 @@ public static class Calendar
                 foreach (var c in result)
                 {
                         var cc = c;
-                        cx.DB.Calendars.Store(ref cc, cx, cx.DBCx.Tx!);
+                        cx.DB.Calendars.Store(ref cc, cx, cx.DBCx);
                 }
         }
 }

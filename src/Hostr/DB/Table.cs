@@ -6,8 +6,8 @@ namespace Hostr.DB;
 
 public class Table : Definition, Source
 {
-    public delegate void AfterHandler(Record rec, object data, Tx tx);
-    public delegate void BeforeHandler(ref Record rec, object data, Tx tx);
+    public delegate void AfterHandler(Record rec, object cx);
+    public delegate void BeforeHandler(ref Record rec, object cx);
 
     private readonly List<AfterHandler> afterInsert = new List<AfterHandler>();
     private readonly List<AfterHandler> afterUpdate = new List<AfterHandler>();
@@ -54,7 +54,7 @@ public class Table : Definition, Source
 
     public Column[] Columns => columns.ToArray();
 
-    public long Count(Condition? where, Tx tx)
+    public long Count(Condition? where, Cx cx)
     {
         var sql = new StringBuilder();
         sql.Append($"SELECT COUNT(*) FROM {this}");
@@ -66,23 +66,23 @@ public class Table : Definition, Source
             args = w.Args;
         }
 
-        return tx.ExecScalar<long>(sql.ToString(), args: args);
+        return cx.Tx!.ExecScalar<long>(sql.ToString(), args: args);
     }
 
-    public long Count(Record key, Tx tx) =>
-        Count(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
+    public long Count(Record key, Cx cx) =>
+        Count(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), cx);
 
-    public override void Create(Tx tx)
+    public override void Create(Cx cx)
     {
-        base.Create(tx);
-        PrimaryKey.Create(tx);
+        base.Create(cx);
+        PrimaryKey.Create(cx);
 
         foreach (var c in constraints)
         {
-            if (c != PrimaryKey) { c.Create(tx); }
+            if (c != PrimaryKey) { c.Create(cx); }
         }
 
-        foreach (var i in indexes) { i.Create(tx); }
+        foreach (var i in indexes) { i.Create(cx); }
     }
 
     public override string CreateSql
@@ -100,55 +100,55 @@ public class Table : Definition, Source
 
     public override string DefinitionType => "TABLE";
 
-    public override bool Exists(Tx tx) =>
-        tx.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
+    public override bool Exists(Cx cx) =>
+        cx.Tx!.ExecScalar<bool>($"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = $?)", Name);
 
-    public Record[] FindAll(Condition? where, Tx tx)
+    public Record[] FindAll(Condition? where, Cx cx)
     {
-        using var reader = Read(where, tx);
+        using var reader = Read(where, cx);
         var result = new List<Record>();
 
         while (reader.Read())
         {
             var rec = new Record();
-            Load(ref rec, reader, tx);
+            Load(ref rec, reader, cx);
             result.Add(rec);
         }
 
         return result.ToArray();
     }
 
-    public Record? FindFirst(Condition? where, Tx tx)
+    public Record? FindFirst(Condition? where, Cx cx)
     {
-        using var reader = Read(where, tx);
+        using var reader = Read(where, cx);
         if (!reader.Read()) { return null; }
         var result = new Record();
-        Load(ref result, reader, tx);
+        Load(ref result, reader, cx);
         return result;
     }
 
-    public Record? FindFirst(Record key, Tx tx) =>
-        FindFirst(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), tx);
+    public Record? FindFirst(Record key, Cx cx) =>
+        FindFirst(Condition.And(key.Fields.Select((f) => f.Item1.Eq(f.Item2)).ToArray()), cx);
 
-    public Record Insert(ref Record rec, object data, Tx tx)
+    public Record Insert(ref Record rec, object data, Cx cx)
     {
-        foreach (var h in beforeInsert) { h(ref rec, data, tx); }
+        foreach (var h in beforeInsert) { h(ref rec, data); }
 
         var d = rec;
         var cs = columns.Where(c => d.Contains(c)).Select(c => (c, d.GetObject(c)!)).ToArray();
         var sql = @$"INSERT INTO {this} ({string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\""))}) 
                      VALUES ({string.Join(", ", Enumerable.Repeat("$?", cs.Length))})";
 
-        tx.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
-        foreach (var h in afterInsert) { h(rec, data, tx); }
-        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
+        cx.Tx!.Exec(sql, args: cs.Select(c => c.Item2).ToArray());
+        foreach (var h in afterInsert) { h(rec, data); }
+        foreach (var (c, v) in cs) { cx.Tx!.StoreValue(rec.Id, c, v); }
 
         var res = new Record(id: rec.Id);
         foreach (var (c, v) in cs) { res.SetObject(c, v); }
         return res;
     }
 
-    public void Load(ref Record rec, NpgsqlDataReader reader, Tx tx)
+    public void Load(ref Record rec, NpgsqlDataReader reader, Cx cx)
     {
         for (var i = 0; i < columns.Count; i++)
         {
@@ -157,7 +157,7 @@ public class Table : Definition, Source
             {
                 var v = c.GetObject(reader, i);
                 rec.SetObject(c, v);
-                tx.StoreValue(rec.Id, c, v);
+                cx.Tx!.StoreValue(rec.Id, c, v);
             }
         }
     }
@@ -177,33 +177,33 @@ public class Table : Definition, Source
 
     public string SourceSql => $"\"{Name}\"";
 
-    public Record Store(ref Record rec, object data, Tx tx) =>
-        Stored(rec, tx) ? Update(ref rec, data, tx) : Insert(ref rec, data, tx);
+    public Record Store(ref Record rec, object data, Cx cx) =>
+        Stored(rec, cx) ? Update(ref rec, data, cx) : Insert(ref rec, data, cx);
 
-    public bool Stored(Record rec, Tx tx) =>
-        tx.GetStoredValue(rec.Id, PrimaryKey.Columns[0]) != null;
+    public bool Stored(Record rec, Cx cx) =>
+        cx.Tx!.GetStoredValue(rec.Id, PrimaryKey.Columns[0]) != null;
 
-    public override void Sync(Tx tx)
+    public override void Sync(Cx cx)
     {
-        if (Exists(tx))
+        if (Exists(cx))
         {
-            foreach (var c in columns) { c.Sync(tx); }
-            PrimaryKey.Sync(tx);
+            foreach (var c in columns) { c.Sync(cx); }
+            PrimaryKey.Sync(cx);
 
             foreach (var c in constraints)
             {
-                if (c != PrimaryKey) { c.Sync(tx); }
+                if (c != PrimaryKey) { c.Sync(cx); }
             }
         }
         else
         {
-            Create(tx);
+            Create(cx);
         }
     }
 
-    public Record Update(ref Record rec, object data, Tx tx)
+    public Record Update(ref Record rec, object data, Cx cx)
     {
-        foreach (var h in beforeUpdate) { h(ref rec, data, tx); }
+        foreach (var h in beforeUpdate) { h(ref rec, data); }
         var k = rec;
 
         var cs = columns.
@@ -211,13 +211,13 @@ public class Table : Definition, Source
           Select(c => (c, k.GetObject(c)!)).
           Where(c =>
           {
-              var sv = tx.GetStoredValue(k.Id, c.Item1);
+              var sv = cx.Tx!.GetStoredValue(k.Id, c.Item1);
               return sv == null || !sv.Equals(c.Item2);
           }).
           ToArray();
 
         if (cs.Length == 0) { return rec; }
-        var wcs = PrimaryKey.Columns.Select(c => (c, tx.GetStoredValue(k.Id, c)!)).ToArray();
+        var wcs = PrimaryKey.Columns.Select(c => (c, cx.Tx!.GetStoredValue(k.Id, c)!)).ToArray();
 
         var w = Condition.And(wcs.
           Select((f) =>
@@ -228,9 +228,9 @@ public class Table : Definition, Source
           ToArray());
 
         var sql = @$"UPDATE {this} SET {string.Join(", ", cs.Select((c) => $"\"{c.Item1.Name}\" = $?"))} WHERE {w}";
-        tx.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
-        foreach (var h in afterUpdate) { h(rec, data, tx); }
-        foreach (var (c, v) in cs) { tx.StoreValue(rec.Id, c, v); }
+        cx.Tx!.Exec(sql, args: cs.Select(f => f.Item2).Concat(wcs.Select(f => f.Item2)).ToArray());
+        foreach (var h in afterUpdate) { h(rec, data); }
+        foreach (var (c, v) in cs) { cx.Tx!.StoreValue(rec.Id, c, v); }
 
         var res = new Record(id: rec.Id);
         foreach (var (c, v) in cs) { res.SetObject(c, v); }
@@ -243,7 +243,7 @@ public class Table : Definition, Source
     internal void AddForeignKey(ForeignKey key) => foreignKeys.Add(key);
     internal void AddIndex(Index idx) => indexes.Add(idx);
 
-    private NpgsqlDataReader Read(Condition? where, Tx tx)
+    private NpgsqlDataReader Read(Condition? where, Cx cx)
     {
         var sql = new StringBuilder();
         sql.Append($"SELECT {string.Join(", ", columns)} FROM {Name}");
@@ -255,7 +255,7 @@ public class Table : Definition, Source
             args = w.Args;
         }
 
-        return tx.ExecReader(sql.ToString(), args: args);
+        return cx.Tx!.ExecReader(sql.ToString(), args: args);
     }
 
 };

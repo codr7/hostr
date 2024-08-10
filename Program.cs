@@ -8,9 +8,9 @@ var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
 dbCx.Connect();
 var cx = new Cx(Schema.Instance, dbCx);
 var tx = dbCx.StartTx();
-cx.DB.DropIfExists(tx);
-var firstRun = !cx.DB.Users.Exists(tx) || cx.DB.Users.Count(null, tx) == 0;
-cx.DB.Sync(tx);
+cx.DB.DropIfExists(dbCx);
+var firstRun = !cx.DB.Users.Exists(dbCx) || cx.DB.Users.Count(null, dbCx) == 0;
+cx.DB.Sync(dbCx);
 
 void Say(string what) => Console.WriteLine(what);
 

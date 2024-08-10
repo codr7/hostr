@@ -14,8 +14,8 @@ public class Index : TableDefinition
         $"CREATE INDEX {this} ON {Table} ({string.Join(", ", columns.Select(c => $"\"{c.Name}\""))})";
 
     public override string DefinitionType => $"DROP INDEX {this}";
-    public override bool Exists(Tx tx) =>
-        tx.ExecScalar<bool>(@"SELECT EXISTS (
+    public override bool Exists(Cx cx) =>
+        cx.Tx!.ExecScalar<bool>(@"SELECT EXISTS (
                                 SELECT FROM pg_class t, pg_class i, pg_index ix
                                 WHERE
                                   t.oid = ix.indrelid

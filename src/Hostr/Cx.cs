@@ -7,7 +7,7 @@ using static Hostr.DB.ValueExtensions;
 namespace Hostr;
 
 public class Cx
-{ 
+{
     public Cx(Schema db, DB.Cx dbCx)
     {
         DB = db;
@@ -18,7 +18,7 @@ public class Cx
 
     public DB.Record? CurrentUser => currentUser;
     public readonly Schema DB;
-   public readonly DB.Cx DBCx;
+    public readonly DB.Cx DBCx;
     public readonly Json Json;
     public readonly SymmetricSecurityKey JwtKey;
 
@@ -31,8 +31,9 @@ public class Cx
 
     public DB.Record Login(long userId)
     {
-        if (DB.Users.FindFirst(DB.UserId.Eq(userId), DBCx.Tx!) is DB.Record u) {
-            currentUser = u;    
+        if (DB.Users.FindFirst(DB.UserId.Eq(userId), DBCx) is DB.Record u)
+        {
+            currentUser = u;
             return u;
         }
 
@@ -41,7 +42,7 @@ public class Cx
 
     public DB.Record Login(string email, string password)
     {
-        if (DB.Users.FindFirst(DB.UserEmail.Eq(email), DBCx.Tx!) is DB.Record u)
+        if (DB.Users.FindFirst(DB.UserEmail.Eq(email), DBCx) is DB.Record u)
         {
 #pragma warning disable CS8604
             if (!Password.Check(u.Get(DB.UserPassword), password)) { throw new Exception("Wrong password"); }
@@ -58,7 +59,7 @@ public class Cx
     public void PostEvent(Event.Type type, DB.Record? key, ref DB.Record data)
     {
         var e = new DB.Record();
-        e.Set(DB.EventId, DB.EventIds.Next(DBCx.Tx!));
+        e.Set(DB.EventId, DB.EventIds.Next(DBCx));
         e.Set(DB.EventType, type.Id);
         e.Set(DB.EventPostedAt, DateTime.UtcNow);
         if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
@@ -77,11 +78,11 @@ public class Cx
 
                 if (ce.Id == e.Id)
                 {
-                    DB.Events.Store(ref ce, this, DBCx.Tx!);
+                    DB.Events.Store(ref ce, this, DBCx);
                 }
-                else if (!DB.Events.Stored(ce, DBCx.Tx!))
+                else if (!DB.Events.Stored(ce, DBCx))
                 {
-                    DB.Events.Insert(ref ce, this, DBCx.Tx!);
+                    DB.Events.Insert(ref ce, this, DBCx);
                 }
 
                 currentEvents[i] = ce;

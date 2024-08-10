@@ -4,14 +4,14 @@ public class Schema
 {
     public Definition? this[string name] => defLookup[name];
 
-    public void DropIfExists(Tx tx)
+    public void DropIfExists(Cx cx)
     {
-        foreach (var d in defs.ToArray().Reverse()) { d.DropIfExists(tx); }
+        foreach (var d in defs.ToArray().Reverse()) { d.DropIfExists(cx); }
     }
 
-    public void Sync(Tx tx)
+    public void Sync(Cx cx)
     {
-        foreach (var d in defs) { d.Sync(tx); }
+        foreach (var d in defs) { d.Sync(cx); }
     }
 
     internal void AddDefinition(Definition d)

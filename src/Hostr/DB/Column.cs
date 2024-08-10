@@ -50,9 +50,9 @@ public abstract class Column : TableDefinition, IComparable<Column>, Value
 
     public Condition Eq(Column right) => new Condition($"{this} = {right.ValueSql}", []);
 
-    public override bool Exists(Tx tx)
+    public override bool Exists(Cx cx)
     {
-        return tx.ExecScalar<bool>(@"SELECT EXISTS (
+        return cx.Tx!.ExecScalar<bool>(@"SELECT EXISTS (
                                      SELECT
                                      FROM pg_attribute 
                                      WHERE attrelid = $?::regclass

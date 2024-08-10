@@ -106,7 +106,7 @@ public class Schema : DB.Schema
         UserEmailKey = new DB.Key(Users, "emailKey", [UserEmail]);
         UserPassword = new DB.Columns.Text(Users, "password");
 
-        Users.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
+        Users.BeforeInsert += (ref DB.Record rec, object cx) =>
         {
             if ((!rec.Contains(UserDisplayName) || rec.Get(UserDisplayName) == "") && rec.Contains(UserEmail))
             {
@@ -150,7 +150,7 @@ public class Schema : DB.Schema
         PoolDefaultInterval = new DB.Columns.Integer(Pools, "defaultInterval", defaultValue: 24 * 60);
         PoolIsVisible = new DB.Columns.Boolean(Pools, "isVisible", defaultValue: true);
 
-        Pools.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
+        Pools.BeforeInsert += (ref DB.Record rec, object cx) =>
         {
             rec.Set(PoolCreatedAt, DateTime.UtcNow);
             rec.Copy(ref rec, PoolCreatedBy.Columns.Zip(PoolOwnedBy.Columns).ToArray(), force: true);
@@ -161,7 +161,7 @@ public class Schema : DB.Schema
         ProductPool = new DB.ForeignKey(Products, "pool", Pools, [(ProductId, PoolId)]);
         ProductSalesTax = new DB.ForeignKey(Products, "salesTax", TaxTypes);
 
-        Products.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
+        Products.BeforeInsert += (ref DB.Record rec, object cx) =>
          {
              var p = new DB.Record();
              rec.Copy(ref p, Pools.Columns);
@@ -186,7 +186,7 @@ public class Schema : DB.Schema
         UnitUseCheckOut = new DB.Columns.Boolean(Units, "useCheckOut", defaultValue: false);
         UnitUseCleaning = new DB.Columns.Boolean(Units, "useCleaning", defaultValue: false);
 
-        Units.BeforeInsert += (ref DB.Record rec, object cx, DB.Tx tx) =>
+        Units.BeforeInsert += (ref DB.Record rec, object cx) =>
         {
             var p = new DB.Record();
             rec.Copy(ref p, Pools.Columns);
@@ -195,10 +195,10 @@ public class Schema : DB.Schema
             (cx as Cx)!.PostEvent(Pool.INSERT, null, ref p);
         };
 
-        Units.AfterUpdate += (rec, cx, tx) =>
+        Units.AfterUpdate += (rec, cx) =>
         {
             var id = rec.Get(UnitId);
-            var p = Pools.FindFirst(PoolId.Eq(id), tx);
+            var p = Pools.FindFirst(PoolId.Eq(id), (cx as Cx)!.DBCx);
             if (p is null) { throw new Exception($"Pool not found for unit: {id}"); }
             var pp = (DB.Record)p;
             rec.Copy(ref pp, Pools.Columns);
@@ -214,7 +214,7 @@ public class Schema : DB.Schema
         CalendarTotal = new DB.Columns.Integer(Calendars, "total");
         CalendarUsed = new DB.Columns.Integer(Calendars, "used");
 
-        DB.Table.BeforeHandler calendarsBefore = (ref DB.Record rec, object cx, DB.Tx tx) =>
+        DB.Table.BeforeHandler calendarsBefore = (ref DB.Record rec, object cx) =>
         {
             rec.Set(CalendarUpdatedAt, DateTime.UtcNow);
 #pragma warning disable CS8629 
@@ -225,16 +225,16 @@ public class Schema : DB.Schema
         Calendars.BeforeInsert += calendarsBefore;
         Calendars.BeforeUpdate += calendarsBefore;
 
-        Pools.AfterInsert += (rec, _cx, tx) =>
+        Pools.AfterInsert += (rec, _cx) =>
         {
             var cx = (Cx)_cx;
             var c = Calendar.Make(cx, rec);
             cx.PostEvent(Calendar.INSERT, null, ref c);
         };
 
-        Pools.BeforeUpdate += (ref DB.Record rec, object cx, DB.Tx tx) =>
+        Pools.BeforeUpdate += (ref DB.Record rec, object cx) =>
         {
-            Calendar.Update((Cx)cx, rec, DateTime.MinValue, DateTime.MaxValue, total: rec.Get(PoolCapacity) - rec.GetStored(PoolCapacity, tx));
+            Calendar.Update((Cx)cx, rec, DateTime.MinValue, DateTime.MaxValue, total: rec.Get(PoolCapacity) - rec.GetStored(PoolCapacity, (cx as Cx)!.DBCx));
         };
     }
 }

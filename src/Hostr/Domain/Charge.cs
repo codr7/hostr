@@ -8,7 +8,7 @@ public static class Charge
     public static DB.Record Make(Cx cx, DB.Record to, DB.Record product, decimal amount, bool isGross)
     {
         var c = new DB.Record();
-        c.Set(cx.DB.ChargeId, cx.DB.ChargeIds.Next(cx.DBCx.Tx!));
+        c.Set(cx.DB.ChargeId, cx.DB.ChargeIds.Next(cx.DBCx));
         c.Set(cx.DB.ChargeProduct, product);
         var at = DateTime.UtcNow;
         c.Set(cx.DB.ChargeAt, at);

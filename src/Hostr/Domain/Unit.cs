@@ -8,7 +8,7 @@ public static class Unit
     public static DB.Record Make(Cx cx, string name = "")
     {
         var u = new DB.Record();
-        u.Set(cx.DB.UnitId, cx.DB.PoolIds.Next(cx.DBCx.Tx!));
+        u.Set(cx.DB.UnitId, cx.DB.PoolIds.Next(cx.DBCx));
         u.Set(cx.DB.PoolName, name);
 #pragma warning disable CS8629 
         u.Set(cx.DB.PoolCreatedBy, (DB.Record)cx.CurrentUser);

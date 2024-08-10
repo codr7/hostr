@@ -8,7 +8,7 @@ public static class Pool
     public static DB.Record Make(Cx cx, string name = "")
     {
         var p = new DB.Record();
-        p.Set(cx.DB.PoolId, cx.DB.PoolIds.Next(cx.DBCx.Tx!));
+        p.Set(cx.DB.PoolId, cx.DB.PoolIds.Next(cx.DBCx));
         p.Set(cx.DB.PoolName, name);
 #pragma warning disable CS8629 
         p.Set(cx.DB.PoolCreatedBy, (DB.Record)cx.CurrentUser);
