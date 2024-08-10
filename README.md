@@ -12,8 +12,7 @@ All modifications to the database are logged as events for audits and statistics
 Each event carries all information needed for replay.
 
 ### pools
-Pools are things that have a capacity specified in time, even though that capacity may be infinite.<br>
-They also contain carry rules, e.g whether bookings need to be checked in and/or out.<br>
+Pools have names and enable tracking total and used capacity in time.<br>
 
 #### calendars
 Calendars specify the total and used capacity for pools in time with minute precision.<br>
@@ -21,6 +20,7 @@ When capacity is updated, new segments are created and existing segments shorten
 
 ### units
 Units are physical objects, e.g hotel rooms or snowboards.<br>
+Units have various rules that change the behavior of the system, e.g whether bookings need to be checked in and/or out..<br>
 Each unit is a pool, which is used to track its availability in time.
 
 ### products
