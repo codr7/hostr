@@ -2,7 +2,9 @@ using Npgsql;
 
 namespace Hostr.DB;
 
-public class Tx: ValueStore, IDisposable
+using RecordId = ulong;
+
+public class Tx : ValueStore, IDisposable
 {
     public readonly Cx Cx;
     public readonly Tx? ParentTx;
@@ -30,16 +32,27 @@ public class Tx: ValueStore, IDisposable
             Exec("COMMIT");
         }
 
+        ValueStore? s = Cx.Tx;
+        if (s is null) { s = Cx; }
+        MoveStoredValues(s);
         finished = true;
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         if (!finished) { Rollback(); }
     }
 
     public void Exec(string statement, params object[] args) => Cx.Exec(statement, args: args);
     public NpgsqlDataReader ExecReader(string statement, params object[] args) => Cx.ExecReader(statement, args: args);
     public T ExecScalar<T>(string statement, params object[] args) => Cx.ExecScalar<T>(statement, args: args);
+
+    public override object? GetStoredValue(RecordId recId, Column col)
+    {
+        if (base.GetStoredValue(recId, col) is object v) { return v; }
+        if (ParentTx is Tx ptx) { return ptx.GetStoredValue(recId, col); }
+        return Cx.GetStoredValue(recId, col);
+    }
 
     public void Rollback()
     {

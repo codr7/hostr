@@ -1,8 +1,6 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* move stored values to prev tx and finally cx on commit
-
 * add product
 ** underlying pool like unit
 
