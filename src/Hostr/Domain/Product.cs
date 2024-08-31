@@ -2,8 +2,8 @@ namespace Hostr.Domain;
 
 public static class Product
 {
-    public static readonly Event.Type INSERT = new Event.Insert("Insert Product", "products");
-    public static readonly Event.Type UPDATE = new Event.Update("Update Product", "products");
+    public static readonly Event.Type INSERT = new Event.Insert("Insert Product", Schema.Instance.Products);
+    public static readonly Event.Type UPDATE = new Event.Update("Update Product", Schema.Instance.Products);
 
     public static DB.Record Make(Cx cx, string name = "")
     {

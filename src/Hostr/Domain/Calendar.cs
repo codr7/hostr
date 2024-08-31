@@ -4,8 +4,8 @@ namespace Hostr.Domain;
 
 public static class Calendar
 {
-        public static readonly Event.Type INSERT = new Event.Insert("Insert Calendar", "calendars");
-        public static readonly Event.Type UPDATE = new Event.Update("Update Calendar", "calendars");
+        public static readonly Event.Type INSERT = new Event.Insert("Insert Calendar", Schema.Instance.Calendars);
+        public static readonly Event.Type UPDATE = new Event.Update("Update Calendar", Schema.Instance.Calendars);
 
         public static DB.Record Make(Cx cx, DB.Record pool)
         {

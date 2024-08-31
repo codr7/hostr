@@ -6,8 +6,8 @@ namespace Hostr.Domain.Models;
 
 public class User : Model
 {
-    public static Event.Type INSERT => new Event.Insert("Insert User", "users");
-    public static Event.Type UPDATE => new Event.Update("Update User", "users");
+    public static Event.Type INSERT => new Event.Insert("Insert User", Schema.Instance.Users);
+    public static Event.Type UPDATE => new Event.Update("Update User", Schema.Instance.Users);
     public static readonly int PASSWORD_ITERS = 10000;
     public static readonly string JWT_ISSUER = "hostr";
 

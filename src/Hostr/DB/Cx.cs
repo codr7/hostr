@@ -91,10 +91,7 @@ public class Cx : ValueStore
     {
         string? sp = null;
 
-        if (tx is null)
-        {
-            Exec("BEGIN", []);
-        }
+        if (tx is null) { Exec("BEGIN", []); }
         else
         {
             sp = MakeSavePoint();

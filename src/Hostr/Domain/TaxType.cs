@@ -4,8 +4,8 @@ namespace Hostr.Domain;
 
 public static class TaxType
 {
-    public static readonly Event.Type INSERT = new Event.Insert("Insert Tax Type", "taxTypes");
-    public static readonly Event.Type UPDATE = new Event.Update("Update Tax Type", "taxTypes");
+    public static readonly Event.Type INSERT = new Event.Insert("Insert Tax Type", Schema.Instance.TaxTypes);
+    public static readonly Event.Type UPDATE = new Event.Update("Update Tax Type", Schema.Instance.TaxTypes);
 
     public static DB.Record Make(Cx cx, string name = "")
     {

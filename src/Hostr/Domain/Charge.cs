@@ -2,8 +2,8 @@ namespace Hostr.Domain;
 
 public static class Charge
 {
-    public static readonly Event.Type INSERT = new Event.Insert("Insert Charge", "charges");
-    public static readonly Event.Type UPDATE = new Event.Update("Update Charge", "charges");
+    public static readonly Event.Type INSERT = new Event.Insert("Insert Charge", Schema.Instance.Charges);
+    public static readonly Event.Type UPDATE = new Event.Update("Update Charge", Schema.Instance.Charges);
 
     public static DB.Record Make(Cx cx, DB.Record to, DB.Record product, decimal amount, bool isGross)
     {
