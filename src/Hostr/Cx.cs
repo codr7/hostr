@@ -2,7 +2,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
 using Hostr.Domain;
+using Hostr.Domain.Models;
 using static Hostr.DB.ValueExtensions;
+using Hostr.DB;
 
 namespace Hostr;
 
@@ -16,44 +18,40 @@ public class Cx
         JwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("eyJhbGciOiJIUzI1NiJ9.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJBbmlzaCBOYXRoIiwNCiAgImlhdCI6IDE1MTYyMzkwMjINCn0.KXlzwhGodgi8yqntLOHggIpvnElHeVImJYNro1NQX00"));
     }
 
-    public DB.Record? CurrentUser => currentUser;
+    public User? CurrentUser => currentUser;
     public readonly Schema DB;
     public readonly DB.Cx DBCx;
     public readonly Json Json;
     public readonly SymmetricSecurityKey JwtKey;
 
-    public void Login(DB.Record user)
+    public void Login(User user)
     {
         currentUser = user;
-        user.Set(DB.UserLoginAt, DateTime.UtcNow);
-        PostEvent(User.UPDATE, user.Copy(DB.Users.PrimaryKey.Columns), ref user);
+        user.LoginAt = DateTime.UtcNow;
+        user.Store();
     }
 
-    public DB.Record Login(long userId)
+    public User Login(long userId)
     {
         if (DB.Users.FindFirst(DB.UserId.Eq(userId), DBCx) is DB.Record u)
         {
-            currentUser = u;
-            return u;
+            currentUser = new User(this, u);
+            return currentUser;
         }
 
         throw new Exception($"User not found: {userId}");
     }
 
-    public DB.Record Login(string email, string password)
+    public User Login(string email, string password)
     {
-        if (DB.Users.FindFirst(DB.UserEmail.Eq(email), DBCx) is DB.Record u)
+        if (DB.Users.FindFirst(DB.UserEmail.Eq(email), DBCx) is DB.Record ur)
         {
-#pragma warning disable CS8604
-            if (!Password.Check(u.Get(DB.UserPassword), password)) { throw new Exception("Wrong password"); }
-#pragma warning restore CS8604
+            var u = new User(this, ur);
+            if (!u.CheckPassword(password)) { throw new Exception("Wrong password"); }
             Login(u);
             return u;
         }
-        else
-        {
-            throw new Exception($"User not found: {email}");
-        }
+        else { throw new Exception($"User not found: {email}"); }
     }
 
     public void PostEvent(Event.Type type, DB.Record? key, ref DB.Record data)
@@ -63,7 +61,7 @@ public class Cx
         e.Set(DB.EventType, type.Id);
         e.Set(DB.EventPostedAt, DateTime.UtcNow);
         if (key != null) { e.Set(DB.EventKey, JsonDocument.Parse(Json.ToString(key))); }
-        if (currentUser is DB.Record u) { e.Set(DB.EventPostedBy, u); }
+        if (currentUser is User u) { e.Set(DB.EventPostedBy, u.Record); }
         if (currentEvents.Count > 0) { currentEvents.Last().Copy(ref e, DB.Events.PrimaryKey.Columns.Zip(DB.EventParent.Columns).ToArray()); }
         currentEvents.Push(e);
 
@@ -95,5 +93,5 @@ public class Cx
     }
 
     private List<DB.Record> currentEvents = new List<DB.Record>();
-    private DB.Record? currentUser;
+    private User? currentUser;
 }

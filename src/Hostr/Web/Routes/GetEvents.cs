@@ -17,9 +17,7 @@ public struct GetEvents : Route
 
         var q = new DB.Query(cx.DB.Events).
             Select(cx.DB.Events.Columns).
-#pragma warning disable CS8629 
-            Where(cx.DB.EventPostedBy.Eq((DB.Record)cx.CurrentUser)).
-#pragma warning restore CS8629
+            Where(cx.DB.EventPostedBy.Eq(cx.CurrentUser!.Record)).
             OrderBy(cx.DB.EventPostedAt, DB.Query.Order.Descending);
 
         if (req.GetDateTime("postedBefore") is DateTime pb) { q.Where(cx.DB.EventPostedAt.Lt(pb)); }

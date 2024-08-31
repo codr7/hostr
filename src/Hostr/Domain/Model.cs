@@ -1,3 +1,5 @@
+using Hostr.DB;
+
 namespace Hostr.Domain;
 
 public abstract class Model : DB.Model
@@ -22,7 +24,8 @@ public abstract class Model : DB.Model
     {
         foreach (var t in Tables)
         {
-            Cx.PostEvent(rec.Exists(t, Cx.DBCx) ? UpdateEventType : InsertEventType, null, ref rec);
+            var exists = Record.Exists(t, Cx.DBCx.Tx!);
+            Cx.PostEvent(exists ? UpdateEventType : InsertEventType, exists ? Record.Copy(t.PrimaryKey.Columns) : null, ref Record);
         }
     }
 }

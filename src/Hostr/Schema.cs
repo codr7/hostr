@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 using Hostr.Domain;
-
+using Hostr.Domain.Models;
 using static Hostr.DB.ValueExtensions;
 
 namespace Hostr;
@@ -217,9 +217,7 @@ public class Schema : DB.Schema
         DB.Table.BeforeHandler calendarsBefore = (ref DB.Record rec, object cx) =>
         {
             rec.Set(CalendarUpdatedAt, DateTime.UtcNow);
-#pragma warning disable CS8629 
-            rec.Set(CalendarUpdatedBy, (DB.Record)(cx as Cx)!.CurrentUser);
-#pragma warning restore CS8629
+            rec.Set(CalendarUpdatedBy, (cx as Cx)!.CurrentUser!.Record);
         };
 
         Calendars.BeforeInsert += calendarsBefore;

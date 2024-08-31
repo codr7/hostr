@@ -12,9 +12,7 @@ public static class Charge
         c.Set(cx.DB.ChargeProduct, product);
         var at = DateTime.UtcNow;
         c.Set(cx.DB.ChargeAt, at);
-#pragma warning disable CS8629 
-        c.Set(cx.DB.ChargeBy, (DB.Record)cx.CurrentUser);
-#pragma warning restore CS8629
+        c.Set(cx.DB.ChargeBy, cx.CurrentUser!.Record);
         c.Set(cx.DB.ChargeTo, to);
         var tr = TaxRate.Get(cx, product.Copy(cx.DB.ProductSalesTax.ColumnMap), at);
 

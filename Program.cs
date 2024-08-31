@@ -1,8 +1,7 @@
 ﻿using Hostr;
 using Hostr.Domain;
-
+using Hostr.Domain.Models;
 using DB = Hostr.DB;
-using Models = Hostr.Domain.Models;
 using Web = Hostr.Web;
 
 var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
@@ -35,14 +34,16 @@ try
         var password = Ask("Password: ");
         if (password is null) { throw new Exception("Missing password"); }
 
-        var hu = User.Make(cx, "hostr", "hostr");
-        hu.Set(cx.DB.UserId, 0);
-        cx.PostEvent(User.INSERT, null, ref hu); Say("System user 'hostr' created");
+        var hu = new User(cx, name: "hostr", email: "hostr");
+        hu.Record.Set(cx.DB.UserId, 0);
+        hu.Store();
+        Say("System user 'hostr' created");
+        Console.WriteLine("BEFORE LOGIN");
         cx.Login(hu);
+        Console.WriteLine("AFTER LOGIN");
 
-        var u = User.Make(cx, name, email, password);
-        u.Set(cx.DB.UserCreatedBy, hu);
-        cx.PostEvent(User.INSERT, null, ref u);
+        var u = new User(cx, name: name, email: email, password: password);
+        u.Store();
         cx.Login(u);
         Say($"User '{name}' created");
 
@@ -65,11 +66,11 @@ try
         r.Set(cx.DB.ProductSalesTax, tt);
         cx.PostEvent(Product.INSERT, null, ref r);
 
-        var c = Charge.Make(cx, u, r, 1000M, true);
+        var c = Charge.Make(cx, u.Record, r, 1000M, true);
         cx.PostEvent(Charge.INSERT, null, ref c);
 
-        r = Pool.Make(cx, "rooms");
-        cx.PostEvent(Pool.INSERT, null, ref r);
+        var p = new Pool(cx, name: "rooms");
+        p.Store();
 
         r = Unit.Make(cx, "room 1");
         cx.PostEvent(Unit.INSERT, null, ref r);

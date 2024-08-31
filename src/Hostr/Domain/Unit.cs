@@ -10,9 +10,7 @@ public static class Unit
         var u = new DB.Record();
         u.Set(cx.DB.UnitId, cx.DB.PoolIds.Next(cx.DBCx));
         u.Set(cx.DB.PoolName, name);
-#pragma warning disable CS8629 
-        u.Set(cx.DB.PoolCreatedBy, (DB.Record)cx.CurrentUser);
-#pragma warning restore CS8629
+        u.Set(cx.DB.PoolCreatedBy, cx.CurrentUser!.Record);
         return u;
     }
 }

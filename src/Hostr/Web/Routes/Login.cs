@@ -16,7 +16,7 @@ public struct Login : Route
         using var tx = cx.DBCx.StartTx();
         var u = cx.Login(body.email, body.password);
         tx.Commit();
-        return Task.FromResult<object>(new ResData() { token = User.MakeJwtToken(cx, u) });
+        return Task.FromResult<object>(new ResData() { token = u.MakeJwtToken(cx) });
     }
 
     private struct ReqData

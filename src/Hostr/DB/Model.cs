@@ -3,12 +3,11 @@ namespace Hostr.DB;
 public abstract class Model
 {
     public readonly Cx Cx;
-    protected Record rec;
 
     public Model(Cx cx, Record rec)
     {
         Cx = cx;
-        this.rec = rec;
+        Record = rec;
     }
 
     public Model(Cx cx) : this(cx, new Record()) { }
@@ -21,9 +20,9 @@ public abstract class Model
             {
                 foreach (var c in t.Columns)
                 {
-                    if (rec.GetObject(c) is object v)
+                    if (Record.GetObject(c) is object v)
                     {
-                        var sv = Cx.Tx!.GetStoredValue(rec.Id, c);
+                        var sv = Cx.Tx!.GetStoredValue(Record.Id, c);
                         if (sv is null || !sv.Equals(v)) { return true; }
                     }
                 }
@@ -33,10 +32,12 @@ public abstract class Model
         }
     }
 
+    public Record Record;
+
     public abstract Table[] Tables { get; }
 
     protected void Store(object data)
     {
-        foreach (var t in Tables) { t.Store(ref rec, data, Cx); }
+        foreach (var t in Tables) { t.Store(ref Record, data, Cx); }
     }
 }

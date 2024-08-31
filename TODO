@@ -1,7 +1,16 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* add doman models
+* debug user not found
+
+* commit pool model
+
+* add domain models
+** unit
+** product
+
+* move models to domain
+** remove dir
 
 * add payments
  

@@ -10,9 +10,7 @@ public static class Product
         var p = new DB.Record();
         p.Set(cx.DB.ProductId, cx.DB.PoolIds.Next(cx.DBCx));
         p.Set(cx.DB.PoolName, name);
-#pragma warning disable CS8629 
-        p.Set(cx.DB.PoolCreatedBy, (DB.Record)cx.CurrentUser);
-#pragma warning restore CS8629        
+        p.Set(cx.DB.PoolCreatedBy, cx.CurrentUser!.Record);
         return p;
     }
 }
