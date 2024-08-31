@@ -78,13 +78,13 @@ try
         r = Unit.Make(cx, "room 2");
         cx.PostEvent(Unit.INSERT, null, ref r);
 
-        r = Unit.Make(cx, "conf/S1");
+        r = Unit.Make(cx, "conf s1");
         cx.PostEvent(Unit.INSERT, null, ref r);
 
-        r = Unit.Make(cx, "conf/S2");
+        r = Unit.Make(cx, "conf s2");
         cx.PostEvent(Unit.INSERT, null, ref r);
 
-        r = Unit.Make(cx, "conf/L");
+        r = Unit.Make(cx, "conf l");
         cx.PostEvent(Unit.INSERT, null, ref r);
 
         Say("Database seeded with examples");

@@ -2,8 +2,8 @@ namespace Hostr.Domain;
 
 public static class Unit
 {
-    public static readonly Event.Type INSERT = new Event.Insert("InsertUnit", "units");
-    public static readonly Event.Type UPDATE = new Event.Update("UpdateUnit", "units");
+    public static readonly Event.Type INSERT = new Event.Insert("Insert Unit", "units");
+    public static readonly Event.Type UPDATE = new Event.Update("Update Unit", "units");
 
     public static DB.Record Make(Cx cx, string name = "")
     {

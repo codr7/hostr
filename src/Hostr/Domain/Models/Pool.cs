@@ -2,8 +2,8 @@ namespace Hostr.Domain.Models;
 
 public class Pool : Model
 {
-    public static Event.Type INSERT => new Event.Insert("InsertPool", "pools");
-    public static Event.Type UPDATE => new Event.Update("UpdatePool", "pools");
+    public static Event.Type INSERT => new Event.Insert("Insert Pool", "pools");
+    public static Event.Type UPDATE => new Event.Update("Update Pool", "pools");
     public static readonly int PASSWORD_ITERS = 10000;
 
     public Pool(Cx cx, DB.Record fields) : base(cx, fields) { }
