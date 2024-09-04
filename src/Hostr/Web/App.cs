@@ -40,8 +40,8 @@ public static class App
         app.UseCors(corsPolicyId);
 
         app.MapGet("/ping", () => "pong");
+        
         new Routes.Login().Bind(app);
-
         new Routes.GetCalendars().Bind(app);
         new Routes.GetEvents().Bind(app);
 

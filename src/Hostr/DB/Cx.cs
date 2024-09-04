@@ -26,7 +26,7 @@ public class Cx : ValueStore
 
     public void Connect()
     {
-        source = NpgsqlDataSource.Create($"Host={host};Database={database};Username={user};Password={password}");
+        source = NpgsqlDataSource.Create($"Host={host};Port=5432;Database={database};Username={user};Password={password}");
         connection = source.OpenConnection();
     }
 

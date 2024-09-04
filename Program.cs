@@ -4,7 +4,7 @@ using Hostr.Domain.Models;
 using DB = Hostr.DB;
 using Web = Hostr.Web;
 
-var dbCx = new DB.Cx("localhost", "hostr", "hostr", "hostr");
+var dbCx = new DB.Cx("/var/run/postgresql", "hostr", "hostr", "hostr");
 dbCx.Connect();
 var cx = new Cx(Schema.Instance, dbCx);
 var tx = dbCx.StartTx();

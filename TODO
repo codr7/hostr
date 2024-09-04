@@ -8,6 +8,9 @@ curl -X POST http://localhost:5000/stop
 * move models to domain
 ** remove dir
 
+* add slog
+https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line#integration-with-hosts-and-dependency-injection
+
 * add payments
  
 * add unit tests
@@ -41,8 +44,6 @@ curl -X POST http://localhost:5000/stop
 
 * implement decimal CalculatePrice(PriceList, Product, Pool, from, to)
 ** sum all found records
- 
-* add slog
 
 * add openapi spec
   
