@@ -76,7 +76,7 @@ public class Schema : DB.Schema
     public readonly DB.ForeignKey UnitPool;
     public readonly DB.Columns.Boolean UnitUseCheckIn;
     public readonly DB.Columns.Boolean UnitUseCheckOut;
-    public readonly DB.Columns.Boolean UnitUseCleaning;
+    public readonly DB.Columns.Boolean UnitUseClean;
 
     public readonly DB.Sequence UserIds;
     public readonly DB.Table Users;
@@ -184,7 +184,7 @@ public class Schema : DB.Schema
         UnitPool = new DB.ForeignKey(Units, "pool", Pools, [(UnitId, PoolId)]);
         UnitUseCheckIn = new DB.Columns.Boolean(Units, "useCheckIn", defaultValue: false);
         UnitUseCheckOut = new DB.Columns.Boolean(Units, "useCheckOut", defaultValue: false);
-        UnitUseCleaning = new DB.Columns.Boolean(Units, "useCleaning", defaultValue: false);
+        UnitUseClean = new DB.Columns.Boolean(Units, "useClean", defaultValue: false);
 
         Units.BeforeInsert += (ref DB.Record rec, object cx) =>
         {

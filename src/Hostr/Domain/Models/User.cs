@@ -43,9 +43,9 @@ public class User : Model
 
     public User(Cx cx, DB.Record fields) : base(cx, fields) { }
 
-    public User(Cx cx, string name = "", string email = "", string password = "") : base(cx)
+    public User(Cx cx, long? id = null, string name = "", string email = "", string password = "") : base(cx)
     {
-        Record.Set(cx.DB.UserId, cx.DB.UserIds.Next(cx.DBCx));
+        Record.Set(cx.DB.UserId, id ?? cx.DB.UserIds.Next(cx.DBCx));
         if (cx.CurrentUser is User cu) { Record.Set(cx.DB.UserCreatedBy, cu.Record); }
         DisplayName = name;
         Email = email;

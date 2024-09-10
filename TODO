@@ -1,9 +1,12 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* add domain models
-** unit
-** product
+* change Model.Store to return this
+** search in project and simplify
+
+* use pool model
+  
+* add product model
 
 * move models to domain
 ** remove dir

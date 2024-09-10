@@ -4,17 +4,15 @@ public class Pool : Model
 {
     public static Event.Type INSERT => new Event.Insert("Insert Pool", Schema.Instance.Pools);
     public static Event.Type UPDATE => new Event.Update("Update Pool", Schema.Instance.Pools);
-    public static readonly int PASSWORD_ITERS = 10000;
 
     public Pool(Cx cx, DB.Record fields) : base(cx, fields) { }
 
-    public Pool(Cx cx, string name = "") : base(cx)
+    public Pool(Cx cx, long? id = null, string name = "", TimeSpan? defaultInterval = null) : base(cx)
     {
-        Record.Set(cx.DB.PoolId, cx.DB.PoolIds.Next(cx.DBCx));
+        Record.Set(cx.DB.PoolId, id ?? cx.DB.PoolIds.Next(cx.DBCx));
         Name = name;
-#pragma warning disable CS8601
-        CreatedBy = cx.CurrentUser;
-#pragma warning restore CS8601
+        CreatedBy = cx.CurrentUser!;
+        DefaultInterval = defaultInterval ?? TimeSpan.FromMinutes(24*60);
     }
 
     public string Name
@@ -23,19 +21,24 @@ public class Pool : Model
         set => Record.Set(Cx.DB.PoolName, value);
     }
 
+    public int Capacity
+    {
+        get => Record.Get(Cx.DB.PoolCapacity)!;
+        set => Record.Set(Cx.DB.PoolCapacity, value);
+    }
+
     public User CreatedBy
     {
         get => new User(Cx, Record.Copy(Cx.DB.PoolCreatedBy.Columns));
         set => Record.Set(Cx.DB.PoolCreatedBy, value.Record);
     }
 
-    public string Password
-    {
-        get => Record.Get(Cx.DB.UserPassword)!;
-        set => Record.Set(Cx.DB.UserPassword, (value == "") ? "" : Hostr.Password.Hash(value, PASSWORD_ITERS));
+    public TimeSpan DefaultInterval {
+        get => TimeSpan.FromMinutes(Record.Get(Cx.DB.PoolDefaultInterval));
+        set => Record.Set(Cx.DB.PoolDefaultInterval, value.Minutes);
     }
 
-    public override DB.Table[] Tables => [Cx.DB.Users];
+    public override DB.Table[] Tables => [Cx.DB.Pools];
     protected override Event.Type InsertEventType => INSERT;
     protected override Event.Type UpdateEventType => UPDATE;
 }

@@ -34,8 +34,7 @@ try
         var password = Ask("Password: ");
         if (password is null) { throw new Exception("Missing password"); }
 
-        var hu = new User(cx, name: "hostr", email: "hostr");
-        hu.Record.Set(cx.DB.UserId, 0);
+        var hu = new User(cx, id: 0, name: "hostr", email: "hostr");
         hu.Store();
         Say("System user 'hostr' created");
         Console.WriteLine("BEFORE LOGIN");
@@ -47,47 +46,7 @@ try
         cx.Login(u);
         Say($"User '{name}' created");
 
-        var makeTax = (string name, decimal percentage) =>
-        {
-            var tt = TaxType.Make(cx, name);
-            cx.PostEvent(TaxType.INSERT, null, ref tt);
-
-            var tr = TaxRate.Make(cx, tt, percentage);
-            cx.PostEvent(TaxRate.INSERT, null, ref tr);
-
-            return tt;
-        };
-
-        var tt = makeTax("VAT/Lodging", 12);
-        makeTax("VAT/Food", 15);
-        makeTax("VAT", 25);
-
-        var r = Product.Make(cx, "double room");
-        r.Set(cx.DB.ProductSalesTax, tt);
-        cx.PostEvent(Product.INSERT, null, ref r);
-
-        var c = Charge.Make(cx, u.Record, r, 1000M, true);
-        cx.PostEvent(Charge.INSERT, null, ref c);
-
-        var p = new Pool(cx, name: "rooms");
-        p.Store();
-
-        r = Unit.Make(cx, "room 1");
-        cx.PostEvent(Unit.INSERT, null, ref r);
-
-        r = Unit.Make(cx, "room 2");
-        cx.PostEvent(Unit.INSERT, null, ref r);
-
-        r = Unit.Make(cx, "conf part 1");
-        cx.PostEvent(Unit.INSERT, null, ref r);
-
-        r = Unit.Make(cx, "conf part 2");
-        cx.PostEvent(Unit.INSERT, null, ref r);
-
-        r = Unit.Make(cx, "conf whole");
-        cx.PostEvent(Unit.INSERT, null, ref r);
-
-        Say("Database seeded with examples");
+        SeedDemoData();
     }
 
     tx.Commit();
@@ -100,3 +59,48 @@ catch (Exception e)
 
 var app = Web.App.Make(cx);
 app.Run();
+
+DB.Record MakeTax(string name, decimal percentage)
+{
+    var tt = TaxType.Make(cx, name);
+    cx.PostEvent(TaxType.INSERT, null, ref tt);
+
+    var tr = TaxRate.Make(cx, tt, percentage);
+    cx.PostEvent(TaxRate.INSERT, null, ref tr);
+
+    return tt;
+};
+
+void SeedDemoData()
+{
+    var tt = MakeTax("VAT/Lodging", 12);
+    MakeTax("VAT/Food", 15);
+    MakeTax("VAT", 25);
+
+    var r = Product.Make(cx, "double room");
+    r.Set(cx.DB.ProductSalesTax, tt);
+    cx.PostEvent(Product.INSERT, null, ref r);
+
+    var c = Charge.Make(cx, cx.CurrentUser!.Record, r, 1000M, true);
+    cx.PostEvent(Charge.INSERT, null, ref c);
+
+    var p = new Pool(cx, name: "rooms");
+    p.Store();
+
+    var u = new Unit(cx, name: "room 1");
+    u.Store();
+    
+    u = new Unit(cx, name: "room 2");
+    u.Store();
+
+    u = new Unit(cx, name: "conf part 1");
+    u.Store();
+ 
+    u = new Unit(cx, name: "conf part 2");
+    u.Store();
+ 
+    u = new Unit(cx, name: "conf whole");
+    u.Store();
+
+    Say("Database seeded with examples");
+}
