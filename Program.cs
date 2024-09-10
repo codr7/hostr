@@ -34,16 +34,12 @@ try
         var password = Ask("Password: ");
         if (password is null) { throw new Exception("Missing password"); }
 
-        var hu = new User(cx, id: 0, name: "hostr", email: "hostr");
-        hu.Store();
+        var hu = new User(cx, id: 0, name: "hostr", email: "hostr").Store();
         Say("System user 'hostr' created");
-        Console.WriteLine("BEFORE LOGIN");
-        cx.Login(hu);
-        Console.WriteLine("AFTER LOGIN");
-
-        var u = new User(cx, name: name, email: email, password: password);
-        u.Store();
-        cx.Login(u);
+        cx.Login((User)hu);
+        
+        var u = new User(cx, name: name, email: email, password: password).Store();
+        cx.Login((User)u);
         Say($"User '{name}' created");
 
         SeedDemoData();
@@ -84,23 +80,13 @@ void SeedDemoData()
     var c = Charge.Make(cx, cx.CurrentUser!.Record, r, 1000M, true);
     cx.PostEvent(Charge.INSERT, null, ref c);
 
-    var p = new Pool(cx, name: "rooms");
-    p.Store();
+    new Pool(cx, name: "rooms").Store();
 
-    var u = new Unit(cx, name: "room 1");
-    u.Store();
-    
-    u = new Unit(cx, name: "room 2");
-    u.Store();
-
-    u = new Unit(cx, name: "conf part 1");
-    u.Store();
- 
-    u = new Unit(cx, name: "conf part 2");
-    u.Store();
- 
-    u = new Unit(cx, name: "conf whole");
-    u.Store();
+    new Unit(cx, name: "room 1").Store();
+    new Unit(cx, name: "room 2").Store();
+    new Unit(cx, name: "conf part 1").Store();
+    new Unit(cx, name: "conf part 2").Store();
+    new Unit(cx, name: "conf whole").Store();
 
     Say("Database seeded with examples");
 }

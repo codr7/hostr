@@ -1,5 +1,3 @@
-using Hostr.DB;
-
 namespace Hostr.Domain;
 
 public abstract class Model : DB.Model
@@ -20,12 +18,14 @@ public abstract class Model : DB.Model
     protected abstract Event.Type InsertEventType { get; }
     protected abstract Event.Type UpdateEventType { get; }
 
-    public void Store()
+    public Model Store()
     {
         foreach (var t in Tables)
         {
             var exists = Record.Exists(t, Cx.DBCx.Tx!);
             Cx.PostEvent(exists ? UpdateEventType : InsertEventType, exists ? Record.Copy(t.PrimaryKey.Columns) : null, ref Record);
         }
+
+        return this;
     }
 }

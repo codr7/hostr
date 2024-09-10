@@ -12,7 +12,7 @@ public abstract class Model
 
     public Model(Cx cx) : this(cx, new Record()) { }
 
-    public bool Modified
+    public bool IsModified
     {
         get
         {
@@ -36,8 +36,9 @@ public abstract class Model
 
     public abstract Table[] Tables { get; }
 
-    protected void Store(object data)
+    protected Model Store(object data)
     {
         foreach (var t in Tables) { t.Store(ref Record, data, Cx); }
+        return this;
     }
 }

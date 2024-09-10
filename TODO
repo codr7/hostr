@@ -1,10 +1,7 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* change Model.Store to return this
-** search in project and simplify
-
-* use pool model
+* use models in schema events
   
 * add product model
 
