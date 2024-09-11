@@ -58,13 +58,12 @@ app.Run();
 
 DB.Record MakeTax(string name, decimal percentage)
 {
-    var tt = TaxType.Make(cx, name);
-    cx.PostEvent(TaxType.INSERT, null, ref tt);
+    var tt = new TaxType(cx, name: name).Store();
 
-    var tr = TaxRate.Make(cx, tt, percentage);
+    var tr = TaxRate.Make(cx, tt.Record, percentage);
     cx.PostEvent(TaxRate.INSERT, null, ref tr);
 
-    return tt;
+    return tt.Record;
 };
 
 void SeedDemoData()
