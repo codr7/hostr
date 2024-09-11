@@ -50,10 +50,12 @@ public struct Record
     public Record Copy(Column[] cols, bool force = false)
     {
         var c = new Record();
-        Copy(ref c, cols.Zip(cols).ToArray());
+        Copy(ref c, cols.Zip(cols).ToArray(), force);
         return c;
     }
 
+    public Record Copy(ForeignKey key) => Copy(key.ColumnMap, true);
+    
     public Condition Eq(Column[] columns) => Eq(columns.Zip(columns).ToArray());
     public Condition Eq((Column, Column)[] columns)
     {

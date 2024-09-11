@@ -11,7 +11,7 @@ public class Pool : Model
     {
         Record.Set(cx.DB.PoolId, id ?? cx.DB.PoolIds.Next(cx.DBCx));
         Name = name;
-        CreatedBy = cx.CurrentUser!;
+        Record.Set(cx.DB.PoolCreatedBy, cx.CurrentUser!.Record);
         DefaultInterval = defaultInterval ?? TimeSpan.FromMinutes(24*60);
     }
 
@@ -27,11 +27,8 @@ public class Pool : Model
         set => Record.Set(Cx.DB.PoolCapacity, value);
     }
 
-    public User CreatedBy
-    {
-        get => new User(Cx, Record.Copy(Cx.DB.PoolCreatedBy.Columns));
-        set => Record.Set(Cx.DB.PoolCreatedBy, value.Record);
-    }
+    public DateTime CreatedAt => Record.Get(Cx.DB.PoolCreatedAt);
+    public User CreatedBy => new User(Cx, Record.Copy(Cx.DB.PoolCreatedBy.Columns));
 
     public TimeSpan DefaultInterval {
         get => TimeSpan.FromMinutes(Record.Get(Cx.DB.PoolDefaultInterval));

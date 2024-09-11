@@ -10,8 +10,6 @@ public class Unit : Pool
     public Unit(Cx cx, long? id = null, string name = "", bool useCheckIn = false, bool useCheckOut = false, bool useClean = false) : base(cx, id: id, name: name)
     {
         Record.Set(cx.DB.UnitId, Record.Get(cx.DB.PoolId));
-        Name = name;
-        CreatedBy = cx.CurrentUser!;
         UseCheckIn = useCheckIn;
         UseCheckOut = useCheckOut;
         UseClean = useClean;

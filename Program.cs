@@ -56,14 +56,12 @@ catch (Exception e)
 var app = Web.App.Make(cx);
 app.Run();
 
-DB.Record MakeTax(string name, decimal percentage)
+TaxType MakeTax(string name, decimal percentage)
 {
-    var tt = new TaxType(cx, name: name).Store();
-
-    var tr = TaxRate.Make(cx, tt.Record, percentage);
-    cx.PostEvent(TaxRate.INSERT, null, ref tr);
-
-    return tt.Record;
+    var tt = new TaxType(cx, name: name);
+    tt.Store();
+    new TaxRate(cx, tt, percentage).Store();
+    return tt;
 };
 
 void SeedDemoData()
@@ -72,15 +70,13 @@ void SeedDemoData()
     MakeTax("VAT/Food", 15);
     MakeTax("VAT", 25);
 
-    var r = Product.Make(cx, "double room");
-    r.Set(cx.DB.ProductSalesTax, tt);
-    cx.PostEvent(Product.INSERT, null, ref r);
+    var p = new Product(cx, name: "double room", salesTax: tt);
+    p.Store();
 
-    var c = Charge.Make(cx, cx.CurrentUser!.Record, r, 1000M, true);
+    var c = Charge.Make(cx, cx.CurrentUser!.Record, p, 1000M, true);
     cx.PostEvent(Charge.INSERT, null, ref c);
 
     new Pool(cx, name: "rooms").Store();
-
     new Unit(cx, name: "room 1").Store();
     new Unit(cx, name: "room 2").Store();
     new Unit(cx, name: "conf part 1").Store();

@@ -5,16 +5,17 @@ public static class Charge
     public static readonly Event.Type INSERT = new Event.Insert("Insert Charge", Schema.Instance.Charges);
     public static readonly Event.Type UPDATE = new Event.Update("Update Charge", Schema.Instance.Charges);
 
-    public static DB.Record Make(Cx cx, DB.Record to, DB.Record product, decimal amount, bool isGross)
+    public static DB.Record Make(Cx cx, DB.Record to, Models.Product product, decimal amount, bool isGross)
     {
         var c = new DB.Record();
         c.Set(cx.DB.ChargeId, cx.DB.ChargeIds.Next(cx.DBCx));
-        c.Set(cx.DB.ChargeProduct, product);
+        c.Set(cx.DB.ChargeProduct, product.Record);
         var at = DateTime.UtcNow;
         c.Set(cx.DB.ChargeAt, at);
         c.Set(cx.DB.ChargeBy, cx.CurrentUser!.Record);
         c.Set(cx.DB.ChargeTo, to);
-        var tr = TaxRate.Get(cx, product.Copy(cx.DB.ProductSalesTax.ColumnMap), at);
+        Console.WriteLine("CHARGE SALES TAX " + product.SalesTax.Record);
+        var tr = product.SalesTax.GetRate(at);
 
         if (isGross)
         {

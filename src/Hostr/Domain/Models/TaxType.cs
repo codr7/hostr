@@ -1,5 +1,7 @@
 namespace Hostr.Domain.Models;
 
+using static Hostr.DB.ValueExtensions;
+
 public class TaxType : Model
 {
     public static Event.Type INSERT => new Event.Insert("Insert Tax Type", Schema.Instance.TaxTypes);
@@ -16,6 +18,19 @@ public class TaxType : Model
     {
         get => Record.Get(Cx.DB.TaxTypeName)!;
         set => Record.Set(Cx.DB.TaxTypeName, value);
+    }
+
+    public decimal GetRate(DateTime timestamp)
+    {
+        var rs = new DB.Query(Cx.DB.TaxRates).
+            Select(Cx.DB.TaxRatePercentage).
+            Where(Cx.DB.TaxRateType.Eq(Record)).
+            Where(Cx.DB.TaxRateStartsAt.Lte(timestamp)).
+            Where(Cx.DB.TaxRateEndsAt.Gt(timestamp)).
+            FindAll(Cx.DBCx);
+
+        if (rs.Length > 1) { throw new Exception("Multiple tax rates found"); }
+        return rs[0].Get(Cx.DB.TaxRatePercentage) / 100M;
     }
 
     public override DB.Table[] Tables => [Cx.DB.TaxTypes];
