@@ -21,6 +21,5 @@ public class Schema
     }
 
     private readonly List<Definition> defs = new List<Definition>();
-
     private readonly Dictionary<string, Definition> defLookup = new Dictionary<string, Definition>();
 }

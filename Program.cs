@@ -73,9 +73,8 @@ void SeedDemoData()
     var p = new Product(cx, name: "double room", salesTax: tt);
     p.Store();
 
-    var c = Charge.Make(cx, cx.CurrentUser!.Record, p, 1000M, true);
-    cx.PostEvent(Charge.INSERT, null, ref c);
-
+    new Charge(cx, to: cx.CurrentUser!, product: p, amount: 1000M, isGross: true).Store();
+ 
     new Pool(cx, name: "rooms").Store();
     new Unit(cx, name: "room 1").Store();
     new Unit(cx, name: "room 2").Store();
