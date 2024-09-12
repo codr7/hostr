@@ -1,5 +1,5 @@
 ﻿using Hostr;
-using Hostr.Domain.Models;
+using Hostr.Domain;
 using DB = Hostr.DB;
 using Web = Hostr.Web;
 

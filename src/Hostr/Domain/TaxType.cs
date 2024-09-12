@@ -1,4 +1,4 @@
-namespace Hostr.Domain.Models;
+namespace Hostr.Domain;
 
 using static Hostr.DB.ValueExtensions;
 

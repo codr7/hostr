@@ -1,4 +1,4 @@
-namespace Hostr.Domain.Models;
+namespace Hostr.Domain;
 
 public class Pool : Model
 {

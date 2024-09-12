@@ -1,4 +1,4 @@
-using Hostr.Domain.Models;
+using Hostr.Domain;
 
 namespace Hostr.Web;
 

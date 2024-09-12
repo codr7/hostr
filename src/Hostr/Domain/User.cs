@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Hostr.Domain.Models;
+namespace Hostr.Domain;
 
 public class User : Model
 {
