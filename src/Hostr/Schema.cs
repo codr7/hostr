@@ -226,8 +226,7 @@ public class Schema : DB.Schema
         Pools.AfterInsert += (rec, _cx) =>
         {
             var cx = (Cx)_cx;
-            var c = Calendar.Make(cx, rec);
-            cx.PostEvent(Calendar.INSERT, null, ref c);
+            new Calendar(cx, pool: new Pool(cx, rec)).Store();
         };
 
         Pools.BeforeUpdate += (ref DB.Record rec, object cx) =>

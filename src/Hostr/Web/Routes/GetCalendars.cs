@@ -1,4 +1,4 @@
-using Hostr.Domain;
+using Hostr.Domain.Models;
 
 namespace Hostr.Web.Routes;
 
