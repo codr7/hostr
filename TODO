@@ -1,9 +1,6 @@
 curl -X POST -H "Content-Type: application/json" -d '{"email": "adm", "password": "adm"}' http://localhost:5000/api/v1/login
 curl -X POST http://localhost:5000/stop
 
-* move models to domain
-** remove dir
-
 * add slog
 https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line#integration-with-hosts-and-dependency-injection
 
